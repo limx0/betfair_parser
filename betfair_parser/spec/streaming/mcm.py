@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Union
 
 import msgspec
 
@@ -33,7 +33,7 @@ class Runner(msgspec.Struct):
 
     status: str
     sortPriority: int
-    id: int
+    id: Union[int, str]
     hc: Optional[str] = None
     adjustmentFactor: Optional[float] = None
 
@@ -87,7 +87,7 @@ class RunnerChange(msgspec.Struct):
     trd: Optional[List[PriceSize]] = []
     ltp: Optional[float] = None
     tv: Optional[float] = None
-    id: int
+    id: Union[int, str]
     hc: Optional[float] = None
 
 
@@ -116,7 +116,7 @@ class MCM(StreamMessage):
     conflateMs: Optional[int] = None
     heartbeatMs: Optional[int] = None
     pt: int
-    ct: Optional[Literal["HEARTBEAT", "SUB_IMAGE"]] = None
+    ct: Optional[Literal["HEARTBEAT", "SUB_IMAGE", "RESUB_DELTA"]] = None
     mc: List[MarketChange] = []
 
     @property

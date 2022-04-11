@@ -1,0 +1,10 @@
+*.ipynb
+__pycache__
+.ipynb_checkpoints
+implied
+.idea/
+.env
+notebooks/dev
+notebooks/processed
+dask-worker-space
+*trades.*

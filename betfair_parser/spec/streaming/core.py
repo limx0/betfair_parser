@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 import msgspec
 
@@ -20,8 +20,9 @@ class Status(StreamMessage):
     Status Message
     """
 
+    id: int
     statusCode: Literal["SUCCESS", "FAILURE"]
     connectionClosed: bool
-    errorCode: str
-    errorMessage: str
-    connectionsAvailable: int
+    errorCode: Optional[str] = None
+    errorMessage: Optional[str] = None
+    connectionsAvailable: Optional[int] = None
