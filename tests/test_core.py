@@ -6,13 +6,16 @@ import pytest
 from betfair_parser.core import STREAM_DECODER, read_file
 
 
+RESOURCES_DIR = pathlib.Path(__file__).parent.joinpath("resources").absolute()
+
+
 def test_core():
-    fn = "./resources/data/1.185781277.bz2"
+    fn = RESOURCES_DIR / "data/1.185781277.bz2"
     data = list(read_file(fn))
     assert len(data) == 7600
 
 
-@pytest.mark.parametrize("fn", list(map(str, pathlib.Path("./resources/streaming").glob("*.json"))))
+@pytest.mark.parametrize("fn", list(map(str, (RESOURCES_DIR / "streaming").glob("*.json"))))
 def test_streaming_files(fn):
 
     line = open(fn, "rb").read()
