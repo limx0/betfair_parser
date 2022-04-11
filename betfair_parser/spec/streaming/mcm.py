@@ -46,7 +46,7 @@ class MarketDefinition(msgspec.Struct):
     bspMarket: bool
     turnInPlayEnabled: bool
     persistenceEnabled: bool
-    marketBaseRate: int
+    marketBaseRate: float
     eventId: str
     eventTypeId: str
     numberOfWinners: int
@@ -65,7 +65,7 @@ class MarketDefinition(msgspec.Struct):
     runners: List[Runner]
     regulators: List[str]
     venue: Optional[str] = None
-    countryCode: str
+    countryCode: Optional[str] = None
     discountAllowed: bool
     timezone: str
     openDate: str
