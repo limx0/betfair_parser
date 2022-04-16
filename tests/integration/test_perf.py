@@ -7,18 +7,8 @@ def run():
     return list(read_file(fn))
 
 
-def test_large_file():
-    fn = RESOURCES_DIR / "data/27312315.bz2"
-    return list(read_file(fn))
-
-
-def test_my_stuff(benchmark):
+def test_performance(benchmark):
     # benchmark something
-    result = benchmark(
-        run,
-    )
+    result = benchmark.pedantic(run, rounds=1, iterations=1)
 
-    # Extra code, to verify that the run completed correctly.
-    # Sometimes you may want to check the result, fast functions
-    # are no good if they return incorrect results :-)
-    assert len(result) == 123
+    assert len(result) == 50854

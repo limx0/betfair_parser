@@ -109,7 +109,7 @@ class MCM(StreamMessage):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    id: int
+    id: Optional[int] = None
     initialClk: Optional[str] = None
     status: Optional[int] = None
     clk: str
