@@ -77,7 +77,6 @@ class RunnerChange(msgspec.Struct):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    # TODO - Can we type batb etc better?
     atb: Optional[List[PriceSize]] = []  # Best Available To Back
     atl: Optional[List[PriceSize]] = []  # Best Available To Lay
     batb: Optional[List[PriceSize]] = []  # Best Available To Back
