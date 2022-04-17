@@ -46,7 +46,7 @@ class MarketDefinition(msgspec.Struct):
     bspMarket: bool
     turnInPlayEnabled: bool
     persistenceEnabled: bool
-    marketBaseRate: int
+    marketBaseRate: float
     eventId: str
     eventTypeId: str
     numberOfWinners: int
@@ -65,7 +65,7 @@ class MarketDefinition(msgspec.Struct):
     runners: List[Runner]
     regulators: List[str]
     venue: Optional[str] = None
-    countryCode: str
+    countryCode: Optional[str] = None
     discountAllowed: bool
     timezone: str
     openDate: str
@@ -77,7 +77,6 @@ class RunnerChange(msgspec.Struct):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    # TODO - Can we type batb etc better?
     atb: Optional[List[PriceSize]] = []  # Best Available To Back
     atl: Optional[List[PriceSize]] = []  # Best Available To Lay
     batb: Optional[List[PriceSize]] = []  # Best Available To Back
@@ -109,7 +108,7 @@ class MCM(StreamMessage):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    id: int
+    id: Optional[int] = None
     initialClk: Optional[str] = None
     status: Optional[int] = None
     clk: str

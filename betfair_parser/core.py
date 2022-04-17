@@ -19,6 +19,6 @@ def read_file(fsspec_url: str):
                 data = STREAM_DECODER.decode(line)
             except msgspec.DecodeError as e:
                 print("ERR", e)
-                print(line)
-                continue
+                print(msgspec.json.decode(line))
+                raise e
             yield data
