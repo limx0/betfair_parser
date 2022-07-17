@@ -1,12 +1,8 @@
-import pathlib
-
 import msgspec
 import pytest
 
 from betfair_parser.core import STREAM_DECODER, read_file
-
-
-RESOURCES_DIR = pathlib.Path(__file__).parent.parent.joinpath("resources").absolute()
+from tests.unit.conftest import RESOURCES_DIR
 
 
 def test_core():
