@@ -1,18 +1,24 @@
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Union
 
 import msgspec
 
-from betfair_parser.spec.api.core import APIBase
+from betfair_parser.spec.api.core import APIBase, RequestBase
+
+
+# ------------ ORDER TYPES ------------ #
 
 
 class LimitOrder(msgspec.Struct):
-    size: str
-    price: str
+    size: Union[str, float]
+    price: Union[str, float]
     persistenceType: Literal["PERSIST"]
 
 
 class MarketOnCloseOrder(msgspec.Struct):
     liability: str
+
+
+# ------------ REQUESTS ------------ #
 
 
 class placeInstructions(msgspec.Struct):
@@ -32,7 +38,7 @@ class placeOrdersParams(msgspec.Struct):
     customerStrategyRef: Optional[str]
 
 
-class placeOrders(APIBase):
+class placeOrders(RequestBase):
     method: Literal["SportsAPING/v1.0/placeOrders"] = "SportsAPING/v1.0/placeOrders"
     params: placeOrdersParams
 
@@ -47,7 +53,7 @@ class cancelOrdersParams(msgspec.Struct):
     customerRef: str
 
 
-class cancelOrders(APIBase):
+class cancelOrders(RequestBase):
     method: Literal["SportsAPING/v1.0/cancelOrders"] = "SportsAPING/v1.0/cancelOrders"
     params: cancelOrdersParams
 
@@ -63,9 +69,46 @@ class replaceOrdersParams(msgspec.Struct):
     customerRef: str
 
 
-class replaceOrders(APIBase):
+class replaceOrders(RequestBase):
     method: Literal["SportsAPING/v1.0/replaceOrders"] = "SportsAPING/v1.0/replaceOrders"
     params: replaceOrdersParams
+
+
+# ------------ RESPONSES ------------ #
+
+STATUS = Literal["SUCCESS", "FAILURE"]
+ORDER_STATUS = Literal["EXECUTABLE", "EXECUTION_COMPLETE"]
+
+
+class Instruction(APIBase):
+    selectionId: int
+    handicap: float
+    limitOrder: LimitOrder
+
+
+class InstructionReport(APIBase):
+    status: STATUS
+    instruction: Instruction
+    betId: Optional[str] = None
+    placedDate: Optional[str] = None
+    averagePriceMatched: Optional[float] = None
+    sizeMatched: Optional[float] = None
+    orderStatus: Optional[ORDER_STATUS] = None
+
+
+class PlaceResult(APIBase):
+    customerRef: str
+    status: STATUS
+    marketId: str
+    instructionReports: Optional[List[InstructionReport]]
+
+
+class PlaceResultResponse(RequestBase):
+    result: PlaceResult
+
+
+class ReplaceResultResponse(RequestBase):
+    result: PlaceResult
 
 
 __all__ = ["placeOrders", "cancelOrders", "replaceOrders"]
