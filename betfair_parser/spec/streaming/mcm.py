@@ -1,18 +1,9 @@
+from collections import namedtuple
 from typing import List, Literal, Optional, Union
 
 import msgspec
 
-from betfair_parser.spec.streaming.core import StreamMessage
-
-
-class MarketSubscription(msgspec.Struct):
-    op: Literal["marketSubscription"]
-    id: int
-
-
-class PriceSize(msgspec.Struct, array_like=True):  # type: ignore
-    price: float
-    size: float
+from betfair_parser.constants import EVENT_TYPE_TO_NAME
 
 
 class RunnerValues(msgspec.Struct):
@@ -31,11 +22,13 @@ class Runner(msgspec.Struct):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    status: str
     sortPriority: int
     id: Union[int, str]
+    name: Optional[str] = None
     hc: Optional[str] = None
+    status: Optional[str] = None
     adjustmentFactor: Optional[float] = None
+    selectionId: Optional[str] = None
 
 
 class MarketDefinition(msgspec.Struct):
@@ -47,12 +40,18 @@ class MarketDefinition(msgspec.Struct):
     turnInPlayEnabled: bool
     persistenceEnabled: bool
     marketBaseRate: float
+    marketId: Optional[str] = ""
+    marketName: Optional[str] = ""
+    marketStartTime: Optional[str] = ""
     eventId: str
     eventTypeId: str
     numberOfWinners: int
     bettingType: str
     marketType: str
     marketTime: str
+    competitionId: Optional[str] = ""
+    competitionName: Optional[str] = ""
+    eventName: Optional[str] = ""
     suspendTime: str
     bspReconciled: bool
     complete: bool
@@ -71,19 +70,82 @@ class MarketDefinition(msgspec.Struct):
     openDate: str
     version: int
 
+    @property
+    def event_type_name(self) -> str:
+        return EVENT_TYPE_TO_NAME[self.eventTypeId]
+
+    def to_dict(self):
+        return {f: getattr(self, f) for f in self.__struct_fields__}
+
+
+class AvailableToBack(namedtuple("AvailableToBack", "price,volume")):
+    """AvailableToBack"""
+
+    pass
+
+
+class AvailableToLay(namedtuple("AvailableToLay", "price,volume")):
+    """AvailableToLay"""
+
+    pass
+
+
+class BestAvailableToBack(namedtuple("BestAvailableToBack", "level,price,volume")):
+    """BestAvailableToBack"""
+
+    pass
+
+
+class BestAvailableToLay(namedtuple("BestAvailableToLay", "level,price,volume")):
+    """BestAvailableToLay"""
+
+    pass
+
+
+class BestDisplayAvailableToBack(namedtuple("BestDisplayAvailableToBack", "level,price,volume")):
+    """BestDisplayAvailableToBack"""
+
+    pass
+
+
+class BestDisplayAvailableToLay(namedtuple("BestDisplayAvailableToLay", "level,price,volume")):
+    """BestDisplayAvailableToLay"""
+
+    pass
+
+
+class Trade(namedtuple("Trade", "price,volume")):
+    """Trade"""
+
+    pass
+
+
+class StartingPriceBack(namedtuple("StartingPriceBack", "price,volume")):
+    """StartingPriceBack"""
+
+    pass
+
+
+class StartingPriceLay(namedtuple("StartingPriceLay", "price,volume")):
+    """StartingPriceLay"""
+
+    pass
+
 
 class RunnerChange(msgspec.Struct):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    atb: Optional[List[PriceSize]] = []  # Best Available To Back
-    atl: Optional[List[PriceSize]] = []  # Best Available To Lay
-    batb: Optional[List[PriceSize]] = []  # Best Available To Back
-    batl: Optional[List[PriceSize]] = []  # Best Available To Lay
-    bdatb: Optional[List[PriceSize]] = []  # Best Display Available To Back  (virtual)
-    bdatl: Optional[List[PriceSize]] = []  # Best Display Available To Lay (virtual)
-    trd: Optional[List[PriceSize]] = []
+    atb: Optional[List[AvailableToBack]] = []
+    atl: Optional[List[AvailableToLay]] = []
+    batb: Optional[List[BestAvailableToBack]] = []
+    batl: Optional[List[BestAvailableToLay]] = []
+    bdatb: Optional[List[BestDisplayAvailableToBack]] = []
+    bdatl: Optional[List[BestDisplayAvailableToLay]] = []
+    spb: Optional[List[StartingPriceBack]] = []
+    spl: Optional[List[StartingPriceLay]] = []
+    trd: Optional[List[Trade]] = []
     ltp: Optional[float] = None
     tv: Optional[float] = None
     id: Union[int, str]
@@ -97,13 +159,13 @@ class MarketChange(msgspec.Struct):
 
     id: str
     marketDefinition: Optional[MarketDefinition] = None
-    rc: Optional[List[RunnerChange]] = []
+    rc: List[RunnerChange] = []
     img: bool = False
     tv: Optional[float] = None
     con: Optional[bool] = None
 
 
-class MCM(StreamMessage):
+class MCM(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -111,7 +173,7 @@ class MCM(StreamMessage):
     id: Optional[int] = None
     initialClk: Optional[str] = None
     status: Optional[int] = None
-    clk: str
+    clk: Optional[str]
     conflateMs: Optional[int] = None
     heartbeatMs: Optional[int] = None
     pt: int

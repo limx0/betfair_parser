@@ -2,8 +2,6 @@ from typing import List, Literal, Optional
 
 import msgspec
 
-from betfair_parser.spec.streaming.core import StreamMessage
-
 
 class UnmatchedOrder(msgspec.Struct, frozen=True):  # type: ignore
     """
@@ -16,7 +14,7 @@ class UnmatchedOrder(msgspec.Struct, frozen=True):  # type: ignore
     side: Literal["B", "L"]
     status: Literal["E", "EC"]
     pt: str
-    ot: str  #
+    ot: str
     pd: int
     md: Optional[int] = None
     cd: Optional[int] = None
@@ -55,7 +53,7 @@ class OrderAccountChange(msgspec.Struct):
     orc: Optional[List[OrderChanges]] = []
 
 
-class OCM(StreamMessage):
+class OCM(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
