@@ -43,6 +43,7 @@ class OrderChanges(msgspec.Struct):
 
     fullImage: Optional[bool] = False
     id: int
+    hc: Optional[float] = None
     uo: Optional[List[UnmatchedOrder]] = []
     mb: Optional[List[MatchedOrder]] = []
     ml: Optional[List[MatchedOrder]] = []
