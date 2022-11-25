@@ -13,7 +13,7 @@ def read_file(fsspec_url: str):
         for line in f:
             try:
                 data = parse(line)
-            except msgspec.DecodeError as e:
+            except (msgspec.DecodeError, msgspec.ValidationError) as e:
                 print("ERR", e)
                 print(msgspec.json.decode(line))
                 raise e
