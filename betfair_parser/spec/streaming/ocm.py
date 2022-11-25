@@ -3,6 +3,11 @@ from typing import List, Literal, Optional
 import msgspec
 
 
+class MatchedOrder(msgspec.Struct, frozen=True, array_like=True):  # type: ignore
+    price: float
+    size: float
+
+
 class UnmatchedOrder(msgspec.Struct, frozen=True):  # type: ignore
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
@@ -39,8 +44,8 @@ class OrderChanges(msgspec.Struct):
     fullImage: Optional[bool] = False
     id: int
     uo: Optional[List[UnmatchedOrder]] = []
-    mb: Optional[List[List]] = []
-    ml: Optional[List[List]] = []
+    mb: Optional[List[MatchedOrder]] = []
+    ml: Optional[List[MatchedOrder]] = []
 
 
 class OrderAccountChange(msgspec.Struct):
