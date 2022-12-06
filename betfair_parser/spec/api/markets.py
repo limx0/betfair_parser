@@ -89,7 +89,7 @@ class Runner(msgspec.Struct):
     handicap: Optional[float] = None
     status: Optional[str] = None
     adjustmentFactor: Optional[float] = None
-    metadata: dict
+    metadata: Optional[dict] = None
 
     @property
     def runner_name(self):
