@@ -84,11 +84,24 @@ class Runner(msgspec.Struct):
     """
 
     selectionId: int
+    runnerName: str
     sortPriority: Optional[int] = None
-    name: Optional[str] = None
-    hc: Optional[str] = None
+    handicap: Optional[float] = None
     status: Optional[str] = None
     adjustmentFactor: Optional[float] = None
+    metadata: dict
+
+    @property
+    def runner_name(self):
+        return self.runnerName
+
+    @property
+    def runner_id(self):
+        if self.selectionId:
+            return self.selectionId
+        elif self.metadata.get("runnerId"):
+            return int(self.metadata.get("runnerId"))
+        return None
 
 
 class MarketCatalog(msgspec.Struct):
