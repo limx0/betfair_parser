@@ -25,10 +25,18 @@ class Runner(msgspec.Struct):
     sortPriority: int
     id: Union[int, str]
     name: Optional[str] = None
-    hc: Optional[str] = None
+    hc: Optional[Union[float, str]] = None
     status: Optional[str] = None
     adjustmentFactor: Optional[float] = None
     selectionId: Optional[str] = None
+
+    @property
+    def handicap(self) -> str:
+        return str(self.hc or 0.0)
+
+    @property
+    def runner_id(self) -> int:
+        return int(self.selectionId or self.id)
 
 
 class MarketDefinition(msgspec.Struct):
@@ -39,7 +47,7 @@ class MarketDefinition(msgspec.Struct):
     bspMarket: bool
     turnInPlayEnabled: bool
     persistenceEnabled: bool
-    marketBaseRate: float
+    marketBaseRate: Optional[float]
     marketId: Optional[str] = ""
     marketName: Optional[str] = ""
     marketStartTime: Optional[str] = ""
@@ -65,7 +73,7 @@ class MarketDefinition(msgspec.Struct):
     regulators: List[str]
     venue: Optional[str] = None
     countryCode: Optional[str] = None
-    discountAllowed: bool
+    discountAllowed: Optional[bool]
     timezone: str
     openDate: str
     version: int
