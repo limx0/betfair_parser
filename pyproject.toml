@@ -5,8 +5,8 @@ description = ""
 authors = ["Bradley McElroy <bradley.mcelroy@live.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
-msgspec = ">=0.7"
+python = ">=3.8,<4.0"
+msgspec = ">=0.11"
 fsspec = "^2022.3"
 
 [tool.poetry.dev-dependencies]
