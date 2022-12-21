@@ -3,7 +3,7 @@ from typing import Literal, Optional, Union
 import msgspec
 
 
-class NavigationMarket(msgspec.Struct):
+class NavigationMarket(msgspec.Struct, kw_only=True):  # type: ignore
     """NavigationMarket"""
 
     event_type_name: str
@@ -50,8 +50,8 @@ class Description(msgspec.Struct):
     wallet: str
     rules: str
     rulesHasDate: bool
-    lineRangeInfo: Optional[LineRangeInfo] = None
     priceLadderDescription: PriceLadderDescription
+    lineRangeInfo: Optional[LineRangeInfo] = None
 
 
 class EventType(msgspec.Struct):
@@ -73,9 +73,9 @@ class Event(msgspec.Struct):
 
     id: str
     name: str
-    countryCode: Optional[str] = None
     timezone: str
     openDate: str
+    countryCode: Optional[str] = None
 
 
 class Runner(msgspec.Struct):
@@ -114,8 +114,8 @@ class MarketCatalog(msgspec.Struct):
     totalMatched: float
     runners: list[Runner]
     eventType: EventType
-    competition: Optional[Competition] = None
     event: Event
+    competition: Optional[Competition] = None
 
     @property
     def competition_id(self) -> str:

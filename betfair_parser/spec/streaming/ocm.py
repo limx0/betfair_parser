@@ -21,6 +21,10 @@ class UnmatchedOrder(msgspec.Struct, frozen=True):  # type: ignore
     pt: str
     ot: str
     pd: int
+    rac: str
+    rc: str
+    rfo: str
+    rfs: str
     md: Optional[int] = None
     cd: Optional[int] = None
     ld: Optional[int] = None
@@ -30,10 +34,6 @@ class UnmatchedOrder(msgspec.Struct, frozen=True):  # type: ignore
     sl: Optional[float] = None
     sc: Optional[float] = None
     sv: Optional[float] = None
-    rac: str
-    rc: str
-    rfo: str
-    rfs: str
 
 
 class OrderChanges(msgspec.Struct):
@@ -41,8 +41,8 @@ class OrderChanges(msgspec.Struct):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    fullImage: Optional[bool] = False
     id: int
+    fullImage: Optional[bool] = False
     hc: Optional[float] = None
     uo: Optional[List[UnmatchedOrder]] = []
     mb: Optional[List[MatchedOrder]] = []

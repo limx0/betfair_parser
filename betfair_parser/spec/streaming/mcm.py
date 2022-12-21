@@ -39,7 +39,7 @@ class Runner(msgspec.Struct):
         return int(self.selectionId or self.id)
 
 
-class MarketDefinition(msgspec.Struct):
+class MarketDefinition(msgspec.Struct, kw_only=True):  # type: ignore
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -73,10 +73,7 @@ class MarketDefinition(msgspec.Struct):
     regulators: List[str]
     venue: Optional[str] = None
     countryCode: Optional[str] = None
-    discountAllowed: Optional[bool]
-    timezone: str
-    openDate: str
-    version: int
+    discountAllowed: Optional[bool] = None
 
     @property
     def event_type_name(self) -> str:
@@ -145,6 +142,7 @@ class RunnerChange(msgspec.Struct):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
+    id: Union[int, str]
     atb: Optional[List[AvailableToBack]] = []
     atl: Optional[List[AvailableToLay]] = []
     batb: Optional[List[BestAvailableToBack]] = []
@@ -156,7 +154,6 @@ class RunnerChange(msgspec.Struct):
     trd: Optional[List[Trade]] = []
     ltp: Optional[float] = None
     tv: Optional[float] = None
-    id: Union[int, str]
     hc: Optional[float] = None
 
 
@@ -178,13 +175,13 @@ class MCM(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
+    clk: str
+    pt: int
     id: Optional[int] = None
     initialClk: Optional[str] = None
     status: Optional[int] = None
-    clk: Optional[str]
     conflateMs: Optional[int] = None
     heartbeatMs: Optional[int] = None
-    pt: int
     ct: Optional[Literal["HEARTBEAT", "SUB_IMAGE", "RESUB_DELTA"]] = None
     mc: List[MarketChange] = []
 

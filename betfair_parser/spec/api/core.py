@@ -9,5 +9,5 @@ class APIBase(msgspec.Struct):
 
 
 class RequestBase(APIBase):
-    jsonrpc: Literal["2.0"]
+    jsonrpc: Literal["2.0"] = "2.0"
     id: int = 1
