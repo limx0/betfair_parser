@@ -32,7 +32,7 @@ jobs:
 
       # Run pre-commit
       - name: Run pre-commit
-        run: pre-commit run --all-files
+        run: python -m pre-commit run --all-files
 
       # install
       - name: Install
