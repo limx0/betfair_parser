@@ -179,8 +179,8 @@ class MCM(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    clk: str
     pt: int
+    clk: Optional[str] = None
     id: Optional[int] = None
     initialClk: Optional[str] = None
     status: Optional[int] = None
