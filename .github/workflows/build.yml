@@ -30,14 +30,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel poetry pre-commit msgspec
 
-      # Run pre-commit
-      - name: Run pre-commit
-        run: python -m pre_commit run --all-files
-
       # install
       - name: Install
         id: install
         run: poetry install
+
+      # Run pre-commit
+      - name: Run pre-commit
+        run: poetry run python -m pre_commit run --all-files
 
       # Run tests
       - name: Run tests
