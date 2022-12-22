@@ -33,7 +33,7 @@ jobs:
       # install
       - name: Install
         id: install
-        run: poetry install
+        run: poetry config virtualenvs.create false && poetry install
 
       # Run pre-commit
       - name: Run pre-commit
