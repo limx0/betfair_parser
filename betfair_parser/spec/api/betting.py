@@ -38,7 +38,7 @@ class placeOrdersParams(msgspec.Struct):
     customerStrategyRef: Optional[str]
 
 
-class placeOrders(RequestBase, kw_only=True):  # type: ignore
+class placeOrders(RequestBase, kw_only=True):
     params: placeOrdersParams
     method: Literal["SportsAPING/v1.0/placeOrders"] = "SportsAPING/v1.0/placeOrders"
 
@@ -53,7 +53,7 @@ class cancelOrdersParams(msgspec.Struct):
     customerRef: str
 
 
-class cancelOrders(RequestBase, kw_only=True):  # type: ignore
+class cancelOrders(RequestBase, kw_only=True):
     method: Literal["SportsAPING/v1.0/cancelOrders"] = "SportsAPING/v1.0/cancelOrders"
     params: cancelOrdersParams
 
@@ -69,7 +69,7 @@ class replaceOrdersParams(msgspec.Struct):
     customerRef: str
 
 
-class replaceOrders(RequestBase, kw_only=True):  # type: ignore
+class replaceOrders(RequestBase, kw_only=True):
     method: Literal["SportsAPING/v1.0/replaceOrders"] = "SportsAPING/v1.0/replaceOrders"
     params: replaceOrdersParams
 
@@ -103,11 +103,11 @@ class PlaceResult(APIBase):
     instructionReports: Optional[List[InstructionReport]]
 
 
-class PlaceResultResponse(RequestBase, kw_only=True):  # type: ignore
+class PlaceResultResponse(RequestBase, kw_only=True):
     result: PlaceResult
 
 
-class ReplaceResultResponse(RequestBase, kw_only=True):  # type: ignore
+class ReplaceResultResponse(RequestBase, kw_only=True):
     result: PlaceResult
 
 

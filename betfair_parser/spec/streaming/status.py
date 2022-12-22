@@ -3,7 +3,7 @@ from typing import Literal, Optional
 import msgspec
 
 
-class Connection(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
+class Connection(msgspec.Struct, tag_field="op", tag=str.lower):
     """
     Connection Message
     """
@@ -11,7 +11,7 @@ class Connection(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
     connectionId: str
 
 
-class Status(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
+class Status(msgspec.Struct, tag_field="op", tag=str.lower):
     """
     Status Message
     """

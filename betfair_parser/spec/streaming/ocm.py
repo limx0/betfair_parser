@@ -3,12 +3,12 @@ from typing import List, Literal, Optional
 import msgspec
 
 
-class MatchedOrder(msgspec.Struct, frozen=True, array_like=True):  # type: ignore
+class MatchedOrder(msgspec.Struct, frozen=True, array_like=True):
     price: float
     size: float
 
 
-class UnmatchedOrder(msgspec.Struct, frozen=True):  # type: ignore
+class UnmatchedOrder(msgspec.Struct, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -59,7 +59,7 @@ class OrderAccountChange(msgspec.Struct):
     orc: Optional[List[OrderChanges]] = []
 
 
-class OCM(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
+class OCM(msgspec.Struct, tag_field="op", tag=str.lower):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
