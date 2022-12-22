@@ -174,7 +174,7 @@ class MarketChange(msgspec.Struct):
     con: Optional[bool] = None
 
 
-class MCM(msgspec.Struct, tag_field="op", tag=str.lower):  # type: ignore
+class MCM(msgspec.Struct, tag_field="op", tag=str.lower):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
