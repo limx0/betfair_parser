@@ -117,3 +117,9 @@ def test_mcm_no_missing_fields():
     result = set(data["mc"][0]["marketDefinition"].keys())
     expected = set(raw["mc"][0]["marketDefinition"].keys())
     assert expected - result == set()
+
+
+def test_mcm_no_clk():
+    raw = b'{"op": "mcm", "clk": null, "pt": 1576840503572, "mc": []}'  # noqa
+    mcm: MCM = STREAM_DECODER.decode(raw)
+    assert mcm.clk is None
