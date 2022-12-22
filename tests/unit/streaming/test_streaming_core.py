@@ -57,3 +57,63 @@ def test_mcm():
     assert mcm.mc[0].marketDefinition.runners[0].id == 237474
     assert mcm.mc[0].marketDefinition.runners[0].selectionId is None
     assert mcm.mc[0].marketDefinition.runners[0].runner_id == 237474
+
+
+def test_mcm_no_missing_fields():
+    raw = {
+        "op": "mcm",
+        "clk": "7977927644",
+        "pt": 1541992250576,
+        "mc": [
+            {
+                "id": "1.147666818",
+                "marketDefinition": {
+                    "bspMarket": False,
+                    "turnInPlayEnabled": True,
+                    "persistenceEnabled": True,
+                    "marketBaseRate": 5.0,
+                    "eventId": "28045743",
+                    "eventTypeId": "4",
+                    "numberOfWinners": 1,
+                    "bettingType": "ODDS",
+                    "marketType": "TOURNAMENT_WINNER",
+                    "marketTime": "2018-11-30T23:40:00.000Z",
+                    "suspendTime": "2018-11-30T23:40:00.000Z",
+                    "bspReconciled": False,
+                    "complete": True,
+                    "inPlay": False,
+                    "crossMatching": False,
+                    "runnersVoidable": False,
+                    "numberOfActiveRunners": 8,
+                    "betDelay": 0,
+                    "status": "OPEN",
+                    "runners": [
+                        {"status": "ACTIVE", "sortPriority": 1, "id": 12217371, "name": "Perth Scorchers WBBL"},
+                        {"status": "ACTIVE", "sortPriority": 2, "id": 12217558, "name": "Sydney Sixers WBBL"},
+                        {"status": "ACTIVE", "sortPriority": 3, "id": 12215567, "name": "Adelaide Strikers WBBL"},
+                        {"status": "ACTIVE", "sortPriority": 4, "id": 12217241, "name": "Sydney Thunder WBBL"},
+                        {"status": "ACTIVE", "sortPriority": 5, "id": 12217559, "name": "Brisbane Heat WBBL"},
+                        {"status": "ACTIVE", "sortPriority": 6, "id": 12217370, "name": "Hobart Hurricanes WBBL"},
+                        {"status": "ACTIVE", "sortPriority": 7, "id": 12215569, "name": "Melbourne Renegades WBBL"},
+                        {"status": "ACTIVE", "sortPriority": 8, "id": 12217242, "name": "Melbourne Stars WBBL"},
+                    ],
+                    "regulators": ["MR_INT"],
+                    "countryCode": "AU",
+                    "discountAllowed": False,
+                    "timezone": "Australia/Sydney",
+                    "openDate": "2017-12-09T02:45:00.000Z",
+                    "version": 2511916192,
+                    "name": "Winner 2018/19",
+                    "eventName": "WBBL",
+                },
+                "rc": [],
+                "con": True,
+                "img": False,
+            }
+        ],
+    }
+    mcm: MCM = STREAM_DECODER.decode(msgspec.json.encode(raw))
+    data = msgspec.json.decode(msgspec.json.encode(mcm))
+    result = set(data["mc"][0]["marketDefinition"].keys())
+    expected = set(raw["mc"][0]["marketDefinition"].keys())
+    assert expected - result == set()

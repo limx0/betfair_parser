@@ -71,7 +71,11 @@ class MarketDefinition(msgspec.Struct, kw_only=True):  # type: ignore
     status: str
     runners: List[Runner]
     regulators: List[str]
+    name: Optional[str] = None
+    openDate: Optional[str] = None
+    timezone: Optional[str] = None
     venue: Optional[str] = None
+    version: Optional[int] = None
     countryCode: Optional[str] = None
     discountAllowed: Optional[bool] = None
 
