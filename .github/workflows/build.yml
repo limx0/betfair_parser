@@ -37,7 +37,7 @@ jobs:
 
       # Run pre-commit
       - name: Run pre-commit
-        run: poetry run python -m pre_commit run --all-files
+        run: pre-commit run --all-files
 
       # Run tests
       - name: Run tests
