@@ -1,8 +1,11 @@
+import json
+
 import msgspec
 import pytest
 
-from betfair_parser.core import STREAM_DECODER, read_file
+from betfair_parser.core import STREAM_DECODER, parse, read_file
 from betfair_parser.spec.streaming import MCM, OCM
+from betfair_parser.spec.streaming.mcm import StartingPriceLay
 from betfair_parser.spec.streaming.ocm import MatchedOrder
 from tests.unit.conftest import RESOURCES_DIR
 
@@ -123,3 +126,18 @@ def test_mcm_no_clk():
     raw = b'{"op": "mcm", "clk": null, "pt": 1576840503572, "mc": []}'  # noqa
     mcm: MCM = STREAM_DECODER.decode(raw)
     assert mcm.clk is None
+
+
+def test_bsp_data():
+    lines = json.loads((RESOURCES_DIR / "streaming/streaming_bsp_data.json").read_text())
+    # for line in lines:
+    #     raw = msgspec.json.encode(line)
+    #     mcm: MCM = parse(raw)
+    # for mc in mcm.mc:
+    #     for rc in mc.rc:
+    #         print(rc.spb, rc.spl, rc.spf, rc.spn)
+
+    mcm = parse(msgspec.json.encode(lines[0]))
+    rc = mcm.mc[0].rc[0]
+    assert rc.spl == [StartingPriceLay(price=1.01, volume=2.8)]
+    assert rc.spn == 4.5

@@ -153,8 +153,10 @@ class RunnerChange(msgspec.Struct):
     batl: Optional[List[BestAvailableToLay]] = []
     bdatb: Optional[List[BestDisplayAvailableToBack]] = []
     bdatl: Optional[List[BestDisplayAvailableToLay]] = []
-    spb: Optional[List[StartingPriceBack]] = []
-    spl: Optional[List[StartingPriceLay]] = []
+    spb: Optional[List[StartingPriceBack]] = []  # Starting Price (Available To) Back
+    spl: Optional[List[StartingPriceLay]] = []  # Starting Price (Available To) Lay
+    spn: Optional[Union[float, str]] = None  # Starting Price Near
+    spf: Optional[Union[int, float, str]] = None  # Starting Price Far
     trd: Optional[List[Trade]] = []
     ltp: Optional[float] = None
     tv: Optional[float] = None
