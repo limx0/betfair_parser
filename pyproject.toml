@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "betfair_parser"
-version = "0.1.6"
+version = "0.1.7"
 description = ""
 authors = ["Bradley McElroy <bradley.mcelroy@live.com>"]
 
