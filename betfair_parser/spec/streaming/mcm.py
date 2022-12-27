@@ -29,6 +29,7 @@ class Runner(msgspec.Struct):
     status: Optional[str] = None
     adjustmentFactor: Optional[float] = None
     selectionId: Optional[str] = None
+    bsp: Optional[float] = None
 
     @property
     def handicap(self) -> str:
