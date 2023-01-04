@@ -11,6 +11,7 @@ class RunnerStatus(Enum):
     ACTIVE = "ACTIVE"
     REMOVED = "REMOVED"
     WINNER = "WINNER"
+    PLACED = "PLACED"
     LOSER = "LOSER"
 
 
