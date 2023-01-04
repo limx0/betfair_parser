@@ -1,9 +1,23 @@
 from collections import namedtuple
+from enum import Enum
 from typing import List, Literal, Optional, Union
 
 import msgspec
 
 from betfair_parser.constants import EVENT_TYPE_TO_NAME
+
+
+class RunnerStatus(Enum):
+    ACTIVE = "ACTIVE"
+    REMOVED = "REMOVED"
+    WINNER = "WINNER"
+    LOSER = "LOSER"
+
+
+class MarketStatus(Enum):
+    OPEN = "OPEN"
+    SUSPENDED = "SUSPENDED"
+    CLOSED = "CLOSED"
 
 
 class RunnerValues(msgspec.Struct):
@@ -26,7 +40,7 @@ class Runner(msgspec.Struct):
     id: Union[int, str]
     name: Optional[str] = None
     hc: Optional[Union[float, str]] = None
-    status: Optional[str] = None
+    status: Optional[RunnerStatus] = None
     adjustmentFactor: Optional[float] = None
     selectionId: Optional[str] = None
     bsp: Optional[float] = None
@@ -69,7 +83,7 @@ class MarketDefinition(msgspec.Struct, kw_only=True):
     runnersVoidable: bool
     numberOfActiveRunners: int
     betDelay: int
-    status: str
+    status: MarketStatus
     runners: List[Runner]
     regulators: List[str]
     name: Optional[str] = None

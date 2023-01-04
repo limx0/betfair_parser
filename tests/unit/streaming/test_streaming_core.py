@@ -5,15 +5,21 @@ import pytest
 
 from betfair_parser.core import STREAM_DECODER, parse, read_file
 from betfair_parser.spec.streaming import MCM, OCM
-from betfair_parser.spec.streaming.mcm import StartingPriceLay
+from betfair_parser.spec.streaming.mcm import RunnerStatus, StartingPriceLay
 from betfair_parser.spec.streaming.ocm import MatchedOrder
 from tests.unit.conftest import RESOURCES_DIR
 
 
-def test_core():
+def test_read_file_example1():
     fn = RESOURCES_DIR / "data/1.185781277.bz2"
     data = list(read_file(fn))
     assert len(data) == 7600
+
+
+def test_read_file_example2():
+    fn = RESOURCES_DIR / "data/1.205822330.bz2"
+    data = list(read_file(fn))
+    assert len(data) == 5654
 
 
 @pytest.mark.parametrize("fn", list(map(str, (RESOURCES_DIR / "streaming").glob("*.json"))))
@@ -148,4 +154,4 @@ def test_bsp_result():
     mcm = parse(r)
     runners = mcm.mc[0].marketDefinition.runners
     assert runners[0].bsp == 2.0008034621107256
-    assert runners[0].status == "WINNER"
+    assert runners[0].status == RunnerStatus.WINNER
