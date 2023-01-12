@@ -13,6 +13,7 @@ class RunnerStatus(Enum):
     WINNER = "WINNER"
     PLACED = "PLACED"
     LOSER = "LOSER"
+    HIDDEN = "HIDDEN"
 
 
 class MarketStatus(Enum):
@@ -66,7 +67,6 @@ class MarketDefinition(msgspec.Struct, kw_only=True):
     marketBaseRate: Optional[float]
     marketId: Optional[str] = ""
     marketName: Optional[str] = ""
-    marketStartTime: Optional[str] = ""
     eventId: str
     eventTypeId: str
     numberOfWinners: int
