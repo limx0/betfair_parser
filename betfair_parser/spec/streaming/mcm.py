@@ -45,7 +45,7 @@ class Runner(msgspec.Struct):
     status: Optional[RunnerStatus] = None
     adjustmentFactor: Optional[float] = None
     selectionId: Optional[str] = None
-    bsp: Optional[float] = None
+    bsp: Optional[Union[str, float]] = None
 
     @property
     def handicap(self) -> str:
