@@ -34,7 +34,7 @@ jobs:
 
       # Run benchmark
       - name: Run benchmark
-        run: pytest bench.py --benchmark-json output.json
+        run: poetry run pytest tests/integration/benchmark.py --benchmark-json output.json
 
       # Store results
       - name: Store benchmark result
