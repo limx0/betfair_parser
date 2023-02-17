@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1676614974239,
+  "lastUpdate": 1676615057843,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -176,6 +176,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000005369603040682954",
             "extra": "mean: 49.70372000002499 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bradley.mcelroy@live.com",
+            "name": "Bradley McElroy",
+            "username": "limx0"
+          },
+          "committer": {
+            "email": "bradley.mcelroy@live.com",
+            "name": "Bradley McElroy",
+            "username": "limx0"
+          },
+          "distinct": true,
+          "id": "7bc43ab8f355c01a1449b917ed8f3593c7af35d5",
+          "message": "Cleanup",
+          "timestamp": "2023-02-17T17:23:06+11:00",
+          "tree_id": "6ad309781a51ca309acc3f7f020e09fe6fef5a74",
+          "url": "https://github.com/limx0/betfair_parser/commit/7bc43ab8f355c01a1449b917ed8f3593c7af35d5"
+        },
+        "date": 1676615056857,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.12380659696615345,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 8.077114018999993 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 605988.4016277854,
+            "unit": "iter/sec",
+            "range": "stddev: 2.973768113184444e-8",
+            "extra": "mean: 1.6501965999907497 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 20364.97289711815,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000005304520790191034",
+            "extra": "mean: 49.103920002835366 usec\nrounds: 5"
           }
         ]
       }
