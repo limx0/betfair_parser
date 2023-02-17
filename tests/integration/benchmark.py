@@ -1,5 +1,4 @@
 import fsspec
-import pytest
 
 from betfair_parser.core import parse
 from betfair_parser.spec.streaming import MCM
@@ -10,7 +9,6 @@ def run(lines: list[bytes]):
     return [parse(line) for line in lines]
 
 
-@pytest.mark.skip(reason="local testing")
 def test_performance(benchmark):
     fn = RESOURCES_DIR / "data/27312315.bz2"
     with fsspec.open(fn, compression="infer") as f:
