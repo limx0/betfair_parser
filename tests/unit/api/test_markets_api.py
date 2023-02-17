@@ -1,20 +1,19 @@
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.api.markets import NavigationMarket, Runner
-from tests.resources import read_test_file
+from betfair_parser.spec.api.markets import Runner
 
 
-@pytest.mark.parametrize(
-    "raw",
-    [
-        read_test_file("responses/navigation_list_navigation.json"),
-    ],
-)
-@pytest.mark.skip(reason="not implemented")
-def test_navigation_market(raw):
-    nav = msgspec.json.decode(raw, type=NavigationMarket)
-    assert nav.event_type_name == ""
+# @pytest.mark.parametrize(
+#     "raw",
+#     [
+#         read_test_file("responses/navigation_list_navigation.json"),
+#     ],
+# )
+# @pytest.mark.skip(reason="not implemented")
+# def test_navigation_market(raw):
+#     nav = msgspec.json.decode(raw, type=NavigationMarket)
+#     assert nav.event_type_name == ""
 
 
 @pytest.mark.parametrize(

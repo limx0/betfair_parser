@@ -1,4 +1,3 @@
-from collections import namedtuple
 from enum import Enum
 from typing import List, Literal, Optional, Union
 
@@ -103,58 +102,71 @@ class MarketDefinition(msgspec.Struct, kw_only=True):
         return {f: getattr(self, f) for f in self.__struct_fields__}
 
 
-class AvailableToBack(namedtuple("AvailableToBack", "price,volume")):
+class AvailableToBack(msgspec.Struct, frozen=True, array_like=True):
     """AvailableToBack"""
 
-    pass
+    price: float
+    volume: float
 
 
-class AvailableToLay(namedtuple("AvailableToLay", "price,volume")):
+class AvailableToLay(msgspec.Struct, frozen=True, array_like=True):
     """AvailableToLay"""
 
-    pass
+    price: float
+    volume: float
 
 
-class BestAvailableToBack(namedtuple("BestAvailableToBack", "level,price,volume")):
+class BestAvailableToBack(msgspec.Struct, frozen=True, array_like=True):
     """BestAvailableToBack"""
 
-    pass
+    level: int
+    price: float
+    volume: float
 
 
-class BestAvailableToLay(namedtuple("BestAvailableToLay", "level,price,volume")):
+class BestAvailableToLay(msgspec.Struct, frozen=True, array_like=True):
     """BestAvailableToLay"""
 
-    pass
+    level: int
+    price: float
+    volume: float
 
 
-class BestDisplayAvailableToBack(namedtuple("BestDisplayAvailableToBack", "level,price,volume")):
+class BestDisplayAvailableToBack(msgspec.Struct, frozen=True, array_like=True):
     """BestDisplayAvailableToBack"""
 
-    pass
+    level: int
+    price: float
+    volume: float
 
 
-class BestDisplayAvailableToLay(namedtuple("BestDisplayAvailableToLay", "level,price,volume")):
+class BestDisplayAvailableToLay(msgspec.Struct, frozen=True, array_like=True):
     """BestDisplayAvailableToLay"""
 
-    pass
+    level: int
+    price: float
+    volume: float
 
 
-class Trade(namedtuple("Trade", "price,volume")):
+class Trade(msgspec.Struct, frozen=True, array_like=True):
     """Trade"""
 
-    pass
+    price: float
+    volume: float
 
 
-class StartingPriceBack(namedtuple("StartingPriceBack", "price,volume")):
+class StartingPriceBack(msgspec.Struct, frozen=True, array_like=True):
     """StartingPriceBack"""
 
-    pass
+    price: float
+    volume: float
 
 
-class StartingPriceLay(namedtuple("StartingPriceLay", "price,volume")):
+class StartingPriceLay(msgspec.Struct, frozen=True, array_like=True):
     """StartingPriceLay"""
 
-    pass
+    price: float
+    volume: float
 
 
 class RunnerChange(msgspec.Struct):
