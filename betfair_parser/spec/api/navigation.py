@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import msgspec
 
@@ -24,7 +24,7 @@ class Market(BaseMessage, tag=tag_func):
     exchangeId: str
     marketType: str
     marketStartTime: str
-    numberOfWinners: int | str
+    numberOfWinners: Union[int, str]
 
 
 class Event(BaseMessage, tag=tag_func):
@@ -36,7 +36,7 @@ class Event(BaseMessage, tag=tag_func):
 
 Event = msgspec.defstruct(  # type: ignore
     "Event",
-    [("name", str), ("id", str), ("countryCode", str), ("children", list[Market | Event])],
+    [("name", str), ("id", str), ("countryCode", str), ("children", list[Union[Market, Event]])],
     bases=(BaseMessage,),
     tag=tag_func,
 )
@@ -49,18 +49,18 @@ class Race(BaseMessage, tag=tag_func):
     venue: str
     startTime: datetime.datetime
     children: list[Market]
-    raceNumber: str | None = None
+    raceNumber: Optional[str] = None
 
 
 class Group(BaseMessage, tag=tag_func):
     name: str
     id: str
-    children: list[Event | Race]
+    children: list[Union[Event, Race]]
 
 
 Group = msgspec.defstruct(  # type: ignore
     "Group",
-    [("name", str), ("id", str), ("children", list[Event | Race | Group])],
+    [("name", str), ("id", str), ("children", list[Union[Event, Race, Group]])],
     bases=(BaseMessage,),
     tag=tag_func,
 )
@@ -69,7 +69,7 @@ Group = msgspec.defstruct(  # type: ignore
 class EventType(BaseMessage, tag=tag_func):
     name: str
     id: str
-    children: list[Event | Group | Race]
+    children: list[Union[Event, Group, Race]]
 
 
 class NavigationMarket(BaseMessage):
@@ -84,23 +84,23 @@ class NavigationMarket(BaseMessage):
 class FlattenedMarket(BaseMessage, kw_only=True):
     event_type_name: str
     event_type_id: str
-    event_name: str | None = None
-    event_id: str | None = None
-    event_countryCode: str | None = None
+    event_name: Optional[str] = None
+    event_id: Optional[str] = None
+    event_countryCode: Optional[str] = None
     market_name: str
     market_id: str
     market_exchangeId: str
     market_marketType: str
     market_marketStartTime: str
-    market_numberOfWinners: int | str
-    group_name: str | None = None
-    group_id: str | None = None
-    race_name: str | None = None
-    race_id: str | None = None
-    race_countryCode: str | None = None
-    race_venue: str | None = None
-    race_startTime: str | None = None
-    race_raceNumber: str | None = None
+    market_numberOfWinners: Union[int, str]
+    group_name: Optional[str] = None
+    group_id: Optional[str] = None
+    race_name: Optional[str] = None
+    race_id: Optional[str] = None
+    race_countryCode: Optional[str] = None
+    race_venue: Optional[str] = None
+    race_startTime: Optional[str] = None
+    race_raceNumber: Optional[str] = None
 
 
 def flatten_navigation(raw: bytes, **filters) -> list[FlattenedMarket]:

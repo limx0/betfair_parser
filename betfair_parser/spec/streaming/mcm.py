@@ -105,9 +105,9 @@ class MarketDefinition(BaseMessage, kw_only=True):
     countryCode: Optional[str] = None
     discountAllowed: Optional[bool] = None
     raceType: Optional[Literal["Flat"]] = None
-    priceLadderDefinition: str | PriceLadderDescription | None = None
+    priceLadderDefinition: Optional[Union[str, PriceLadderDescription]] = None
     settledTime: Optional[datetime.datetime] = None
-    keyLineDefinition: KeyLineDefinition | None = None
+    keyLineDefinition: Optional[KeyLineDefinition] = None
 
     @property
     def event_type_name(self) -> str:
@@ -234,7 +234,7 @@ class MCM(BaseMessage, tag_field="op", tag=str.lower):
     heartbeatMs: Optional[int] = None
     ct: Optional[Literal["HEARTBEAT", "SUB_IMAGE", "RESUB_DELTA"]] = None
     mc: List[MarketChange] = []
-    con: bool | None = None
+    con: Optional[bool] = None
 
     @property
     def is_heartbeat(self):

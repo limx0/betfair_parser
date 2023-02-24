@@ -89,7 +89,7 @@ class Instruction(BaseMessage):
 class InstructionReport(BaseMessage):
     status: OrderResponse
     instruction: Instruction
-    errorCode: str | None = None
+    errorCode: Optional[str] = None
     betId: Optional[str] = None
     placedDate: Optional[str] = None
     averagePriceMatched: Optional[float] = None
@@ -102,7 +102,7 @@ class PlaceResult(BaseMessage):
     status: OrderResponse
     marketId: str
     instructionReports: Optional[List[InstructionReport]]
-    errorCode: str | None = None
+    errorCode: Optional[str] = None
 
 
 class PlaceResultResponse(RequestBase, kw_only=True):
