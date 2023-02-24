@@ -1,7 +1,7 @@
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.api.markets import Runner
+from betfair_parser.spec.api.markets import MarketCatalog, Runner
 from betfair_parser.spec.api.navigation import flatten_navigation
 from tests.resources import read_test_file
 
@@ -72,13 +72,7 @@ def test_runner_name(data):
     assert runner.runner_id == int(data["metadata"]["runnerId"])
 
 
-# @pytest.mark.parametrize(
-#     "raw",
-#     [
-#         read_test_file("responses/betting_list_market_catalogue.json"),
-#     ]
-# )
-# @pytest.mark.skip(reason="not implemented")
-# def test_market_catalogue(raw):
-#     catalog = msgspec.json.decode(raw, type=MarketCatalog)
-#     assert catalog.event_type_name == ""
+def test_market_catalogue():
+    raw = read_test_file("responses/betting_list_market_catalogue.json")
+    catalog = msgspec.json.decode(raw, type=list[MarketCatalog])
+    assert len(catalog) == 12035

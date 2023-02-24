@@ -36,6 +36,9 @@ class Description(BaseMessage):
     rulesHasDate: bool
     priceLadderDescription: PriceLadderDescription
     lineRangeInfo: Optional[LineRangeInfo] = None
+    eachWayDivisor: Optional[float] = None
+    clarifications: Optional[str] = None
+    raceType: Optional[str] = None
 
 
 class EventType(BaseMessage):
@@ -60,6 +63,7 @@ class Event(BaseMessage):
     timezone: str
     openDate: str
     countryCode: Optional[str] = None
+    venue: Optional[str] = None
 
 
 class Runner(BaseMessage):
