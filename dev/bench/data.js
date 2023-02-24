@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1677214032738,
+  "lastUpdate": 1677218083856,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -446,6 +446,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000005531197593525202",
             "extra": "mean: 45.42392000075779 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bradley.mcelroy@live.com",
+            "name": "limx0",
+            "username": "limx0"
+          },
+          "committer": {
+            "email": "bradley.mcelroy@live.com",
+            "name": "limx0",
+            "username": "limx0"
+          },
+          "distinct": true,
+          "id": "c91fdcb5d3bf13a32e4e11f8809058c9bea0e93f",
+          "message": "Implement FlattenedMarket in navigation",
+          "timestamp": "2023-02-24T16:53:38+11:00",
+          "tree_id": "6a9fa6272d4d5bad0e237e022b2dcbf2dbf43686",
+          "url": "https://github.com/limx0/betfair_parser/commit/c91fdcb5d3bf13a32e4e11f8809058c9bea0e93f"
+        },
+        "date": 1677218083467,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.15127171006674103,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.610621374999994 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 637798.0557862286,
+            "unit": "iter/sec",
+            "range": "stddev: 2.4041694764446414e-8",
+            "extra": "mean: 1.567894400002956 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 20416.06303194917,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000004767310563530555",
+            "extra": "mean: 48.98103999948943 usec\nrounds: 5"
           }
         ]
       }
