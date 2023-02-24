@@ -1,37 +1,37 @@
 from typing import List, Literal, Optional, Union
 
-import msgspec
-
-from betfair_parser.spec.api.core import APIBase, RequestBase
+from betfair_parser.constants import OrderResponse, OrderSide, OrderStatus, OrderType
+from betfair_parser.spec.api.core import RequestBase
+from betfair_parser.spec.common import BaseMessage
 
 
 # ------------ ORDER TYPES ------------ #
 
 
-class LimitOrder(msgspec.Struct):
+class LimitOrder(BaseMessage):
     size: Union[str, float]
     price: Union[str, float]
     persistenceType: Literal["PERSIST"]
 
 
-class MarketOnCloseOrder(msgspec.Struct):
+class MarketOnCloseOrder(BaseMessage):
     liability: str
 
 
 # ------------ REQUESTS ------------ #
 
 
-class placeInstructions(msgspec.Struct):
+class placeInstructions(BaseMessage):
     selectionId: str
     handicap: str
     customerOrderRef: str
-    orderType: Literal["LIMIT", "MARKET_ON_CLOSE"]
-    side: Literal["BACK", "LAY"]
+    orderType: OrderType
+    side: OrderSide
     limitOrder: Optional[LimitOrder] = None
     marketOnCloseOrder: Optional[MarketOnCloseOrder] = None
 
 
-class placeOrdersParams(msgspec.Struct):
+class placeOrdersParams(BaseMessage):
     marketId: str
     instructions: List[placeInstructions]
     customerRef: Optional[str]
@@ -43,11 +43,11 @@ class placeOrders(RequestBase, kw_only=True):
     method: Literal["SportsAPING/v1.0/placeOrders"] = "SportsAPING/v1.0/placeOrders"
 
 
-class cancelOrdersInstructions(msgspec.Struct):
+class cancelOrdersInstructions(BaseMessage):
     betId: str
 
 
-class cancelOrdersParams(msgspec.Struct):
+class cancelOrdersParams(BaseMessage):
     marketId: str
     instructions: List[cancelOrdersInstructions]
     customerRef: str
@@ -58,12 +58,12 @@ class cancelOrders(RequestBase, kw_only=True):
     params: cancelOrdersParams
 
 
-class replaceOrdersInstructions(msgspec.Struct):
+class replaceOrdersInstructions(BaseMessage):
     betId: str
     newPrice: float
 
 
-class replaceOrdersParams(msgspec.Struct):
+class replaceOrdersParams(BaseMessage):
     marketId: str
     instructions: List[replaceOrdersInstructions]
     customerRef: str
@@ -76,31 +76,33 @@ class replaceOrders(RequestBase, kw_only=True):
 
 # ------------ RESPONSES ------------ #
 
-STATUS = Literal["SUCCESS", "FAILURE"]
-ORDER_STATUS = Literal["EXECUTABLE", "EXECUTION_COMPLETE"]
 
-
-class Instruction(APIBase):
+class Instruction(BaseMessage):
     selectionId: int
     handicap: float
     limitOrder: LimitOrder
+    customerOrderRef: str
+    orderType: OrderType
+    side: OrderSide
 
 
-class InstructionReport(APIBase):
-    status: STATUS
+class InstructionReport(BaseMessage):
+    status: OrderResponse
     instruction: Instruction
+    errorCode: str | None = None
     betId: Optional[str] = None
     placedDate: Optional[str] = None
     averagePriceMatched: Optional[float] = None
     sizeMatched: Optional[float] = None
-    orderStatus: Optional[ORDER_STATUS] = None
+    orderStatus: Optional[OrderStatus] = None
 
 
-class PlaceResult(APIBase):
+class PlaceResult(BaseMessage):
     customerRef: str
-    status: STATUS
+    status: OrderResponse
     marketId: str
     instructionReports: Optional[List[InstructionReport]]
+    errorCode: str | None = None
 
 
 class PlaceResultResponse(RequestBase, kw_only=True):

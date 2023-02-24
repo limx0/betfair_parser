@@ -1,3 +1,6 @@
+from enum import Enum
+
+
 EVENT_TYPE_TO_NAME = {
     "1": "Soccer",
     "2": "Tennis",
@@ -27,3 +30,23 @@ EVENT_TYPE_TO_NAME = {
     "4339": "Greyhound Racing",
     "2378961": "Politics",
 }
+
+
+class OrderType(Enum):
+    LIMIT = "LIMIT"
+    MARKET_ON_CLOSE = "MARKET_ON_CLOSE"
+
+
+class OrderSide(Enum):
+    BACK = "BACK"
+    LAY = "LAY"
+
+
+class OrderResponse(Enum):
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE"
+
+
+class OrderStatus(Enum):
+    EXECUTABLE = "EXECUTABLE"
+    EXECUTION_COMPLETE = "EXECUTION_COMPLETE"

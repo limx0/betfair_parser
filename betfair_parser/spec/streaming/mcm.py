@@ -1,9 +1,10 @@
+import datetime
 from enum import Enum
 from typing import List, Literal, Optional, Union
 
-import msgspec
-
 from betfair_parser.constants import EVENT_TYPE_TO_NAME
+from betfair_parser.spec.api.markets import PriceLadderDescription
+from betfair_parser.spec.common import BaseMessage
 
 
 class RunnerStatus(Enum):
@@ -21,7 +22,7 @@ class MarketStatus(Enum):
     CLOSED = "CLOSED"
 
 
-class RunnerValues(msgspec.Struct):
+class RunnerValues(BaseMessage):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -32,7 +33,7 @@ class RunnerValues(msgspec.Struct):
     spf: float  # Starting Price Far
 
 
-class Runner(msgspec.Struct):
+class Runner(BaseMessage):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -45,6 +46,7 @@ class Runner(msgspec.Struct):
     adjustmentFactor: Optional[float] = None
     selectionId: Optional[str] = None
     bsp: Optional[Union[str, float]] = None
+    removalDate: Optional[str] = None
 
     @property
     def handicap(self) -> str:
@@ -55,7 +57,16 @@ class Runner(msgspec.Struct):
         return int(self.selectionId or self.id)
 
 
-class MarketDefinition(msgspec.Struct, kw_only=True):
+class RunnerKeyLine(BaseMessage):
+    id: int
+    hc: int
+
+
+class KeyLineDefinition(BaseMessage):
+    kl: list[RunnerKeyLine]
+
+
+class MarketDefinition(BaseMessage, kw_only=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -93,6 +104,10 @@ class MarketDefinition(msgspec.Struct, kw_only=True):
     version: Optional[int] = None
     countryCode: Optional[str] = None
     discountAllowed: Optional[bool] = None
+    raceType: Optional[Literal["Flat"]] = None
+    priceLadderDefinition: str | PriceLadderDescription | None = None
+    settledTime: Optional[datetime.datetime] = None
+    keyLineDefinition: KeyLineDefinition | None = None
 
     @property
     def event_type_name(self) -> str:
@@ -102,21 +117,21 @@ class MarketDefinition(msgspec.Struct, kw_only=True):
         return {f: getattr(self, f) for f in self.__struct_fields__}
 
 
-class AvailableToBack(msgspec.Struct, frozen=True, array_like=True):
+class AvailableToBack(BaseMessage, array_like=True):
     """AvailableToBack"""
 
     price: float
     volume: float
 
 
-class AvailableToLay(msgspec.Struct, frozen=True, array_like=True):
+class AvailableToLay(BaseMessage, array_like=True):
     """AvailableToLay"""
 
     price: float
     volume: float
 
 
-class BestAvailableToBack(msgspec.Struct, frozen=True, array_like=True):
+class BestAvailableToBack(BaseMessage, array_like=True):
     """BestAvailableToBack"""
 
     level: int
@@ -124,7 +139,7 @@ class BestAvailableToBack(msgspec.Struct, frozen=True, array_like=True):
     volume: float
 
 
-class BestAvailableToLay(msgspec.Struct, frozen=True, array_like=True):
+class BestAvailableToLay(BaseMessage, array_like=True):
     """BestAvailableToLay"""
 
     level: int
@@ -132,7 +147,7 @@ class BestAvailableToLay(msgspec.Struct, frozen=True, array_like=True):
     volume: float
 
 
-class BestDisplayAvailableToBack(msgspec.Struct, frozen=True, array_like=True):
+class BestDisplayAvailableToBack(BaseMessage, array_like=True):
     """BestDisplayAvailableToBack"""
 
     level: int
@@ -140,7 +155,7 @@ class BestDisplayAvailableToBack(msgspec.Struct, frozen=True, array_like=True):
     volume: float
 
 
-class BestDisplayAvailableToLay(msgspec.Struct, frozen=True, array_like=True):
+class BestDisplayAvailableToLay(BaseMessage, array_like=True):
     """BestDisplayAvailableToLay"""
 
     level: int
@@ -148,28 +163,28 @@ class BestDisplayAvailableToLay(msgspec.Struct, frozen=True, array_like=True):
     volume: float
 
 
-class Trade(msgspec.Struct, frozen=True, array_like=True):
+class Trade(BaseMessage, array_like=True):
     """Trade"""
 
     price: float
     volume: float
 
 
-class StartingPriceBack(msgspec.Struct, frozen=True, array_like=True):
+class StartingPriceBack(BaseMessage, array_like=True):
     """StartingPriceBack"""
 
     price: float
     volume: float
 
 
-class StartingPriceLay(msgspec.Struct, frozen=True, array_like=True):
+class StartingPriceLay(BaseMessage, array_like=True):
     """StartingPriceLay"""
 
     price: float
     volume: float
 
 
-class RunnerChange(msgspec.Struct):
+class RunnerChange(BaseMessage):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -191,7 +206,7 @@ class RunnerChange(msgspec.Struct):
     hc: Optional[float] = None
 
 
-class MarketChange(msgspec.Struct):
+class MarketChange(BaseMessage):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -204,7 +219,7 @@ class MarketChange(msgspec.Struct):
     con: Optional[bool] = None
 
 
-class MCM(msgspec.Struct, tag_field="op", tag=str.lower):
+class MCM(BaseMessage, tag_field="op", tag=str.lower):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -213,11 +228,13 @@ class MCM(msgspec.Struct, tag_field="op", tag=str.lower):
     clk: Optional[str] = None
     id: Optional[int] = None
     initialClk: Optional[str] = None
+    marketDefinition: Optional[MarketDefinition] = None
     status: Optional[int] = None
     conflateMs: Optional[int] = None
     heartbeatMs: Optional[int] = None
     ct: Optional[Literal["HEARTBEAT", "SUB_IMAGE", "RESUB_DELTA"]] = None
     mc: List[MarketChange] = []
+    con: bool | None = None
 
     @property
     def is_heartbeat(self):

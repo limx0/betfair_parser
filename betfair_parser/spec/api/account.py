@@ -1,17 +1,19 @@
 from typing import Literal
 
-from betfair_parser.spec.api.core import APIBase
+from betfair_parser.spec.api.core import RequestBase
 
 
-class getAccountFunds(APIBase):
+class getAccountFunds(RequestBase):
     method: Literal["AccountAPING/v1.0/getAccountFunds"] = "AccountAPING/v1.0/getAccountFunds"
+    params: dict = {}
 
 
-class getAccountDetails(APIBase):
+class getAccountDetails(RequestBase):
     method: Literal["AccountAPING/v1.0/getAccountDetails"] = "AccountAPING/v1.0/getAccountDetails"
+    params: dict = {}
 
 
-class AccountDetails(APIBase):
+class AccountDetails(RequestBase):
     currencyCode: str
     firstName: str
     lastName: str
@@ -23,11 +25,11 @@ class AccountDetails(APIBase):
     countryCode: str
 
 
-class AccountDetailsResponse(APIBase):
+class AccountDetailsResponse(RequestBase):
     result: AccountDetails
 
 
-class AccountFunds(APIBase):
+class AccountFunds(RequestBase):
     availableToBetBalance: float
     exposure: float
     retainedCommission: float
@@ -37,5 +39,5 @@ class AccountFunds(APIBase):
     wallet: str
 
 
-class AccountFundsResponse(APIBase):
+class AccountFundsResponse(RequestBase):
     result: AccountFunds

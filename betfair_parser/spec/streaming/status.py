@@ -1,9 +1,9 @@
 from typing import Literal, Optional
 
-import msgspec
+from betfair_parser.spec.common import BaseMessage
 
 
-class Connection(msgspec.Struct, tag_field="op", tag=str.lower):
+class Connection(BaseMessage, tag_field="op", tag=str.lower):
     """
     Connection Message
     """
@@ -11,11 +11,12 @@ class Connection(msgspec.Struct, tag_field="op", tag=str.lower):
     connectionId: str
 
 
-class Status(msgspec.Struct, tag_field="op", tag=str.lower):
+class Status(BaseMessage, tag_field="op", tag=str.lower):
     """
     Status Message
     """
 
+    id: int
     statusCode: Literal["SUCCESS", "FAILURE"]
     connectionClosed: bool
     errorCode: Optional[str] = None

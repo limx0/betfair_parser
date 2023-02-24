@@ -1,4 +1,4 @@
-from betfair_parser.spec.api.core import APIBase
+from betfair_parser.spec.common import BaseMessage
 
 
 class Error:
@@ -6,5 +6,5 @@ class Error:
     message: str
 
 
-class ErrorResponse(APIBase):
+class ErrorResponse(BaseMessage):
     error: Error

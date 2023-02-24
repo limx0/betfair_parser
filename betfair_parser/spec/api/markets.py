@@ -1,31 +1,15 @@
-from typing import Literal, Optional, Union
+from typing import Literal, Optional
 
-import msgspec
-
-
-class NavigationMarket(msgspec.Struct, kw_only=True):  # type: ignore
-    """NavigationMarket"""
-
-    event_type_name: str
-    event_type_id: str
-    event_name: Optional[str] = None
-    event_id: Optional[str] = None
-    event_countryCode: Optional[str] = None
-    market_name: str
-    market_id: str
-    market_exchangeId: str
-    market_marketType: str
-    market_marketStartTime: str
-    market_numberOfWinners: Union[str, int]
+from betfair_parser.spec.common import BaseMessage
 
 
-class PriceLadderDescription(msgspec.Struct):
+class PriceLadderDescription(BaseMessage):
     """PriceLadderDescription"""
 
     type: Literal["CLASSIC", "LINE_RANGE", "FINEST"]
 
 
-class LineRangeInfo(msgspec.Struct):
+class LineRangeInfo(BaseMessage):
     """LineRangeInfo"""
 
     maxUnitValue: float
@@ -34,7 +18,7 @@ class LineRangeInfo(msgspec.Struct):
     marketUnit: str
 
 
-class Description(msgspec.Struct):
+class Description(BaseMessage):
     """Description"""
 
     persistenceEnabled: bool
@@ -54,21 +38,21 @@ class Description(msgspec.Struct):
     lineRangeInfo: Optional[LineRangeInfo] = None
 
 
-class EventType(msgspec.Struct):
+class EventType(BaseMessage):
     """EventType"""
 
     id: str
     name: str
 
 
-class Competition(msgspec.Struct):
+class Competition(BaseMessage):
     """Competition"""
 
     id: str
     name: str
 
 
-class Event(msgspec.Struct):
+class Event(BaseMessage):
     """Event"""
 
     id: str
@@ -78,7 +62,7 @@ class Event(msgspec.Struct):
     countryCode: Optional[str] = None
 
 
-class Runner(msgspec.Struct):
+class Runner(BaseMessage):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -104,7 +88,7 @@ class Runner(msgspec.Struct):
         return None
 
 
-class MarketCatalog(msgspec.Struct):
+class MarketCatalog(BaseMessage):
     """MarketCatalog"""
 
     marketId: str

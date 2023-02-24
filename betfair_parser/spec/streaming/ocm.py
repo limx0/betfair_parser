@@ -1,14 +1,14 @@
 from typing import List, Literal, Optional
 
-import msgspec
+from betfair_parser.spec.common import BaseMessage
 
 
-class MatchedOrder(msgspec.Struct, frozen=True, array_like=True):
+class MatchedOrder(BaseMessage, array_like=True):
     price: float
     size: float
 
 
-class UnmatchedOrder(msgspec.Struct, frozen=True):
+class UnmatchedOrder(BaseMessage):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -36,7 +36,12 @@ class UnmatchedOrder(msgspec.Struct, frozen=True):
     sv: Optional[float] = None
 
 
-class OrderChanges(msgspec.Struct):
+class StrategyMatched(BaseMessage):
+    mb: Optional[List[MatchedOrder]] = []
+    ml: Optional[List[MatchedOrder]] = []
+
+
+class OrderChanges(BaseMessage):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -47,19 +52,22 @@ class OrderChanges(msgspec.Struct):
     uo: Optional[List[UnmatchedOrder]] = []
     mb: Optional[List[MatchedOrder]] = []
     ml: Optional[List[MatchedOrder]] = []
+    smc: dict[str, StrategyMatched] | None = None
 
 
-class OrderAccountChange(msgspec.Struct):
+class OrderAccountChange(BaseMessage):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
     id: str
+    accountId: int | None = None
     fullImage: Optional[bool] = False
-    orc: Optional[List[OrderChanges]] = []
+    orc: List[OrderChanges] = []
+    closed: Optional[bool] = None
 
 
-class OCM(msgspec.Struct, tag_field="op", tag=str.lower):
+class OCM(BaseMessage, tag_field="op", tag=str.lower):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -68,3 +76,9 @@ class OCM(msgspec.Struct, tag_field="op", tag=str.lower):
     clk: str
     pt: int
     oc: List[OrderAccountChange] = []
+    initialClk: str | None = None
+    status: int | None = None
+    conflateMs: int | None = None
+    heartbeatMs: int | None = None
+    ct: Literal["HEARTBEAT", "SUB_IMAGE"] | None = None
+    con: bool | None = None

@@ -31,8 +31,13 @@ def test_streaming_files(fn):
             data = STREAM_DECODER.decode(msgspec.json.encode(line))
             assert data
     else:
-        data = STREAM_DECODER.decode(line)
-        assert data
+        try:
+            data = STREAM_DECODER.decode(line)
+            assert data
+        except (msgspec.DecodeError, msgspec.ValidationError) as e:
+            print("ERR", e)
+            print(msgspec.json.decode(line))
+            raise e
 
 
 def test_ocm():
