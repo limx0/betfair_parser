@@ -2,24 +2,44 @@ import msgspec.json
 import pytest
 
 from betfair_parser.spec.api.markets import Runner
-from betfair_parser.spec.api.navigation import Market, NavigationMarket
+from betfair_parser.spec.api.navigation import flatten_navigation
 from tests.resources import read_test_file
 
 
-@pytest.mark.skip(reason="Can't nest definitions")
 @pytest.mark.parametrize(
     "raw",
     [
         read_test_file("responses/navigation_list_navigation.json"),
     ],
 )
-def test_navigation_market(raw):
+def test_navigation_market_flatten_navigation(raw):
     data = msgspec.json.decode(raw)
     assert data
-    nav = msgspec.json.decode(raw, type=NavigationMarket)
-    market: Market = nav.children[0].children[0]
-    assert market.asdict() == {}
-    assert nav.event_type_name == ""
+    markets = flatten_navigation(raw)
+    assert len(markets) == 13227
+    market = markets[1450].to_dict()
+    expected = {
+        "event_type_name": "Greyhound Racing",
+        "event_type_id": "4339",
+        "event_name": None,
+        "event_id": None,
+        "event_countryCode": None,
+        "market_name": "B2 450m",
+        "market_id": "1.180709069",
+        "market_exchangeId": "1",
+        "market_marketType": "WIN",
+        "market_marketStartTime": "2021-03-17T19:56:00.000Z",
+        "market_numberOfWinners": 1,
+        "group_name": None,
+        "group_id": None,
+        "race_name": "B2 450m",
+        "race_id": "30360080.1956",
+        "race_countryCode": "GB",
+        "race_venue": "Doncaster",
+        "race_startTime": "2021-03-17T19:56:00.000Z",
+        "race_raceNumber": None,
+    }
+    assert market == expected
 
 
 @pytest.mark.parametrize(
