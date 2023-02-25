@@ -31,15 +31,7 @@ class Event(BaseMessage, tag=tag_func):
     name: str
     id: str
     countryCode: str
-    children: list[Market]
-
-
-Event = msgspec.defstruct(  # type: ignore
-    "Event",
-    [("name", str), ("id", str), ("countryCode", str), ("children", list[Union[Market, Event]])],
-    bases=(BaseMessage,),
-    tag=tag_func,
-)
+    children: list[Union["Group", "Event", Market]]
 
 
 class Race(BaseMessage, tag=tag_func):
@@ -55,25 +47,17 @@ class Race(BaseMessage, tag=tag_func):
 class Group(BaseMessage, tag=tag_func):
     name: str
     id: str
-    children: list[Union[Event, Race]]
-
-
-Group = msgspec.defstruct(  # type: ignore
-    "Group",
-    [("name", str), ("id", str), ("children", list[Union[Event, Race, Group]])],
-    bases=(BaseMessage,),
-    tag=tag_func,
-)
+    children: list[Union["Group", Event]]
 
 
 class EventType(BaseMessage, tag=tag_func):
     name: str
     id: str
-    children: list[Union[Event, Group, Race]]
+    children: list[Union[Group, Event, Race]]
 
 
-class NavigationMarket(BaseMessage):
-    """NavigationMarket"""
+class Navigation(BaseMessage):
+    """Navigation"""
 
     type: Literal["GROUP"]
     name: Literal["ROOT"]
@@ -103,13 +87,12 @@ class FlattenedMarket(BaseMessage, kw_only=True):
     race_raceNumber: Optional[str] = None
 
 
-def flatten_navigation(raw: bytes, **filters) -> list[FlattenedMarket]:
-    data = msgspec.json.decode(raw)
-    flattened = flatten_tree(data, **filters)
+def navigation_to_flatten_markets(navigation: Navigation, **filters) -> list[FlattenedMarket]:
+    flattened = flatten_tree(msgspec.json.decode(msgspec.json.encode(navigation)), **filters)
     return msgspec.json.decode(msgspec.json.encode(flattened), type=list[FlattenedMarket])
 
 
-def flatten_tree(y: dict, **filters):
+def flatten_tree(data: dict, **filters):
     """
     Flatten a nested dict into a list of dicts with each nested level combined
     into a single dict.
@@ -140,5 +123,5 @@ def flatten_tree(y: dict, **filters):
         else:
             yield data
 
-    list(flatten(y))
+    list(flatten(data))
     return results
