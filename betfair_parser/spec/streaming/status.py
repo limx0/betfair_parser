@@ -16,9 +16,10 @@ class Status(BaseMessage, tag_field="op", tag=str.lower):
     Status Message
     """
 
-    id: int
     statusCode: Literal["SUCCESS", "FAILURE"]
     connectionClosed: bool
+    id: Optional[int] = None
+    connectionsAvailable: Optional[int] = None
+    connectionId: Optional[str] = None
     errorCode: Optional[str] = None
     errorMessage: Optional[str] = None
-    connectionsAvailable: Optional[int] = None
