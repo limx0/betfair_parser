@@ -1,0 +1,35 @@
+{
+   "op": "ocm",
+   "id": 10,
+   "initialClk": "GtD10ZwBH5OJxZ0BHK75mZ0BGsKq6JoBH4THsZwB",
+   "clk": "AAAAAAAAAAAAAA==",
+   "conflateMs": 0,
+   "heartbeatMs": 5000,
+   "pt": 1468944647413,
+   "ct": "SUB_IMAGE",
+   "oc": [{
+       "id": "1.125670254",
+       "orc": [{
+           "fullImage": true,
+           "id": 5643663
+       }]
+   }, {
+       "id": "1.125657760",
+       "orc": [{
+           "fullImage": true,
+           "id": 151478,
+           "mb": [
+               [12, 5]
+           ]
+       }]
+   }, {
+       "id": "1.125657695",
+       "orc": [{
+           "fullImage": true,
+           "id": 48756,
+           "mb": [
+               [1.4, 2]
+           ]
+       }]
+   }]
+}

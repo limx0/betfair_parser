@@ -21,10 +21,10 @@ class UnmatchedOrder(BaseMessage):
     pt: str
     ot: str
     pd: int
-    rac: str
-    rc: str
-    rfo: str
-    rfs: str
+    rfo: Optional[str] = None
+    rfs: Optional[str] = None
+    rc: Optional[str] = None
+    rac: Optional[str] = None
     md: Optional[int] = None
     cd: Optional[int] = None
     ld: Optional[int] = None
