@@ -108,6 +108,7 @@ class MarketDefinition(BaseMessage, kw_only=True):
     priceLadderDefinition: Optional[Union[str, PriceLadderDescription]] = None
     settledTime: Optional[datetime.datetime] = None
     keyLineDefinition: Optional[KeyLineDefinition] = None
+    eachWayDivisor: Optional[float] = None
 
     @property
     def event_type_name(self) -> str:

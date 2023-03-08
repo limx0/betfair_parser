@@ -139,6 +139,13 @@ def test_mcm_no_clk():
     assert mcm.clk is None
 
 
+def test_mcm_market_definition_each_way():
+    raw = b'{"op":"mcm","clk":"5900908932","pt":1652976054034,"mc":[{"id":"1.199318717","marketDefinition":{"bspMarket":false,"turnInPlayEnabled":true,"persistenceEnabled":true,"marketBaseRate":5.0,"eventId":"31466188","eventTypeId":"7","numberOfWinners":2,"eachWayDivisor":4.0,"bettingType":"ODDS","marketType":"EACH_WAY","marketTime":"2022-05-20T18:03:00.000Z","suspendTime":"2022-05-20T18:03:00.000Z","bspReconciled":false,"complete":true,"inPlay":false,"crossMatching":false,"runnersVoidable":false,"numberOfActiveRunners":7,"betDelay":0,"status":"OPEN","runners":[{"adjustmentFactor":20.67,"status":"ACTIVE","sortPriority":1,"id":14766968,"name":"Militia"},{"adjustmentFactor":18.37,"status":"ACTIVE","sortPriority":2,"id":38218050,"name":"Mellys Flyer"},{"adjustmentFactor":16.49,"status":"ACTIVE","sortPriority":3,"id":13118864,"name":"John Kirkup"},{"adjustmentFactor":16.49,"status":"ACTIVE","sortPriority":4,"id":18267118,"name":"Glory Fighter"},{"adjustmentFactor":12.46,"status":"ACTIVE","sortPriority":5,"id":28562926,"name":"Isle Of Lismore"},{"adjustmentFactor":12.46,"status":"ACTIVE","sortPriority":6,"id":10058014,"name":"Dark Shot"},{"adjustmentFactor":3.03,"status":"ACTIVE","sortPriority":7,"id":5704647,"name":"Duke Of Firenze"}],"regulators":["MR_INT"],"venue":"Catterick","countryCode":"GB","discountAllowed":false,"timezone":"Europe/London","openDate":"2022-05-20T16:20:00.000Z","version":4565022575,"name":"Each Way","eventName":"Catterick 20th May"},"rc":[],"con":true,"img":false}]}'  # noqa
+    mcm: MCM = STREAM_DECODER.decode(raw)
+    assert mcm.mc[0].marketDefinition.marketType == "EACH_WAY"
+    assert mcm.mc[0].marketDefinition.eachWayDivisor == 4.0
+
+
 def test_bsp_data():
     lines = json.loads((RESOURCES_DIR / "streaming/streaming_bsp_data.json").read_text())
     # for line in lines:
