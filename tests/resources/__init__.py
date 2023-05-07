@@ -1,4 +1,4 @@
-from tests.unit.streaming.test_streaming_core import RESOURCES_DIR
+from tests.unit.conftest import RESOURCES_DIR
 
 
 def read_test_file(path) -> bytes:
@@ -7,3 +7,7 @@ def read_test_file(path) -> bytes:
         return full_path.read_bytes()
     else:
         raise ValueError()
+
+
+def id_from_path(path) -> str:
+    return str(path).rsplit("/", 1)[1].split(".", 1)[0]
