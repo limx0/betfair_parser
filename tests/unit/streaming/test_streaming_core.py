@@ -23,9 +23,7 @@ def test_read_file_example2():
     assert len(data) == 5654
 
 
-@pytest.mark.parametrize(
-    "fn", list(map(str, (RESOURCES_DIR / "streaming").glob("*.json"))), ids=id_from_path
-)
+@pytest.mark.parametrize("fn", list(map(str, (RESOURCES_DIR / "streaming").glob("*.json"))), ids=id_from_path)
 def test_streaming_files(fn):
     line = open(fn, "rb").read()
     data = msgspec.json.decode(line)
