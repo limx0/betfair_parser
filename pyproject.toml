@@ -13,6 +13,9 @@ fsspec = ">=2022"
 pytest = "^7.1"
 pytest-benchmark = "^4.0"
 
+[tool.black]
+line-length = 120
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
