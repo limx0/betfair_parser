@@ -18,7 +18,7 @@ def tag_func(s: str):
     return re.sub(r"(?<!^)(?=[A-Z])", "_", s).upper()
 
 
-class Market(BaseMessage, tag=tag_func):
+class Market(BaseMessage, tag=tag_func, frozen=True):
     name: str
     id: str
     exchangeId: str
@@ -27,14 +27,14 @@ class Market(BaseMessage, tag=tag_func):
     numberOfWinners: Union[int, str]
 
 
-class Event(BaseMessage, tag=tag_func):
+class Event(BaseMessage, tag=tag_func, frozen=True):
     name: str
     id: str
     countryCode: str
     children: list[Union["Group", "Event", Market]]
 
 
-class Race(BaseMessage, tag=tag_func):
+class Race(BaseMessage, tag=tag_func, frozen=True):
     name: str
     id: str
     countryCode: str
@@ -44,19 +44,19 @@ class Race(BaseMessage, tag=tag_func):
     raceNumber: Optional[str] = None
 
 
-class Group(BaseMessage, tag=tag_func):
+class Group(BaseMessage, tag=tag_func, frozen=True):
     name: str
     id: str
     children: list[Union["Group", Event]]
 
 
-class EventType(BaseMessage, tag=tag_func):
+class EventType(BaseMessage, tag=tag_func, frozen=True):
     name: str
     id: str
     children: list[Union[Group, Event, Race]]
 
 
-class Navigation(BaseMessage):
+class Navigation(BaseMessage, frozen=True):
     """Navigation"""
 
     type: Literal["GROUP"]
@@ -65,7 +65,7 @@ class Navigation(BaseMessage):
     children: list[EventType]
 
 
-class FlattenedMarket(BaseMessage, kw_only=True):
+class FlattenedMarket(BaseMessage, kw_only=True, frozen=True):
     event_type_name: str
     event_type_id: str
     event_name: Optional[str] = None

@@ -6,5 +6,5 @@ class Error:
     message: str
 
 
-class ErrorResponse(BaseMessage):
+class ErrorResponse(BaseMessage, frozen=True):
     error: Error

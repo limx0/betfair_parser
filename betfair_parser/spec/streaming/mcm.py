@@ -22,7 +22,7 @@ class MarketStatus(Enum):
     CLOSED = "CLOSED"
 
 
-class RunnerValues(BaseMessage):
+class RunnerValues(BaseMessage, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -33,7 +33,7 @@ class RunnerValues(BaseMessage):
     spf: float  # Starting Price Far
 
 
-class Runner(BaseMessage):
+class Runner(BaseMessage, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -57,16 +57,16 @@ class Runner(BaseMessage):
         return int(self.selectionId or self.id)
 
 
-class RunnerKeyLine(BaseMessage):
+class RunnerKeyLine(BaseMessage, frozen=True):
     id: int
     hc: int
 
 
-class KeyLineDefinition(BaseMessage):
+class KeyLineDefinition(BaseMessage, frozen=True):
     kl: list[RunnerKeyLine]
 
 
-class MarketDefinition(BaseMessage, kw_only=True):
+class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -118,21 +118,21 @@ class MarketDefinition(BaseMessage, kw_only=True):
         return {f: getattr(self, f) for f in self.__struct_fields__}
 
 
-class AvailableToBack(BaseMessage, array_like=True):
+class AvailableToBack(BaseMessage, array_like=True, frozen=True):
     """AvailableToBack"""
 
     price: float
     volume: float
 
 
-class AvailableToLay(BaseMessage, array_like=True):
+class AvailableToLay(BaseMessage, array_like=True, frozen=True):
     """AvailableToLay"""
 
     price: float
     volume: float
 
 
-class BestAvailableToBack(BaseMessage, array_like=True):
+class BestAvailableToBack(BaseMessage, array_like=True, frozen=True):
     """BestAvailableToBack"""
 
     level: int
@@ -140,7 +140,7 @@ class BestAvailableToBack(BaseMessage, array_like=True):
     volume: float
 
 
-class BestAvailableToLay(BaseMessage, array_like=True):
+class BestAvailableToLay(BaseMessage, array_like=True, frozen=True):
     """BestAvailableToLay"""
 
     level: int
@@ -148,7 +148,7 @@ class BestAvailableToLay(BaseMessage, array_like=True):
     volume: float
 
 
-class BestDisplayAvailableToBack(BaseMessage, array_like=True):
+class BestDisplayAvailableToBack(BaseMessage, array_like=True, frozen=True):
     """BestDisplayAvailableToBack"""
 
     level: int
@@ -156,7 +156,7 @@ class BestDisplayAvailableToBack(BaseMessage, array_like=True):
     volume: float
 
 
-class BestDisplayAvailableToLay(BaseMessage, array_like=True):
+class BestDisplayAvailableToLay(BaseMessage, array_like=True, frozen=True):
     """BestDisplayAvailableToLay"""
 
     level: int
@@ -164,28 +164,28 @@ class BestDisplayAvailableToLay(BaseMessage, array_like=True):
     volume: float
 
 
-class Trade(BaseMessage, array_like=True):
+class Trade(BaseMessage, array_like=True, frozen=True):
     """Trade"""
 
     price: float
     volume: float
 
 
-class StartingPriceBack(BaseMessage, array_like=True):
+class StartingPriceBack(BaseMessage, array_like=True, frozen=True):
     """StartingPriceBack"""
 
     price: float
     volume: float
 
 
-class StartingPriceLay(BaseMessage, array_like=True):
+class StartingPriceLay(BaseMessage, array_like=True, frozen=True):
     """StartingPriceLay"""
 
     price: float
     volume: float
 
 
-class RunnerChange(BaseMessage):
+class RunnerChange(BaseMessage, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -207,7 +207,7 @@ class RunnerChange(BaseMessage):
     hc: Optional[float] = None
 
 
-class MarketChange(BaseMessage):
+class MarketChange(BaseMessage, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -220,7 +220,7 @@ class MarketChange(BaseMessage):
     con: Optional[bool] = None
 
 
-class MCM(BaseMessage, tag_field="op", tag=str.lower):
+class MCM(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """

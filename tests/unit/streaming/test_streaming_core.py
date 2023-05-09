@@ -7,8 +7,8 @@ from betfair_parser.core import STREAM_DECODER, parse, read_file
 from betfair_parser.spec.streaming import MCM, OCM
 from betfair_parser.spec.streaming.mcm import RunnerStatus, StartingPriceLay
 from betfair_parser.spec.streaming.ocm import MatchedOrder
-from tests.unit.conftest import RESOURCES_DIR
 from tests.resources import id_from_path
+from tests.unit.conftest import RESOURCES_DIR
 
 
 def test_read_file_example1():

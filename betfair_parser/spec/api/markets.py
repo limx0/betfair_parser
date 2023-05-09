@@ -3,13 +3,13 @@ from typing import Literal, Optional
 from betfair_parser.spec.common import BaseMessage
 
 
-class PriceLadderDescription(BaseMessage):
+class PriceLadderDescription(BaseMessage, frozen=True):
     """PriceLadderDescription"""
 
     type: Literal["CLASSIC", "LINE_RANGE", "FINEST"]
 
 
-class LineRangeInfo(BaseMessage):
+class LineRangeInfo(BaseMessage, frozen=True):
     """LineRangeInfo"""
 
     maxUnitValue: float
@@ -18,7 +18,7 @@ class LineRangeInfo(BaseMessage):
     marketUnit: str
 
 
-class Description(BaseMessage):
+class Description(BaseMessage, frozen=True):
     """Description"""
 
     persistenceEnabled: bool
@@ -41,21 +41,21 @@ class Description(BaseMessage):
     raceType: Optional[str] = None
 
 
-class EventType(BaseMessage):
+class EventType(BaseMessage, frozen=True):
     """EventType"""
 
     id: str
     name: str
 
 
-class Competition(BaseMessage):
+class Competition(BaseMessage, frozen=True):
     """Competition"""
 
     id: str
     name: str
 
 
-class Event(BaseMessage):
+class Event(BaseMessage, frozen=True):
     """Event"""
 
     id: str
@@ -66,7 +66,7 @@ class Event(BaseMessage):
     venue: Optional[str] = None
 
 
-class Runner(BaseMessage):
+class Runner(BaseMessage, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -92,7 +92,7 @@ class Runner(BaseMessage):
         return None
 
 
-class MarketCatalog(BaseMessage):
+class MarketCatalog(BaseMessage, frozen=True):
     """MarketCatalog"""
 
     marketId: str

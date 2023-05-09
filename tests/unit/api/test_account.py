@@ -7,7 +7,7 @@ from betfair_parser.spec.api.account import (
     getAccountDetails,
     getAccountFunds,
 )
-from tests.resources import read_test_file, id_from_path
+from tests.resources import id_from_path, read_test_file
 
 
 def read_account_request(path: str):

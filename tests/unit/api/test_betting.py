@@ -7,7 +7,7 @@ from betfair_parser.spec.api.betting import (
     placeOrders,
     replaceOrders,
 )
-from tests.resources import read_test_file, id_from_path
+from tests.resources import id_from_path, read_test_file
 
 
 @pytest.mark.parametrize(

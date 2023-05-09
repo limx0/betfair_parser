@@ -3,7 +3,7 @@ from typing import Literal, Optional
 from betfair_parser.spec.common import BaseMessage
 
 
-class Connection(BaseMessage, tag_field="op", tag=str.lower):
+class Connection(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """
     Connection Message
     """
@@ -11,7 +11,7 @@ class Connection(BaseMessage, tag_field="op", tag=str.lower):
     connectionId: str
 
 
-class Status(BaseMessage, tag_field="op", tag=str.lower):
+class Status(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """
     Status Message
     """

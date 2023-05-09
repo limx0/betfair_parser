@@ -3,12 +3,12 @@ from typing import List, Literal, Optional
 from betfair_parser.spec.common import BaseMessage
 
 
-class MatchedOrder(BaseMessage, array_like=True):
+class MatchedOrder(BaseMessage, array_like=True, frozen=True):
     price: float
     size: float
 
 
-class UnmatchedOrder(BaseMessage):
+class UnmatchedOrder(BaseMessage, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -36,12 +36,12 @@ class UnmatchedOrder(BaseMessage):
     sv: Optional[float] = None
 
 
-class StrategyMatched(BaseMessage):
+class StrategyMatched(BaseMessage, frozen=True):
     mb: Optional[List[MatchedOrder]] = []
     ml: Optional[List[MatchedOrder]] = []
 
 
-class OrderChanges(BaseMessage):
+class OrderChanges(BaseMessage, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -55,7 +55,7 @@ class OrderChanges(BaseMessage):
     smc: Optional[dict[str, StrategyMatched]] = None
 
 
-class OrderAccountChange(BaseMessage):
+class OrderAccountChange(BaseMessage, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
@@ -67,7 +67,7 @@ class OrderAccountChange(BaseMessage):
     closed: Optional[bool] = None
 
 
-class OCM(BaseMessage, tag_field="op", tag=str.lower):
+class OCM(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
