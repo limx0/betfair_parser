@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1683590819846,
+  "lastUpdate": 1683593220771,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1031,6 +1031,49 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006734251169401874",
             "extra": "mean: 51.40451999864126 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "committer": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "distinct": true,
+          "id": "fdf0051ccb7ca27c06a4b31d63d51538533f08ce",
+          "message": "Bump precommit, fixing mypy complaints",
+          "timestamp": "2023-05-09T10:46:06+10:00",
+          "tree_id": "57c7855c1c711084599b4b726d7cff6fd81e3659",
+          "url": "https://github.com/limx0/betfair_parser/commit/fdf0051ccb7ca27c06a4b31d63d51538533f08ce"
+        },
+        "date": 1683593219944,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.14715486995492108,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.795561711999994 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 579352.4577590111,
+            "unit": "iter/sec",
+            "range": "stddev: 1.2254385344239203e-7",
+            "extra": "mean: 1.7260649999968791 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 16855.652239724743,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000006678267089579199",
+            "extra": "mean: 59.32727999947929 usec\nrounds: 5"
           }
         ]
       }
