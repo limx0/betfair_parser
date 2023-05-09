@@ -7,7 +7,7 @@ from betfair_parser.spec.api.account import (
     getAccountDetails,
     getAccountFunds,
 )
-from tests.resources import read_test_file
+from tests.resources import read_test_file, id_from_path
 
 
 def read_account_request(path: str):
@@ -34,12 +34,14 @@ def test_account_details_response():
 
 
 @pytest.mark.parametrize(
-    "raw",
+    "path",
     [
-        read_test_file("responses/account_funds_no_exposure.json"),
-        read_test_file("responses/account_funds_with_exposure.json"),
+        "responses/account_funds_no_exposure.json",
+        "responses/account_funds_with_exposure.json",
     ],
+    ids=id_from_path,
 )
-def test_account_funds_response(raw):
+def test_account_funds_response(path):
+    raw = read_test_file(path)
     funds = msgspec.json.decode(raw, type=AccountFundsResponse)
     assert funds.validate()

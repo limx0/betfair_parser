@@ -8,6 +8,7 @@ from betfair_parser.spec.streaming import MCM, OCM
 from betfair_parser.spec.streaming.mcm import RunnerStatus, StartingPriceLay
 from betfair_parser.spec.streaming.ocm import MatchedOrder
 from tests.unit.conftest import RESOURCES_DIR
+from tests.resources import id_from_path
 
 
 def test_read_file_example1():
@@ -22,7 +23,7 @@ def test_read_file_example2():
     assert len(data) == 5654
 
 
-@pytest.mark.parametrize("fn", list(map(str, (RESOURCES_DIR / "streaming").glob("*.json"))))
+@pytest.mark.parametrize("fn", list(map(str, (RESOURCES_DIR / "streaming").glob("*.json"))), ids=id_from_path)
 def test_streaming_files(fn):
     line = open(fn, "rb").read()
     data = msgspec.json.decode(line)
@@ -102,14 +103,54 @@ def test_mcm_no_missing_fields():
                     "betDelay": 0,
                     "status": "OPEN",
                     "runners": [
-                        {"status": "ACTIVE", "sortPriority": 1, "id": 12217371, "name": "Perth Scorchers WBBL"},
-                        {"status": "ACTIVE", "sortPriority": 2, "id": 12217558, "name": "Sydney Sixers WBBL"},
-                        {"status": "ACTIVE", "sortPriority": 3, "id": 12215567, "name": "Adelaide Strikers WBBL"},
-                        {"status": "ACTIVE", "sortPriority": 4, "id": 12217241, "name": "Sydney Thunder WBBL"},
-                        {"status": "ACTIVE", "sortPriority": 5, "id": 12217559, "name": "Brisbane Heat WBBL"},
-                        {"status": "ACTIVE", "sortPriority": 6, "id": 12217370, "name": "Hobart Hurricanes WBBL"},
-                        {"status": "ACTIVE", "sortPriority": 7, "id": 12215569, "name": "Melbourne Renegades WBBL"},
-                        {"status": "ACTIVE", "sortPriority": 8, "id": 12217242, "name": "Melbourne Stars WBBL"},
+                        {
+                            "status": "ACTIVE",
+                            "sortPriority": 1,
+                            "id": 12217371,
+                            "name": "Perth Scorchers WBBL",
+                        },
+                        {
+                            "status": "ACTIVE",
+                            "sortPriority": 2,
+                            "id": 12217558,
+                            "name": "Sydney Sixers WBBL",
+                        },
+                        {
+                            "status": "ACTIVE",
+                            "sortPriority": 3,
+                            "id": 12215567,
+                            "name": "Adelaide Strikers WBBL",
+                        },
+                        {
+                            "status": "ACTIVE",
+                            "sortPriority": 4,
+                            "id": 12217241,
+                            "name": "Sydney Thunder WBBL",
+                        },
+                        {
+                            "status": "ACTIVE",
+                            "sortPriority": 5,
+                            "id": 12217559,
+                            "name": "Brisbane Heat WBBL",
+                        },
+                        {
+                            "status": "ACTIVE",
+                            "sortPriority": 6,
+                            "id": 12217370,
+                            "name": "Hobart Hurricanes WBBL",
+                        },
+                        {
+                            "status": "ACTIVE",
+                            "sortPriority": 7,
+                            "id": 12215569,
+                            "name": "Melbourne Renegades WBBL",
+                        },
+                        {
+                            "status": "ACTIVE",
+                            "sortPriority": 8,
+                            "id": 12217242,
+                            "name": "Melbourne Stars WBBL",
+                        },
                     ],
                     "regulators": ["MR_INT"],
                     "countryCode": "AU",
