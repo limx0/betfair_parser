@@ -1,25 +1,25 @@
 import datetime
-from enum import Enum
+from enum import auto
 from typing import List, Literal, Optional, Union
 
-from betfair_parser.constants import EVENT_TYPE_TO_NAME
 from betfair_parser.spec.api.markets import PriceLadderDescription
-from betfair_parser.spec.common import BaseMessage
+from betfair_parser.spec.common import BaseMessage, StrEnum
+from betfair_parser.spec.constants import EVENT_TYPE_TO_NAME
 
 
-class RunnerStatus(Enum):
-    ACTIVE = "ACTIVE"
-    REMOVED = "REMOVED"
-    WINNER = "WINNER"
-    PLACED = "PLACED"
-    LOSER = "LOSER"
-    HIDDEN = "HIDDEN"
+class RunnerStatus(StrEnum):
+    ACTIVE = auto()
+    REMOVED = auto()
+    WINNER = auto()
+    PLACED = auto()
+    LOSER = auto()
+    HIDDEN = auto()
 
 
-class MarketStatus(Enum):
-    OPEN = "OPEN"
-    SUSPENDED = "SUSPENDED"
-    CLOSED = "CLOSED"
+class MarketStatus(StrEnum):
+    OPEN = auto()
+    SUSPENDED = auto()
+    CLOSED = auto()
 
 
 class RunnerValues(BaseMessage, frozen=True):

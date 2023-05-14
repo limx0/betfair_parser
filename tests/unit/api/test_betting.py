@@ -1,12 +1,7 @@
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.api.betting import (
-    PlaceResultResponse,
-    cancelOrders,
-    placeOrders,
-    replaceOrders,
-)
+from betfair_parser.spec.api.betting import PlaceResultResponse, cancelOrders, placeOrders, replaceOrders
 from tests.resources import id_from_path, read_test_file
 
 

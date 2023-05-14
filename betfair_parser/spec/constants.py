@@ -1,4 +1,6 @@
-from enum import Enum
+from enum import auto
+
+from betfair_parser.spec.common import StrEnum
 
 
 EVENT_TYPE_TO_NAME = {
@@ -32,21 +34,21 @@ EVENT_TYPE_TO_NAME = {
 }
 
 
-class OrderType(Enum):
-    LIMIT = "LIMIT"
-    MARKET_ON_CLOSE = "MARKET_ON_CLOSE"
+class OrderType(StrEnum):
+    LIMIT = auto()
+    MARKET_ON_CLOSE = auto()
 
 
-class OrderSide(Enum):
-    BACK = "BACK"
-    LAY = "LAY"
+class OrderSide(StrEnum):
+    BACK = auto()
+    LAY = auto()
 
 
-class OrderResponse(Enum):
-    SUCCESS = "SUCCESS"
-    FAILURE = "FAILURE"
+class OrderResponse(StrEnum):
+    SUCCESS = auto()
+    FAILURE = auto()
 
 
-class OrderStatus(Enum):
-    EXECUTABLE = "EXECUTABLE"
-    EXECUTION_COMPLETE = "EXECUTION_COMPLETE"
+class OrderStatus(StrEnum):
+    EXECUTABLE = auto()
+    EXECUTION_COMPLETE = auto()
