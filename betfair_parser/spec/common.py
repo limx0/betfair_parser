@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import Enum, _auto_null, auto  # noqa
 
 import msgspec
 
@@ -48,7 +48,7 @@ class doc(auto):
         # needs to return auto.value, in order to trigger the auto-generation
         # mechanism.
         if self._value is None:
-            return auto.value
+            return _auto_null
         return self
 
     @value.setter
