@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1683593220771,
+  "lastUpdate": 1684095509495,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1074,6 +1074,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006678267089579199",
             "extra": "mean: 59.32727999947929 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bradley.mcelroy@live.com",
+            "name": "Brad",
+            "username": "limx0"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "06711027d46d469655c488753e1fd7152e61dbdd",
+          "message": "Merge pull request #5 from ml31415/main\n\nEnum refactoring",
+          "timestamp": "2023-05-15T06:17:38+10:00",
+          "tree_id": "fa58a3a048338e4bf8409c988df0cc498309e975",
+          "url": "https://github.com/limx0/betfair_parser/commit/06711027d46d469655c488753e1fd7152e61dbdd"
+        },
+        "date": 1684095508706,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.16503037283425992,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.059490643000004 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 621100.5753090712,
+            "unit": "iter/sec",
+            "range": "stddev: 2.7870223954605988e-8",
+            "extra": "mean: 1.6100452000102905 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 19582.439721637355,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000005313155029433614",
+            "extra": "mean: 51.06615999920905 usec\nrounds: 5"
           }
         ]
       }
