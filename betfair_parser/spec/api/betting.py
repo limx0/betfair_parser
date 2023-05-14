@@ -1,8 +1,8 @@
 from typing import List, Literal, Optional, Union
 
-from betfair_parser.constants import OrderResponse, OrderSide, OrderStatus, OrderType
 from betfair_parser.spec.api.core import RequestBase
 from betfair_parser.spec.common import BaseMessage
+from betfair_parser.spec.constants import OrderResponse, OrderSide, OrderStatus, OrderType
 
 
 # ------------ ORDER TYPES ------------ #
