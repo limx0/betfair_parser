@@ -6,7 +6,7 @@ repos:
       - id: isort
         args: [
             --combine-as,
-            --line-length=100,
+            --line-length=120,
             --ensure-newline-before-comments,
             --single-line-exclusions=typing,
             --trailing-comma,
