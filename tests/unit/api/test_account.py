@@ -1,12 +1,7 @@
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.api.account import (
-    AccountDetailsResponse,
-    AccountFundsResponse,
-    getAccountDetails,
-    getAccountFunds,
-)
+from betfair_parser.spec.accounts.operations import getAccountDetails, getAccountFunds
 from tests.resources import id_from_path, read_test_file
 
 
@@ -29,7 +24,7 @@ def test_account_funds_request():
 
 def test_account_details_response():
     raw = read_test_file("responses/account_details.json")
-    details = msgspec.json.decode(raw, type=AccountDetailsResponse)
+    details = msgspec.json.decode(raw, type=getAccountDetails.return_type)
     assert details.validate()
 
 
@@ -43,5 +38,5 @@ def test_account_details_response():
 )
 def test_account_funds_response(path):
     raw = read_test_file(path)
-    funds = msgspec.json.decode(raw, type=AccountFundsResponse)
+    funds = msgspec.json.decode(raw, type=getAccountFunds.return_type)
     assert funds.validate()

@@ -1,90 +1,150 @@
-from enum import Enum, _auto_null, auto  # noqa
+import datetime
+from typing import Annotated, Generic, Literal, Optional, TypeVar
 
 import msgspec
+
+from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
+
+
+class IntStr(int):
+    """Class for marking misformatted integer JSON fields, e.g. "123" instead of 123."""
+
+
+class FloatStr(float):
+    """Class for marking misformatted float JSON fields, e.g. "-5.5" instead of -5.5."""
+
+
+def encode_intfloat(obj):
+    """Encode int and float subtypes as ordinary ints and floats."""
+    if isinstance(obj, int):
+        return int(obj)
+    if isinstance(obj, float):
+        return float(obj)
+    raise TypeError("Unencodable type")
+
+
+def decode_intfloat(type_, obj):
+    """
+    Betfair uses JSON formatting inconsistently. For requests to their API they
+    format int and float values in all of their examples as '"123"' and '"5.5"',
+    event if those quotation marks aren't necessary and actually violate JSON
+    specification.
+
+    This decoding hook gets rid of any quotation marks and restores the original
+    data type. Unfortunately we can't use plain int and float, but need to define
+    a subclass of them, so that the dec_hook can do it's job.
+    """
+    if type_ is IntStr:
+        if isinstance(obj, int):
+            return IntStr(obj)
+        return IntStr(obj.strip("'\" "))
+    if type_ is FloatStr:
+        if isinstance(obj, float):
+            return FloatStr(obj)
+        return FloatStr(obj.strip("'\" "))
+    raise TypeError("Undecodable type")
+
+
+def decode(raw, type=None):
+    return msgspec.json.decode(raw, type=type, dec_hook=decode_intfloat)
 
 
 class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, frozen=True):
     def validate(self):
-        return bool(msgspec.json.decode(msgspec.json.encode(self), type=type(self)))
+        return bool(decode(msgspec.json.encode(self, enc_hook=encode_intfloat), type=type(self)))
 
     def to_dict(self):
-        return {f: getattr(self, f) for f in self.__struct_fields__}
+        return msgspec.structs.asdict(self)
 
 
-class StrEnum(str, Enum):
-    """Allow the `auto()` syntax to use the defined enum key as value.
-
-    Unlike in python 3.11 StrEnum, the fieldnames are not lowered.
-
-    class MyEnum(BaseEnum):
-        FIELD = auto()
-
-    >>> MyEnum.FIELD.value == "FIELD"
-    True
-    """
-
-    def _generate_next_value_(key, start, count, last_values):
-        return key
+class Error(BaseMessage, frozen=True):
+    code: int | str
+    message: str
 
 
-class doc(auto):
-    """Auto-generated enum field with docstring
-
-    doc("docstring") replaces auto() for DocumentedEnums. A value
-    can be set using doc(value=..., docstring=...), otherwise the
-    same value as for auto() is calculated.
-
-    This mechanism only works in combination with
-    DocumentedEnum and messes up the values of an Enum otherwise.
-    """
-
-    def __init__(self, docstring=None, value=None):
-        self._value = value
-        self.__doc__ = docstring
-
-    @property
-    def value(self):
-        # When value is accessed the first time by the enum internals, it
-        # needs to return auto.value, in order to trigger the auto-generation
-        # mechanism.
-        if self._value is None:
-            return _auto_null
-        return self
-
-    @value.setter
-    def value(self, val):
-        # value is set by the enum auto-generation mechanism
-        self._value = val
+class ErrorResponse(BaseMessage, frozen=True):
+    error: Error
 
 
-class DocumentedEnum(Enum):
-    """Enum with documentation strings.
+ResultType = TypeVar("ResultType")
 
-    class DocEnum(DocumentedEnum):
-        FIELD = doc("This is a docstring")
-        FIELD2 = auto()
 
-    >>> DocEnum.FIELD == "FIELD"
-    True
-    >>> DocEnum.FIELD.__doc__
-    "This is a docstring"
-    """
+class Response(BaseMessage, Generic[ResultType], kw_only=True, frozen=True):
+    jsonrpc: Literal["2.0"] = "2.0"
+    id: int = 1
+    result: ResultType = None
 
-    def __new__(cls, val):
-        member = object.__new__(cls)
-        if isinstance(val, doc):
-            member._value_ = val._value
-            member.__doc__ = val.__doc__
-        else:
-            # also handle ordinary or auto() values
-            member._value = val
-            member.__doc__ = None
-        return member
 
-    def _generate_next_value_(key, start, count, last_values):
-        return key
+class RequestBase(BaseMessage, kw_only=True, frozen=True):
+    jsonrpc: Literal["2.0"] = "2.0"
+    id: int = 1
+    response_type = None  # not to be serialized, so no type definition
+    throws = None
 
-    def __str__(self):
-        if self.__doc__:
-            return f"{super().__str__()}: {self.__doc__}"
-        return super().__str__()
+
+# Type aliases with minimalistic validation
+
+
+Date = Annotated[datetime.datetime, msgspec.Meta(title="Date", tz=True)]
+SelectionId = Annotated[IntStr, msgspec.Meta(title="SelectionId")]
+Venue = Annotated[str, msgspec.Meta(title="Venue")]
+MarketId = Annotated[str, msgspec.Meta(title="MarketId")]
+Handicap = Annotated[FloatStr, msgspec.Meta(title="Handicap")]
+EventId = Annotated[str, msgspec.Meta(title="EventId")]
+EventTypeId = Annotated[str, msgspec.Meta(title="EventTypeId")]
+CountryCode = Annotated[str, msgspec.Meta(title="CountryCode", min_length=2, max_length=3)]
+ExchangeId = Annotated[str, msgspec.Meta(title="ExchangeId")]
+CompetitionId = Annotated[str, msgspec.Meta(title="CompetitionId")]
+Price = Annotated[FloatStr, msgspec.Meta(title="Price")]
+Size = Annotated[FloatStr, msgspec.Meta(title="Size")]
+BetId = Annotated[str, msgspec.Meta(title="BetId")]
+MatchId = Annotated[str, msgspec.Meta(title="MatchId")]
+CustomerOrderRef = Annotated[str, msgspec.Meta(title="CustomerOrderRef")]
+CustomerStrategyRef = Annotated[str, msgspec.Meta(title="CustomerStrategyRef")]
+
+
+# Enums and type definitions, that are used in multiple parts of the API
+
+
+class OrderType(DocumentedEnum):
+    LIMIT = doc("A normal exchange limit order for immediate execution")
+    LIMIT_ON_CLOSE = doc("Limit order for the auction (SP)")
+    MARKET_ON_CLOSE = doc("Market order for the auction (SP)")
+
+
+class OrderSide(StrEnum):
+    BACK = auto()
+    LAY = auto()
+
+
+class OrderResponse(StrEnum):
+    SUCCESS = auto()
+    FAILURE = auto()
+
+
+class OrderStatus(DocumentedEnum):
+    PENDING = doc(
+        "An asynchronous order is yet to be processed. Once the bet has been processed by the exchange "
+        "(including waiting for any in-play delay), the result will be reported and available on the "
+        "Exchange Stream API and API NG. Not a valid search criteria on MarketFilter."
+    )
+    EXECUTION_COMPLETE = doc("An order that does not have any remaining unmatched portion.")
+    EXECUTABLE = doc("An order that has a remaining unmatched portion.")
+    EXPIRED = doc(
+        "The order is no longer available for execution due to its time in force constraint. "
+        "In the case of FILL_OR_KILL orders, this means the order has been killed because it "
+        "could not be filled to your specifications. Not a valid search criteria on MarketFilter."
+    )
+
+
+class MarketType(DocumentedEnum):
+    A = doc("Asian Handicap")
+    L = doc("Line market")
+    O = doc("Odds market")  # noqa
+    R = doc("Range market.")
+    NOT_APPLICABLE = doc("The market does not have an applicable marketType.")
+
+
+class TimeRange(BaseMessage, frozen=True):
+    from_: Optional[Date] = msgspec.field(name="from", default=None)
+    to: Optional[Date] = None

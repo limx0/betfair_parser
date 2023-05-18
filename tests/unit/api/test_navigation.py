@@ -1,6 +1,6 @@
 import msgspec.json
 
-from betfair_parser.spec.api.navigation import Navigation, navigation_to_flatten_markets
+from betfair_parser.spec.navigation import Navigation, navigation_to_flatten_markets
 from tests.resources import read_test_file
 
 

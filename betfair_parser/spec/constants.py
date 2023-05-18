@@ -1,8 +1,3 @@
-from enum import auto
-
-from betfair_parser.spec.common import StrEnum
-
-
 EVENT_TYPE_TO_NAME = {
     "1": "Soccer",
     "2": "Tennis",
@@ -32,23 +27,3 @@ EVENT_TYPE_TO_NAME = {
     "4339": "Greyhound Racing",
     "2378961": "Politics",
 }
-
-
-class OrderType(StrEnum):
-    LIMIT = auto()
-    MARKET_ON_CLOSE = auto()
-
-
-class OrderSide(StrEnum):
-    BACK = auto()
-    LAY = auto()
-
-
-class OrderResponse(StrEnum):
-    SUCCESS = auto()
-    FAILURE = auto()
-
-
-class OrderStatus(StrEnum):
-    EXECUTABLE = auto()
-    EXECUTION_COMPLETE = auto()

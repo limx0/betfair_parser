@@ -1,7 +1,7 @@
-import msgspec.json
 import pytest
 
-from betfair_parser.spec.api.betting import PlaceResultResponse, cancelOrders, placeOrders, replaceOrders
+from betfair_parser.spec.betting.orders import cancelOrders, placeOrders, replaceOrders
+from betfair_parser.spec.common import decode
 from tests.resources import id_from_path, read_test_file
 
 
@@ -16,7 +16,7 @@ from tests.resources import id_from_path, read_test_file
 )
 def test_place_order(path):
     raw = read_test_file(path)
-    message = msgspec.json.decode(raw, type=placeOrders)
+    message = decode(raw, type=placeOrders)
     assert message.validate()
 
 
@@ -29,7 +29,7 @@ def test_place_order(path):
 )
 def test_cancel_order(path):
     raw = read_test_file(path)
-    message = msgspec.json.decode(raw, type=cancelOrders)
+    message = decode(raw, type=cancelOrders)
     assert message.validate()
 
 
@@ -42,7 +42,7 @@ def test_cancel_order(path):
 )
 def test_replace_order(path):
     raw = read_test_file(path)
-    message = msgspec.json.decode(raw, type=replaceOrders)
+    message = decode(raw, type=replaceOrders)
     assert message.validate()
 
 
@@ -56,17 +56,18 @@ def test_replace_order(path):
 )
 def test_place_order_response(path):
     raw = read_test_file(path)
-    message = msgspec.json.decode(raw, type=PlaceResultResponse)
+    message = decode(raw, type=placeOrders.return_type)
     assert message.validate()
 
 
-# @pytest.mark.parametrize(
-#     "raw",
-#     [
-#        read_test_file("responses/betting_replace_orders_success.json"),
-#        read_test_file("responses/betting_replace_orders_success_multi.json"),
-#     ],
-# )
-# def test_replace_order_response(raw):
-#     message = msgspec.json.decode(raw, type=ReplaceResultResponse)
-#     assert message.validate()
+@pytest.mark.parametrize(
+    "path",
+    [
+        "responses/betting_replace_orders_success.json",
+    ],
+    ids=id_from_path,
+)
+def test_replace_order_response(path):
+    raw = read_test_file(path)
+    message = decode(raw, type=replaceOrders.return_type)
+    assert message.validate()

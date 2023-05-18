@@ -1,10 +1,9 @@
-import datetime
 import re
 from typing import Literal, Optional, Union
 
 import msgspec
 
-from betfair_parser.spec.common import BaseMessage
+from betfair_parser.spec.common import BaseMessage, Date
 
 
 def tag_func(s: str):
@@ -39,7 +38,7 @@ class Race(BaseMessage, tag=tag_func, frozen=True):
     id: str
     countryCode: str
     venue: str
-    startTime: datetime.datetime
+    startTime: Date
     children: list[Market]
     raceNumber: Optional[str] = None
 

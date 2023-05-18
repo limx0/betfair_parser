@@ -2,7 +2,7 @@ from enum import auto
 
 import msgspec
 
-from betfair_parser.spec.common import DocumentedEnum, StrEnum, doc
+from betfair_parser.strenums import DocumentedEnum, StrEnum, doc
 
 
 def test_strenum():
