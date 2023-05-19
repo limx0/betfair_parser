@@ -14,12 +14,16 @@ def test_account_details_request():
     raw = read_account_request("requests/account_details.json")
     details = msgspec.json.decode(raw, type=getAccountDetails)
     assert details.validate()
+    enc_details = msgspec.json.encode(details)
+    assert getAccountDetails.method in enc_details.decode()
 
 
 def test_account_funds_request():
     raw = read_account_request("requests/account_funds.json")
     funds = msgspec.json.decode(raw, type=getAccountFunds)
     assert funds.validate()
+    enc_funds = msgspec.json.encode(funds)
+    assert getAccountFunds.method in enc_funds.decode()
 
 
 def test_account_details_response():

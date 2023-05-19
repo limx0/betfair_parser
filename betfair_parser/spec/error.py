@@ -2,8 +2,8 @@ from betfair_parser.spec.common import BaseMessage
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
-class Error:
-    code: int
+class Error(BaseMessage, frozen=True):
+    code: int | str
     message: str
 
 

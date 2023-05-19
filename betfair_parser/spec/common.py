@@ -57,15 +57,6 @@ class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, froz
         return msgspec.structs.asdict(self)
 
 
-class Error(BaseMessage, frozen=True):
-    code: int | str
-    message: str
-
-
-class ErrorResponse(BaseMessage, frozen=True):
-    error: Error
-
-
 ResultType = TypeVar("ResultType")
 
 
@@ -76,10 +67,12 @@ class Response(BaseMessage, Generic[ResultType], kw_only=True, frozen=True):
 
 
 class RequestBase(BaseMessage, kw_only=True, frozen=True):
+    method: str
+    params: BaseMessage | dict
     jsonrpc: Literal["2.0"] = "2.0"
     id: int = 1
     response_type = None  # not to be serialized, so no type definition
-    throws = None
+    throws = None  # not to be serialized, so no type definition
 
 
 # Type aliases with minimalistic validation

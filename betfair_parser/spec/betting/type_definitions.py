@@ -438,8 +438,8 @@ class LimitOrder(BaseMessage, frozen=True):
 
 
 class LimitOnCloseOrder(BaseMessage, frozen=True):
-    liability: float
-    price: float
+    liability: FloatStr
+    price: FloatStr
 
 
 class MarketOnCloseOrder(BaseMessage, frozen=True):
