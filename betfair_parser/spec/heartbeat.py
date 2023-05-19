@@ -1,4 +1,4 @@
-from betfair_parser.spec.common import BaseMessage, RequestBase, Response
+from betfair_parser.spec.common import BaseMessage, Request, Response
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
@@ -25,7 +25,7 @@ class heartbeatParams(BaseMessage, frozen=True):
     preferredTimeoutSeconds: int
 
 
-class heartbeat(RequestBase, kw_only=True, frozen=True):
+class heartbeat(Request, kw_only=True, frozen=True):
     """
     Returns a list of Competitions (i.e., World Cup 2013) associated with the markets selected by
     the MarketFilter. Currently only Football markets have an associated competition.

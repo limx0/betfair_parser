@@ -1,5 +1,5 @@
 from betfair_parser.core import read_file
-from tests.unit.conftest import RESOURCES_DIR
+from tests.resources import RESOURCES_DIR
 
 
 def test_event():

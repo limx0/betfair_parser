@@ -1,0 +1,19 @@
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "customerRef": "345",
+    "status": "SUCCESS",
+    "marketId": "1.118298866",
+    "instructionReports": [
+      {
+        "status": "SUCCESS",
+        "instruction": {
+          "betId": "49078012097",
+          "sizeReduction": 0.5
+        },
+        "sizeCancelled": 0.5
+      }
+    ]
+  },
+  "id": 12
+}

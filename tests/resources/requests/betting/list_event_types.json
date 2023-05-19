@@ -1,0 +1,10 @@
+{
+  "params": {
+    "filter": {
+      "textQuery": "Horse Racing"
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "SportsAPING/v1.0/listEventTypes"
+}

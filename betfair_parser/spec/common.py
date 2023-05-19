@@ -39,19 +39,25 @@ def decode_intfloat(type_, obj):
             return IntStr(obj)
         return IntStr(obj.strip("'\" "))
     if type_ is FloatStr:
-        if isinstance(obj, float):
+        if isinstance(obj, (float, int)):
             return FloatStr(obj)
         return FloatStr(obj.strip("'\" "))
     raise TypeError("Undecodable type")
 
 
 def decode(raw, type=None):
+    if type is None:
+        return msgspec.json.decode(raw, dec_hook=decode_intfloat)
     return msgspec.json.decode(raw, type=type, dec_hook=decode_intfloat)
+
+
+def encode(data):
+    return msgspec.json.encode(data, enc_hook=encode_intfloat)
 
 
 class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, frozen=True):
     def validate(self):
-        return bool(decode(msgspec.json.encode(self, enc_hook=encode_intfloat), type=type(self)))
+        return bool(decode(encode(self), type=type(self)))
 
     def to_dict(self):
         return msgspec.structs.asdict(self)
@@ -66,7 +72,7 @@ class Response(BaseMessage, Generic[ResultType], kw_only=True, frozen=True):
     result: ResultType = None
 
 
-class RequestBase(BaseMessage, kw_only=True, frozen=True):
+class Request(BaseMessage, kw_only=True, frozen=True):
     method: str
     params: BaseMessage | dict
     jsonrpc: Literal["2.0"] = "2.0"
@@ -84,16 +90,17 @@ Venue = Annotated[str, msgspec.Meta(title="Venue")]
 MarketId = Annotated[str, msgspec.Meta(title="MarketId")]
 Handicap = Annotated[FloatStr, msgspec.Meta(title="Handicap")]
 EventId = Annotated[str, msgspec.Meta(title="EventId")]
-EventTypeId = Annotated[str, msgspec.Meta(title="EventTypeId")]
+EventTypeId = Annotated[IntStr, msgspec.Meta(title="EventTypeId")]
 CountryCode = Annotated[str, msgspec.Meta(title="CountryCode", min_length=2, max_length=3)]
 ExchangeId = Annotated[str, msgspec.Meta(title="ExchangeId")]
 CompetitionId = Annotated[str, msgspec.Meta(title="CompetitionId")]
 Price = Annotated[FloatStr, msgspec.Meta(title="Price")]
 Size = Annotated[FloatStr, msgspec.Meta(title="Size")]
-BetId = Annotated[str, msgspec.Meta(title="BetId")]
-MatchId = Annotated[str, msgspec.Meta(title="MatchId")]
-CustomerOrderRef = Annotated[str, msgspec.Meta(title="CustomerOrderRef")]
-CustomerStrategyRef = Annotated[str, msgspec.Meta(title="CustomerStrategyRef")]
+BetId = Annotated[str | int, msgspec.Meta(title="BetId")]
+MatchId = Annotated[str | int, msgspec.Meta(title="MatchId")]
+CustomerRef = Annotated[str | int, msgspec.Meta(title="CustomerRef")]
+CustomerOrderRef = Annotated[str | int, msgspec.Meta(title="CustomerOrderRef")]
+CustomerStrategyRef = Annotated[str | int, msgspec.Meta(title="CustomerStrategyRef")]
 
 
 # Enums and type definitions, that are used in multiple parts of the API

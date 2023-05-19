@@ -19,7 +19,7 @@ from betfair_parser.spec.betting.type_definitions import (
     TimeRangeResult,
     VenueResult,
 )
-from betfair_parser.spec.common import BaseMessage, BetId, Date, MarketId, RequestBase, Response, SelectionId
+from betfair_parser.spec.common import BaseMessage, BetId, Date, MarketId, Request, Response, SelectionId
 
 
 class ListingParams(BaseMessage, frozen=True):
@@ -27,7 +27,7 @@ class ListingParams(BaseMessage, frozen=True):
     locale: str | None = None
 
 
-class listCompetitions(RequestBase, kw_only=True, frozen=True):
+class listCompetitions(Request, kw_only=True, frozen=True):
     """
     Returns a list of Competitions (i.e., World Cup 2013) associated with the markets selected by
     the MarketFilter. Currently only Football markets have an associated competition.
@@ -38,7 +38,7 @@ class listCompetitions(RequestBase, kw_only=True, frozen=True):
     return_type = Response[list[CompetitionResult]]
 
 
-class listCountries(RequestBase, kw_only=True, frozen=True):
+class listCountries(Request, kw_only=True, frozen=True):
     """
     Returns a list of Countries associated with the markets selected by the MarketFilter.
     """
@@ -48,7 +48,7 @@ class listCountries(RequestBase, kw_only=True, frozen=True):
     return_type = Response[list[CountryCodeResult]]
 
 
-class listEvents(RequestBase, kw_only=True, frozen=True):
+class listEvents(Request, kw_only=True, frozen=True):
     """
     Returns a list of Events (i.e, Reading vs. Man United) associated with the markets selected
     by the MarketFilter.
@@ -59,7 +59,7 @@ class listEvents(RequestBase, kw_only=True, frozen=True):
     return_type = Response[list[EventResult]]
 
 
-class listEventTypes(RequestBase, kw_only=True, frozen=True):
+class listEventTypes(Request, kw_only=True, frozen=True):
     """
     Returns a list of Event Types (i.e. Sports) associated with the markets selected by the
     MarketFilter.
@@ -70,7 +70,7 @@ class listEventTypes(RequestBase, kw_only=True, frozen=True):
     return_type = Response[list[EventTypeResult]]
 
 
-class listMarketTypes(RequestBase, kw_only=True, frozen=True):
+class listMarketTypes(Request, kw_only=True, frozen=True):
     """
     Returns a list of market types (i.e. MATCH_ODDS, NEXT_GOAL) associated with the markets selected
     by the MarketFilter. The market types are always the same, regardless of locale.
@@ -81,7 +81,7 @@ class listMarketTypes(RequestBase, kw_only=True, frozen=True):
     return_type = Response[list[MarketTypeResult]]
 
 
-class listVenues(RequestBase, kw_only=True, frozen=True):
+class listVenues(Request, kw_only=True, frozen=True):
     """
     Returns a list of Venues (i.e. Cheltenham, Ascot) associated with the markets selected by the
     MarketFilter. Currently, only Horse Racing markets are associated with a Venue.
@@ -109,7 +109,7 @@ class listMarketBookParams(BaseMessage, frozen=True):
     betIds: set[BetId] | None = None  # Restricts to orders with the specified bet IDs
 
 
-class listMarketBook(RequestBase, kw_only=True, frozen=True):
+class listMarketBook(Request, kw_only=True, frozen=True):
     """
     Returns a list of dynamic data about markets. Dynamic data includes prices, the status of the
     market, the status of selections, the traded volume, and the status of any orders you have
@@ -142,7 +142,7 @@ class listMarketCatalogueParams(BaseMessage, kw_only=True, frozen=True):
     locale: str | None = None  # The language used for the response
 
 
-class listMarketCatalogue(RequestBase, kw_only=True, frozen=True):
+class listMarketCatalogue(Request, kw_only=True, frozen=True):
     """
     Returns a list of information about published (ACTIVE/SUSPENDED) markets that does not change
     (or changes very rarely). You use listMarketCatalogue to retrieve the name of the market, the
@@ -164,10 +164,8 @@ class listMarketProfitAndLossParams(BaseMessage, frozen=True):
     netOfCommission: bool = False  # Option to return profit and loss net of users current commission rate
 
 
-class listMarketProfitAndLoss(RequestBase, kw_only=True, frozen=True):
-    """
-    Returns a list of Countries associated with the markets selected by the MarketFilter.
-    """
+class listMarketProfitAndLoss(Request, kw_only=True, frozen=True):
+    """Returns a list of Countries associated with the markets selected by the MarketFilter."""
 
     method = "SportsAPING/v1.0/listMarketProfitAndLoss"
     params: listMarketProfitAndLossParams
@@ -190,7 +188,7 @@ class listRunnerBookParams(BaseMessage, frozen=True):
     betIds: set[BetId] | None = None  # Restricts to orders with the specified bet IDs
 
 
-class listRunnerBook(RequestBase, kw_only=True, frozen=True):
+class listRunnerBook(Request, kw_only=True, frozen=True):
     """
     Returns a list of dynamic data about a market and a specified runner. Dynamic data includes
     prices, the status of the market, the status of selections, the traded volume, and the status
@@ -209,7 +207,7 @@ class listTimeRangesParams(BaseMessage, frozen=True):
     granularity: TimeGranularity
 
 
-class listTimeRanges(RequestBase, kw_only=True, frozen=True):
+class listTimeRanges(Request, kw_only=True, frozen=True):
     """
     Returns a list of time ranges in the granularity specified in the request (i.e. 3PM to 4PM,
     Aug 14th to Aug 15th) associated with the markets selected by the MarketFilter.

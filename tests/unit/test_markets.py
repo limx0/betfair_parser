@@ -2,6 +2,7 @@ import msgspec.json
 import pytest
 
 from betfair_parser.spec.betting.type_definitions import MarketCatalogue, RunnerCatalog
+from betfair_parser.spec.common import decode, encode
 from tests.resources import assert_json_equal, read_test_file
 
 
@@ -36,8 +37,8 @@ def test_runner_name(data):
 
 
 def test_market_catalogue():
-    raw = read_test_file("responses/betting_list_market_catalogue.json")
-    catalog = msgspec.json.decode(raw, type=list[MarketCatalogue])
+    raw = read_test_file("responses/betting/list_market_catalogue.json")
+    catalog = decode(raw, type=list[MarketCatalogue])
     assert len(catalog) == 12035
     expected = {
         "marketId": "1.180697651",
@@ -81,7 +82,7 @@ def test_market_catalogue():
                 "metadata": {"runnerId": "47973"},
             },
         ],
-        "eventType": {"id": "1", "name": "Soccer"},
+        "eventType": {"id": 1, "name": "Soccer"},
         "event": {
             "id": "30359506",
             "name": "Almere City v Den Bosch",
@@ -92,5 +93,5 @@ def test_market_catalogue():
         },
         "competition": {"id": "11", "name": "Dutch Eerste Divisie"},
     }
-    result = msgspec.json.decode(msgspec.json.encode(catalog[5000]))
+    result = decode(encode(catalog[5000]))
     assert_json_equal(result, expected)

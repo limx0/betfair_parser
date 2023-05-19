@@ -18,11 +18,16 @@ from betfair_parser.spec.betting.enums import (
 )
 from betfair_parser.spec.common import (
     BaseMessage,
+    BetId,
+    CountryCode,
     CustomerOrderRef,
+    CustomerRef,
     CustomerStrategyRef,
     Date,
+    EventTypeId,
     FloatStr,
     Handicap,
+    MarketId,
     OrderStatus,
     OrderType,
     Price,
@@ -58,7 +63,7 @@ class EventResult(BaseMessage, frozen=True):
 
 
 class EventType(BaseMessage, frozen=True):
-    id: str
+    id: EventTypeId
     name: str
 
 
@@ -73,7 +78,7 @@ class MarketTypeResult(BaseMessage, frozen=True):
 
 
 class CountryCodeResult(BaseMessage, frozen=True):
-    countryCode: str  # The ISO-2 code for the event
+    countryCode: CountryCode  # The ISO-2 code for the event
     marketCount: int  # Count of markets associated with this Country Code
 
 
@@ -98,7 +103,7 @@ class MarketFilter(BaseMessage, frozen=True):
     eventTypeIds: Optional[set[str]] = None  # Restrict markets by event type associated with the market
     eventIds: Optional[set[str]] = None  # Restrict markets by the event id associated with the market
     competitionIds: Optional[set[str]] = None  # Restrict markets by the competitions associated with the market
-    marketIds: Optional[set[str]] = None  # Restrict markets by the market id associated with the market
+    marketIds: Optional[set[MarketId]] = None  # Restrict markets by the market id associated with the market
     venues: Optional[set[str]] = None  # Restrict markets by the venue associated with the market
     bspOnly: Optional[bool] = None  # Restrict to bsp markets only if True or non-bsp markets if False
 
@@ -149,7 +154,7 @@ class ExchangePrices(BaseMessage, frozen=True):
 
 
 class Order(BaseMessage, frozen=True):
-    betId: str
+    betId: BetId
     orderType: OrderType
     status: OrderStatus
     persistenceType: PersistenceType
@@ -173,7 +178,7 @@ class Match(BaseMessage, kw_only=True, frozen=True):
     the requested MatchProjection.
     """
 
-    betId: Optional[str] = None  # Bet ID (present if no rollup)
+    betId: Optional[BetId] = None  # Bet ID (present if no rollup)
     matchId: Optional[str] = None  # Match ID (present if no rollup)
     side: Side  # Side (BACK or LAY)
     price: float  # Match price
@@ -216,9 +221,7 @@ class MarketDescription(BaseMessage, kw_only=True, frozen=True):
     clarifications: Optional[str] = None  # Additional information regarding the market
     lineRangeInfo: Optional[MarketLineRangeInfo] = None  # Line range info for line markets
     raceType: Optional[str] = None  # External identifier of a race type
-    priceLadderDescription: Optional[
-        PriceLadderDescription
-    ] = None  # Details about the price ladder in use for this market
+    priceLadderDescription: Optional[PriceLadderDescription] = None  # Details about the price ladder in use
 
 
 class RunnerCatalog(BaseMessage, frozen=True):
@@ -267,11 +270,9 @@ class Runner(BaseMessage, frozen=True):
 
 
 class MarketCatalogue(BaseMessage, frozen=True):
-    marketId: str  # The unique identifier for the market
+    marketId: MarketId  # The unique identifier for the market
     marketName: str  # The name of the market
-    marketStartTime: Optional[
-        Date
-    ] = None  # Only returned when the MARKET_START_TIME enum is passed in the marketProjections
+    marketStartTime: Optional[Date] = None  # Only returned when the MARKET_START_TIME enum is requested
     description: Optional[MarketDescription] = None  # Details about the market
     totalMatched: Optional[float] = None  # The total amount of money matched on the market
     runners: Optional[list[RunnerCatalog]] = None  # The runners (selections) contained in the market
@@ -296,7 +297,7 @@ class KeyLineDescription(BaseMessage, frozen=True):
 class MarketBook(BaseMessage, frozen=True):
     """The dynamic data in a market"""
 
-    marketId: str  # The unique identifier for the market
+    marketId: MarketId  # The unique identifier for the market
     isMarketDataDelayed: bool  # True if the data returned by listMarketBook will be delayed
     status: Optional[MarketStatus] = None  # The status of the market
     betDelay: Optional[int] = None  # The number of seconds an order is held until it is submitted into the market
@@ -337,19 +338,15 @@ class ClearedOrderSummary(BaseMessage, frozen=True):
 
     eventTypeId: Optional[str] = None  # The id of the event type bet on
     eventId: Optional[str] = None  # The id of the event bet on
-    marketId: Optional[str] = None  # The id of the market bet on
+    marketId: Optional[MarketId] = None  # The id of the market bet on
     selectionId: Optional[int] = None  # The id of the selection bet on
     handicap: Optional[float] = None  # The handicap value for Asian handicap markets
-    betId: Optional[str] = None  # The id of the bet
+    betId: Optional[BetId] = None  # The id of the bet
     placedDate: Optional[Date] = None  # The date the bet order was placed by the customer
-    persistenceType: Optional[
-        PersistenceType
-    ] = None  # The turn in play persistence state of the order at bet placement time
+    persistenceType: Optional[PersistenceType] = None  # The turn in play persistence state of the order
     orderType: Optional[OrderType] = None
     side: Optional[Side] = None  # Whether the bet was a back or lay bet
-    itemDescription: Optional[
-        ItemDescription
-    ] = None  # Container for ancillary data and localized text valid for this item
+    itemDescription: Optional[ItemDescription] = None  # Container for ancillary data and localized text
     betOutcome: Optional[str] = None  # The settlement outcome of the bet
     priceRequested: Optional[float] = None  # The average requested price across all settled bet orders under this item
     settledDate: Optional[Date] = None  # The date and time the bet order was settled by Betfair
@@ -358,9 +355,7 @@ class ClearedOrderSummary(BaseMessage, frozen=True):
 
     # The cumulative amount of commission paid by the customer across all bets under this item
     commission: Optional[float] = None
-    priceMatched: Optional[
-        float
-    ] = None  # The average matched price across all settled bets or bet fragments under this item
+    priceMatched: Optional[float] = None  # The average matched price across all settled bets or bet fragments
     priceReduced: Optional[bool] = None  # Indicates if the matched price was affected by a reduction factor
     sizeSettled: Optional[float] = None  # The cumulative bet size that was settled as matched or voided under this item
     profit: Optional[float] = None  # The profit or loss gained on this line
@@ -379,7 +374,7 @@ class ClearedOrderSummaryReport(BaseMessage, frozen=True):
 class RunnerId(BaseMessage, frozen=True):
     """Unique identifier for a runner"""
 
-    marketId: str  # The id of the market bet on
+    marketId: MarketId  # The id of the market bet on
     selectionId: int  # The id of the selection bet on
     handicap: Optional[float] = None  # The handicap associated with the runner in case of Asian handicap markets
 
@@ -393,8 +388,8 @@ class CurrentItemDescription(BaseMessage, frozen=True):
 class CurrentOrderSummary(BaseMessage, frozen=True):
     """Summary of a current order"""
 
-    betId: str  # The bet ID of the original place order
-    marketId: str  # The market ID the order is for
+    betId: BetId  # The bet ID of the original place order
+    marketId: MarketId  # The market ID the order is for
     selectionId: int  # The selection ID the order is for
     handicap: float  # The handicap associated with the runner in case of Asian handicap markets
     priceSize: PriceSize  # The price and size of the bet
@@ -470,24 +465,24 @@ class PlaceInstructionReport(BaseMessage, kw_only=True, frozen=True):
     errorCode: Optional[InstructionReportErrorCode] = None
     orderStatus: Optional[OrderStatus] = None
     instruction: PlaceInstruction  # The place instruction
-    betId: Optional[str] = None  # The bet ID of the placed order, if successful
+    betId: Optional[BetId] = None  # The bet ID of the placed order, if successful
     placedDate: Optional[Date] = None  # The date and time the bet was placed, if successful
     averagePriceMatched: Optional[float] = None  # The average price matched at, if successful
     sizeMatched: Optional[Size] = None  # The current amount of the bet that was matched, if successful
 
 
 class PlaceExecutionReport(BaseMessage, kw_only=True, frozen=True):
-    customerRef: Optional[str] = None  # Echo of the customer reference if passed
+    customerRef: Optional[CustomerRef] = None  # Echo of the customer reference if passed
     status: ExecutionReportStatus  # The execution report status
     errorCode: Optional[ExecutionReportErrorCode] = None  # The execution report error code
-    marketId: Optional[str] = None  # Echo of the market ID passed
+    marketId: Optional[MarketId] = None  # Echo of the market ID passed
     instructionReports: list[PlaceInstructionReport]  # The list of place instruction reports
 
 
 class CancelInstruction(BaseMessage, frozen=True):
     """Instruction to fully or partially cancel an order (only applies to LIMIT orders)"""
 
-    betId: str
+    betId: BetId
     # If supplied then this is a partial cancel. Should be set to 'null' if no size
     # reduction is required.
     sizeReduction: Optional[float] = None
@@ -496,7 +491,7 @@ class CancelInstruction(BaseMessage, frozen=True):
 class ReplaceInstruction(BaseMessage, frozen=True):
     """Instruction to replace a LIMIT or LIMIT_ON_CLOSE order at a new price."""
 
-    betId: str  # Unique identifier for the bet
+    betId: BetId  # Unique identifier for the bet
     newPrice: float  # The price to replace the bet at
 
 
@@ -504,15 +499,15 @@ class CancelInstructionReport(BaseMessage, kw_only=True, frozen=True):
     status: InstructionReportStatus  # Whether the command succeeded or failed
     errorCode: Optional[InstructionReportErrorCode] = None  # Cause of failure, or null if command succeeds
     instruction: Optional[CancelInstruction] = None  # The instruction that was requested
-    sizeCancelled: float
+    sizeCancelled: Optional[float] = None  # The API states, that this is mandatory, but it's skipped in case of error
     cancelledDate: Optional[Date] = None
 
 
 class CancelExecutionReport(BaseMessage, kw_only=True, frozen=True):
-    customerRef: Optional[str] = None  # Echo of the customerRef if passed
+    customerRef: Optional[CustomerRef] = None  # Echo of the customerRef if passed
     status: ExecutionReportStatus
     errorCode: Optional[ExecutionReportErrorCode] = None
-    marketId: Optional[str] = None  # Echo of marketId passed
+    marketId: Optional[MarketId] = None  # Echo of marketId passed
     instructionReports: Optional[list[CancelInstructionReport]] = None
 
 
@@ -524,17 +519,17 @@ class ReplaceInstructionReport(BaseMessage, frozen=True):
 
 
 class ReplaceExecutionReport(BaseMessage, kw_only=True, frozen=True):
-    customerRef: Optional[str] = None  # Echo of the customerRef if passed.
+    customerRef: Optional[CustomerRef] = None  # Echo of the customerRef if passed.
     status: ExecutionReportStatus
     errorCode: Optional[ExecutionReportErrorCode] = None
-    marketId: Optional[str] = None  # Echo of marketId passed
+    marketId: Optional[MarketId] = None  # Echo of marketId passed
     instructionReports: Optional[list[ReplaceInstructionReport]] = None
 
 
 class UpdateInstruction(BaseMessage, frozen=True):
     """Instruction to update LIMIT bet's persistence of an order that do not affect exposure"""
 
-    betId: str  # Unique identifier for the bet
+    betId: BetId  # Unique identifier for the bet
     newPersistenceType: PersistenceType  # The new persistence type to update this bet to
 
 
@@ -545,10 +540,10 @@ class UpdateInstructionReport(BaseMessage, kw_only=True, frozen=True):
 
 
 class UpdateExecutionReport(BaseMessage, frozen=True):
-    customerRef: Optional[str]  # Echo of the customerRef if passed.
+    customerRef: Optional[CustomerRef]  # Echo of the customerRef if passed.
     status: ExecutionReportStatus
     errorCode: Optional[ExecutionReportErrorCode]
-    marketId: Optional[str]  # Echo of marketId passed
+    marketId: Optional[MarketId]  # Echo of marketId passed
     instructionReports: Optional[list[UpdateInstructionReport]]
 
 
@@ -592,6 +587,6 @@ class RunnerProfitAndLoss(BaseMessage, frozen=True):
 class MarketProfitAndLoss(BaseMessage, frozen=True):
     """Profit and loss in a market"""
 
-    marketId: Optional[str] = None  # The unique identifier for the market
+    marketId: Optional[MarketId] = None  # The unique identifier for the market
     commissionApplied: Optional[float] = None  # The commission rate applied to P&L values
     profitAndLosses: Optional[list[RunnerProfitAndLoss]] = None  # Calculated profit and loss data

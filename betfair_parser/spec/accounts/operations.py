@@ -5,10 +5,10 @@ from betfair_parser.spec.accounts.type_definitions import (
     AccountStatementReport,
     CurrencyRate,
 )
-from betfair_parser.spec.common import BaseMessage, RequestBase, Response, TimeRange
+from betfair_parser.spec.common import BaseMessage, Request, Response, TimeRange
 
 
-class getAccountFunds(RequestBase, kw_only=True, frozen=True):
+class getAccountFunds(Request, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
     method = "AccountAPING/v1.0/getAccountFunds"
@@ -16,7 +16,7 @@ class getAccountFunds(RequestBase, kw_only=True, frozen=True):
     return_type = Response[AccountFundsResponse]
 
 
-class getAccountDetails(RequestBase, kw_only=True, frozen=True):
+class getAccountDetails(Request, kw_only=True, frozen=True):
     """Returns the details relating your account, including your discount rate and Betfair point balance."""
 
     method = "AccountAPING/v1.0/getAccountDetails"
@@ -39,7 +39,7 @@ class getAccountStatementParams(BaseMessage, frozen=True):
     wallet: Wallet | None = None  # Which wallet to return statementItems for. Defaults to UK
 
 
-class getAccountStatement(RequestBase, kw_only=True, frozen=True):
+class getAccountStatement(Request, kw_only=True, frozen=True):
     method = "AccountAPING/v1.0/getAccountStatement"
     params: getAccountStatementParams
     return_type = AccountStatementReport
@@ -49,7 +49,7 @@ class listCurrencyRatesParams(BaseMessage, frozen=True):
     fromCurrency: str | None = None  # The currency from which the rates are computed. Only GBP for now.
 
 
-class listCurrencyRates(RequestBase, kw_only=True, frozen=True):
+class listCurrencyRates(Request, kw_only=True, frozen=True):
     """Returns a list of currency rates based on given currency. Updates only once per hour."""
 
     method = "AccountAPING/v1.0/listCurrencyRates"

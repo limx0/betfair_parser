@@ -1,4 +1,4 @@
-from betfair_parser.spec.common import BaseMessage, Date, RequestBase, Response
+from betfair_parser.spec.common import BaseMessage, Date, Request, Response
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
@@ -51,7 +51,7 @@ class listRaceDetailsParams(BaseMessage, frozen=True):
     raceIds: set[str] | None = None  # Restricts the results to the specified race IDs.
 
 
-class listRaceDetail(RequestBase, frozen=True):
+class listRaceDetail(Request, frozen=True):
     method = "ScoresAPING/v1.0/listRaceDetails"
     params: listRaceDetailsParams
     return_type = Response[list[RaceDetails]]

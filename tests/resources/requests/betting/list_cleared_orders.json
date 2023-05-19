@@ -1,0 +1,10 @@
+{
+  "params": {
+    "betStatus": "CANCELLED",
+    "recordCount": 1000,
+    "fromRecord": 0
+  },
+  "jsonrpc": "2.0",
+  "id": 17,
+  "method": "SportsAPING/v1.0/listClearedOrders"
+}

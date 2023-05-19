@@ -11,7 +11,7 @@ def read_account_request(path: str):
 
 
 def test_account_details_request():
-    raw = read_account_request("requests/account_details.json")
+    raw = read_account_request("requests/accounts/get_account_details.json")
     details = msgspec.json.decode(raw, type=getAccountDetails)
     assert details.validate()
     enc_details = msgspec.json.encode(details)
@@ -19,7 +19,7 @@ def test_account_details_request():
 
 
 def test_account_funds_request():
-    raw = read_account_request("requests/account_funds.json")
+    raw = read_account_request("requests/accounts/get_account_funds.json")
     funds = msgspec.json.decode(raw, type=getAccountFunds)
     assert funds.validate()
     enc_funds = msgspec.json.encode(funds)
@@ -27,7 +27,7 @@ def test_account_funds_request():
 
 
 def test_account_details_response():
-    raw = read_test_file("responses/account_details.json")
+    raw = read_test_file("responses/accounts/get_account_details.json")
     details = msgspec.json.decode(raw, type=getAccountDetails.return_type)
     assert details.validate()
 
@@ -35,8 +35,8 @@ def test_account_details_response():
 @pytest.mark.parametrize(
     "path",
     [
-        "responses/account_funds_no_exposure.json",
-        "responses/account_funds_with_exposure.json",
+        "responses/accounts/get_account_funds_no_exposure.json",
+        "responses/accounts/get_account_funds_with_exposure.json",
     ],
     ids=id_from_path,
 )

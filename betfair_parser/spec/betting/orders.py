@@ -6,8 +6,6 @@ from betfair_parser.spec.betting.type_definitions import (
     CancelInstruction,
     ClearedOrderSummaryReport,
     CurrentOrderSummaryReport,
-    CustomerOrderRef,
-    CustomerStrategyRef,
     MarketVersion,
     PlaceExecutionReport,
     PlaceInstruction,
@@ -18,10 +16,13 @@ from betfair_parser.spec.betting.type_definitions import (
 from betfair_parser.spec.common import (
     BaseMessage,
     BetId,
+    CustomerOrderRef,
+    CustomerRef,
+    CustomerStrategyRef,
     EventId,
     EventTypeId,
     MarketId,
-    RequestBase,
+    Request,
     Response,
     TimeRange,
 )
@@ -30,13 +31,13 @@ from betfair_parser.spec.common import (
 class placeOrdersParams(BaseMessage, frozen=True):
     marketId: str
     instructions: list[PlaceInstruction]
-    customerRef: str | None = None
+    customerRef: CustomerRef | None = None
     marketVersion: MarketVersion | None = None
-    customerStrategyRef: str | None = None
+    customerStrategyRef: CustomerStrategyRef | None = None
     async_: bool = msgspec.field(name="async", default=False)
 
 
-class placeOrders(RequestBase, kw_only=True, frozen=True):
+class placeOrders(Request, kw_only=True, frozen=True):
     """Place new orders into market.
 
     Please note that additional bet sizing rules apply to bets placed into the Italian Exchange.
@@ -55,10 +56,10 @@ class placeOrders(RequestBase, kw_only=True, frozen=True):
 class cancelOrdersParams(BaseMessage, frozen=True):
     marketId: str | None = None
     instructions: list[CancelInstruction] | None = None
-    customerRef: str | None = None
+    customerRef: CustomerRef | None = None
 
 
-class cancelOrders(RequestBase, kw_only=True, frozen=True):
+class cancelOrders(Request, kw_only=True, frozen=True):
     """
     Cancel all bets OR cancel all bets on a market OR fully or partially cancel particular
     orders on a market. Only LIMIT orders can be cancelled or partially cancelled once placed.
@@ -72,12 +73,12 @@ class cancelOrders(RequestBase, kw_only=True, frozen=True):
 class replaceOrdersParams(BaseMessage, frozen=True):
     marketId: str
     instructions: list[ReplaceInstruction]
-    customerRef: str | None = None
+    customerRef: CustomerRef | None = None
     marketVersion: MarketVersion | None = None
     async_: bool = msgspec.field(name="async", default=False)
 
 
-class replaceOrders(RequestBase, kw_only=True, frozen=True):
+class replaceOrders(Request, kw_only=True, frozen=True):
     """
     This operation is logically a bulk cancel followed by a bulk place. The cancel is completed
     first then the new orders are placed. The new orders will be placed atomically in that they
@@ -117,7 +118,7 @@ class listClearedOrdersParams(BaseMessage, frozen=True):
     recordCount: int | None = None  # Number of records from the index position 'fromRecord', maximum 1000
 
 
-class listClearedOrders(RequestBase, kw_only=True, frozen=True):
+class listClearedOrders(Request, kw_only=True, frozen=True):
     """
     Returns a list of settled bets based on the bet status, ordered by settled date. To retrieve
     more than 1000 records, you need to make use of the fromRecord and recordCount parameters.
@@ -141,7 +142,7 @@ class listCurrentOrdersParams(BaseMessage, frozen=True):
     Parameters for retrieving a list of current orders.
     """
 
-    betIds: set[str] | None = None  # Restricts the results to the specified bet IDs
+    betIds: set[BetId] | None = None  # Restricts the results to the specified bet IDs
     marketIds: set[str] | None = None  # Restricts the results to the specified market IDs
     orderProjection: OrderProjection | None = None  # Restricts the results to the specified order status
     customerOrderRefs: set[CustomerOrderRef] | None = None
@@ -154,7 +155,7 @@ class listCurrentOrdersParams(BaseMessage, frozen=True):
     includeItemDescription: bool | None = None
 
 
-class listCurrentOrders(RequestBase, kw_only=True, frozen=True):
+class listCurrentOrders(Request, kw_only=True, frozen=True):
     """
     Returns a list of your current orders. Optionally you can filter and sort your current orders
     using the various parameters, setting none of the parameters will return all of your current

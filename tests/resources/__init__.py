@@ -1,8 +1,10 @@
 import datetime
+import pathlib
 
 import msgspec
 
-from tests.unit.conftest import RESOURCES_DIR
+
+RESOURCES_DIR = pathlib.Path(__file__).parent.absolute()
 
 
 def read_test_file(path) -> bytes:
