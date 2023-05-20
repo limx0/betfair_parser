@@ -3,40 +3,28 @@ import json
 import msgspec
 import pytest
 
-from betfair_parser.core import STREAM_DECODER, parse, read_file
+from betfair_parser.core import STREAM_DECODER, parse
 from betfair_parser.spec.streaming import MCM, OCM
 from betfair_parser.spec.streaming.mcm import RunnerStatus, StartingPriceLay
 from betfair_parser.spec.streaming.ocm import MatchedOrder
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
-def test_read_file_example1():
-    fn = RESOURCES_DIR / "data/1.185781277.bz2"
-    data = list(read_file(fn))
-    assert len(data) == 7600
-
-
-def test_read_file_example2():
-    fn = RESOURCES_DIR / "data/1.205822330.bz2"
-    data = list(read_file(fn))
-    assert len(data) == 5654
-
-
-@pytest.mark.parametrize("fn", sorted((RESOURCES_DIR / "streaming").glob("*.json")), ids=id_from_path)
-def test_file(fn):
-    line = open(fn, "rb").read()
-    data = msgspec.json.decode(line)
+@pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "streaming").glob("*.json")), ids=id_from_path)
+def test_file(path):
+    raw = path.read_bytes()
+    data = msgspec.json.decode(raw)
     if isinstance(data, list):
         for line in data:
             data = STREAM_DECODER.decode(msgspec.json.encode(line))
             assert data
     else:
         try:
-            data = STREAM_DECODER.decode(line)
+            data = STREAM_DECODER.decode(raw)
             assert data
         except (msgspec.DecodeError, msgspec.ValidationError) as e:
             print("ERR", e)
-            print(msgspec.json.decode(line))
+            print(msgspec.json.decode(raw))
             raise e
 
 

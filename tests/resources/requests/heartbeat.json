@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "method": "HeartbeatAPING/v1.0/heartbeat",
+  "params": {
+    "preferredTimeoutSeconds": "10"
+  },
+  "id": 1
+}

@@ -3,6 +3,7 @@ from typing import Annotated, Generic, Literal, Optional, TypeVar
 
 import msgspec
 
+from betfair_parser.spec.error import APIExceptionCode, JSONExceptionCode
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
@@ -27,7 +28,7 @@ def decode_intfloat(type_, obj):
     """
     Betfair uses JSON formatting inconsistently. For requests to their API they
     format int and float values in all of their examples as '"123"' and '"5.5"',
-    event if those quotation marks aren't necessary and actually violate JSON
+    even if those quotation marks aren't necessary and violate JSON
     specification.
 
     This decoding hook gets rid of any quotation marks and restores the original
@@ -63,22 +64,39 @@ class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, froz
         return msgspec.structs.asdict(self)
 
 
+class RPC(BaseMessage, frozen=True):
+    jsonrpc: Literal["2.0"] = "2.0"
+    id: int = 1
+
+
 ResultType = TypeVar("ResultType")
+ErrorCode = TypeVar("ErrorCode")
 
 
-class Response(BaseMessage, Generic[ResultType], kw_only=True, frozen=True):
-    jsonrpc: Literal["2.0"] = "2.0"
-    id: int = 1
-    result: ResultType = None
+class Response(RPC, Generic[ResultType], kw_only=True, frozen=True):
+    result: ResultType
 
 
-class Request(BaseMessage, kw_only=True, frozen=True):
+class JsonError(BaseMessage, frozen=True):
+    code: JSONExceptionCode
+    message: str
+
+
+class ErrorResponse(RPC, kw_only=True, frozen=True):
+    error: JsonError
+
+
+class APIException(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=True):
+    errorCode: ErrorCode
+    errorDetails: str | None = None  # The stack trace of the error
+    requestUUID: str | None = None
+
+
+class Request(RPC, kw_only=True, frozen=True):
     method: str
-    params: BaseMessage | dict
-    jsonrpc: Literal["2.0"] = "2.0"
-    id: int = 1
+    params: msgspec.Struct
     response_type = None  # not to be serialized, so no type definition
-    throws = None  # not to be serialized, so no type definition
+    throws = APIException[APIExceptionCode]  # not to be serialized, so no type definition
 
 
 # Type aliases with minimalistic validation

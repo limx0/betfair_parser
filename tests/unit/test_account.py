@@ -5,13 +5,8 @@ from betfair_parser.spec.accounts.operations import getAccountDetails, getAccoun
 from tests.resources import id_from_path, read_test_file
 
 
-def read_account_request(path: str):
-    raw = read_test_file(path)
-    return msgspec.json.encode(msgspec.json.decode(raw)["json"])
-
-
 def test_account_details_request():
-    raw = read_account_request("requests/accounts/get_account_details.json")
+    raw = read_test_file("requests/accounts/get_account_details.json")
     details = msgspec.json.decode(raw, type=getAccountDetails)
     assert details.validate()
     enc_details = msgspec.json.encode(details)
@@ -19,7 +14,7 @@ def test_account_details_request():
 
 
 def test_account_funds_request():
-    raw = read_account_request("requests/accounts/get_account_funds.json")
+    raw = read_test_file("requests/accounts/get_account_funds.json")
     funds = msgspec.json.decode(raw, type=getAccountFunds)
     assert funds.validate()
     enc_funds = msgspec.json.encode(funds)

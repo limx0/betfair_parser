@@ -5,23 +5,27 @@ from betfair_parser.spec.accounts.type_definitions import (
     AccountStatementReport,
     CurrencyRate,
 )
-from betfair_parser.spec.common import BaseMessage, Request, Response, TimeRange
+from betfair_parser.spec.common import APIException, BaseMessage, Request, Response, TimeRange
+from betfair_parser.spec.error import AccountAPIExceptionCode
+
+
+AccountAPIException = APIException[AccountAPIExceptionCode]
 
 
 class getAccountFunds(Request, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
     method = "AccountAPING/v1.0/getAccountFunds"
-    params: dict = {}
     return_type = Response[AccountFundsResponse]
+    throws = AccountAPIException
 
 
 class getAccountDetails(Request, kw_only=True, frozen=True):
     """Returns the details relating your account, including your discount rate and Betfair point balance."""
 
     method = "AccountAPING/v1.0/getAccountDetails"
-    params: dict = {}
     return_type = Response[AccountDetailsResponse]
+    throws = AccountAPIException
 
 
 class getAccountStatementParams(BaseMessage, frozen=True):
@@ -43,6 +47,7 @@ class getAccountStatement(Request, kw_only=True, frozen=True):
     method = "AccountAPING/v1.0/getAccountStatement"
     params: getAccountStatementParams
     return_type = AccountStatementReport
+    throws = AccountAPIException
 
 
 class listCurrencyRatesParams(BaseMessage, frozen=True):
@@ -54,3 +59,4 @@ class listCurrencyRates(Request, kw_only=True, frozen=True):
 
     method = "AccountAPING/v1.0/listCurrencyRates"
     return_type = list[CurrencyRate]
+    throws = AccountAPIException

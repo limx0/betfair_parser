@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "actualTimeoutSeconds": 10,
+    "actionPerformed": "NONE"
+  },
+  "id": 1
+}
