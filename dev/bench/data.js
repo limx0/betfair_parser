@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684573092457,
+  "lastUpdate": 1684573195435,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1332,6 +1332,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000005757016242197058",
             "extra": "mean: 53.033400000686015 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bradley.mcelroy@live.com",
+            "name": "Brad",
+            "username": "limx0"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8c483c1e9db3bbe7fda2d6251d7781fc1a474929",
+          "message": "Support python3.9 (#9)\n\n* Support python3.9\r\n\r\n* Fixing py39\r\n\r\n---------\r\n\r\nCo-authored-by: brad <brad@edgestackers.com>",
+          "timestamp": "2023-05-20T18:59:14+10:00",
+          "tree_id": "e657b552cd8708b4f81e40fd5fac4627164238e5",
+          "url": "https://github.com/limx0/betfair_parser/commit/8c483c1e9db3bbe7fda2d6251d7781fc1a474929"
+        },
+        "date": 1684573194831,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.1474124200973056,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.783688913999981 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 611717.9216961919,
+            "unit": "iter/sec",
+            "range": "stddev: 2.870947519849411e-8",
+            "extra": "mean: 1.634740399998691 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 18282.64530848251,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000006545940484516502",
+            "extra": "mean: 54.69668000046113 usec\nrounds: 5"
           }
         ]
       }
