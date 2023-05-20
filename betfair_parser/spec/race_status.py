@@ -1,3 +1,5 @@
+from typing import Optional
+
 from betfair_parser.spec.common import BaseMessage, Date, Request, Response
 from betfair_parser.strenums import DocumentedEnum, doc
 
@@ -47,8 +49,8 @@ class RaceDetails(BaseMessage, frozen=True):
 
 
 class listRaceDetailsParams(BaseMessage, frozen=True):
-    meetingIds: set[str] | None = None  # Restricts the results to the specified meeting IDs.
-    raceIds: set[str] | None = None  # Restricts the results to the specified race IDs.
+    meetingIds: Optional[set[str]] = None  # Restricts the results to the specified meeting IDs.
+    raceIds: Optional[set[str]] = None  # Restricts the results to the specified race IDs.
 
 
 class listRaceDetail(Request, frozen=True):
