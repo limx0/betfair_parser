@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684547573451,
+  "lastUpdate": 1684547669932,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1164,6 +1164,49 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006346413791295265",
             "extra": "mean: 48.63920000047983 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "committer": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "distinct": true,
+          "id": "39a2a925b5d7eeba61afd4ab580a8e4c39e6806d",
+          "message": "Bump msgspec patch",
+          "timestamp": "2023-05-20T11:53:40+10:00",
+          "tree_id": "2616bb90d63404f7707455542afd2e1f13878e32",
+          "url": "https://github.com/limx0/betfair_parser/commit/39a2a925b5d7eeba61afd4ab580a8e4c39e6806d"
+        },
+        "date": 1684547668747,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.19215421529932875,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 5.204153332999994 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 623288.9161030039,
+            "unit": "iter/sec",
+            "range": "stddev: 2.5783943060142843e-8",
+            "extra": "mean: 1.6043924000001653 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 20697.437408775462,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000005858745565230619",
+            "extra": "mean: 48.31516000024294 usec\nrounds: 5"
           }
         ]
       }
