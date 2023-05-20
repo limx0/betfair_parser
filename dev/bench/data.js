@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684573261958,
+  "lastUpdate": 1684618502875,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1420,6 +1420,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006515247133207807",
             "extra": "mean: 48.3519600001614 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "michael@loeffler.io",
+            "name": "Michael",
+            "username": "ml31415"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f33f5afe9d36a12e52e55649f02ba6db52cf9ccd",
+          "message": "Further improvements (#10)\n\n* Refactoring spec more to how betfair structures the API\r\n\r\nAdded most type definitions and enums from the API\r\n\r\nUsing msgspec 0.15 generic structs for API responses\r\n\r\nAdded FloatStr and IntStr and according hooks for dealing with betfairs inconsistent quotation usage\r\n\r\n* Updated poetry.lock\r\n\r\n* Completed all API calls; tests missing so far\r\n\r\n* Tests extended and restructured\r\n\r\n* Further test improvements",
+          "timestamp": "2023-05-21T07:34:16+10:00",
+          "tree_id": "edeb333f1ab03188c345363bb0c7ef1bfe3175f0",
+          "url": "https://github.com/limx0/betfair_parser/commit/f33f5afe9d36a12e52e55649f02ba6db52cf9ccd"
+        },
+        "date": 1684618501651,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.19134148617031738,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 5.226258141999992 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 619316.7239634132,
+            "unit": "iter/sec",
+            "range": "stddev: 2.4928839078915356e-8",
+            "extra": "mean: 1.6146826999928976 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 21008.368053390866,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000006702299158743506",
+            "extra": "mean: 47.60007999948356 usec\nrounds: 5"
           }
         ]
       }
