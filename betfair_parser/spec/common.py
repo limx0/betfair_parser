@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated, Generic, Literal, Optional, TypeVar
+from typing import Annotated, Generic, Literal, Optional, TypeVar, Union
 
 import msgspec
 
@@ -74,7 +74,7 @@ class Response(BaseMessage, Generic[ResultType], kw_only=True, frozen=True):
 
 class Request(BaseMessage, kw_only=True, frozen=True):
     method: str
-    params: BaseMessage | dict
+    params: Union[BaseMessage, dict]
     jsonrpc: Literal["2.0"] = "2.0"
     id: int = 1
     response_type = None  # not to be serialized, so no type definition
@@ -96,11 +96,11 @@ ExchangeId = Annotated[str, msgspec.Meta(title="ExchangeId")]
 CompetitionId = Annotated[str, msgspec.Meta(title="CompetitionId")]
 Price = Annotated[FloatStr, msgspec.Meta(title="Price")]
 Size = Annotated[FloatStr, msgspec.Meta(title="Size")]
-BetId = Annotated[str | int, msgspec.Meta(title="BetId")]
-MatchId = Annotated[str | int, msgspec.Meta(title="MatchId")]
-CustomerRef = Annotated[str | int, msgspec.Meta(title="CustomerRef")]
-CustomerOrderRef = Annotated[str | int, msgspec.Meta(title="CustomerOrderRef")]
-CustomerStrategyRef = Annotated[str | int, msgspec.Meta(title="CustomerStrategyRef")]
+BetId = Annotated[Union[str, int], msgspec.Meta(title="BetId")]
+MatchId = Annotated[Union[str, int], msgspec.Meta(title="MatchId")]
+CustomerRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerRef")]
+CustomerOrderRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerOrderRef")]
+CustomerStrategyRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerStrategyRef")]
 
 
 # Enums and type definitions, that are used in multiple parts of the API

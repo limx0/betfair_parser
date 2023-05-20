@@ -1,9 +1,11 @@
+from typing import Union
+
 from betfair_parser.spec.common import BaseMessage
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
 class Error(BaseMessage, frozen=True):
-    code: int | str
+    code: Union[int, str]
     message: str
 
 

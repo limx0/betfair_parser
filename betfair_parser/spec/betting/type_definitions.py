@@ -234,7 +234,7 @@ class RunnerCatalog(BaseMessage, frozen=True):
     # & ASIAN_HANDICAP_DOUBLE_LINE only
     handicap: float
     sortPriority: Optional[int] = None  # This is marked as REQUIRED in the API doc, but omitted sometimes
-    metadata: Optional[dict[str, str | None]] = None  # Metadata associated with the runner
+    metadata: Optional[dict[str, Optional[str]]] = None  # Metadata associated with the runner
 
     @property
     def runner_name(self):
