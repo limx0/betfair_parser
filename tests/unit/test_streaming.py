@@ -7,8 +7,7 @@ from betfair_parser.core import STREAM_DECODER, parse, read_file
 from betfair_parser.spec.streaming import MCM, OCM
 from betfair_parser.spec.streaming.mcm import RunnerStatus, StartingPriceLay
 from betfair_parser.spec.streaming.ocm import MatchedOrder
-from tests.resources import id_from_path
-from tests.unit.conftest import RESOURCES_DIR
+from tests.resources import RESOURCES_DIR, id_from_path
 
 
 def test_read_file_example1():
@@ -23,8 +22,8 @@ def test_read_file_example2():
     assert len(data) == 5654
 
 
-@pytest.mark.parametrize("fn", list(map(str, (RESOURCES_DIR / "streaming").glob("*.json"))), ids=id_from_path)
-def test_streaming_files(fn):
+@pytest.mark.parametrize("fn", sorted((RESOURCES_DIR / "streaming").glob("*.json")), ids=id_from_path)
+def test_file(fn):
     line = open(fn, "rb").read()
     data = msgspec.json.decode(line)
     if isinstance(data, list):
@@ -181,14 +180,14 @@ def test_mcm_no_clk():
 
 
 def test_mcm_market_definition_each_way():
-    raw = b'{"op":"mcm","clk":"5900908932","pt":1652976054034,"mc":[{"id":"1.199318717","marketDefinition":{"bspMarket":false,"turnInPlayEnabled":true,"persistenceEnabled":true,"marketBaseRate":5.0,"eventId":"31466188","eventTypeId":"7","numberOfWinners":2,"eachWayDivisor":4.0,"bettingType":"ODDS","marketType":"EACH_WAY","marketTime":"2022-05-20T18:03:00.000Z","suspendTime":"2022-05-20T18:03:00.000Z","bspReconciled":false,"complete":true,"inPlay":false,"crossMatching":false,"runnersVoidable":false,"numberOfActiveRunners":7,"betDelay":0,"status":"OPEN","runners":[{"adjustmentFactor":20.67,"status":"ACTIVE","sortPriority":1,"id":14766968,"name":"Militia"},{"adjustmentFactor":18.37,"status":"ACTIVE","sortPriority":2,"id":38218050,"name":"Mellys Flyer"},{"adjustmentFactor":16.49,"status":"ACTIVE","sortPriority":3,"id":13118864,"name":"John Kirkup"},{"adjustmentFactor":16.49,"status":"ACTIVE","sortPriority":4,"id":18267118,"name":"Glory Fighter"},{"adjustmentFactor":12.46,"status":"ACTIVE","sortPriority":5,"id":28562926,"name":"Isle Of Lismore"},{"adjustmentFactor":12.46,"status":"ACTIVE","sortPriority":6,"id":10058014,"name":"Dark Shot"},{"adjustmentFactor":3.03,"status":"ACTIVE","sortPriority":7,"id":5704647,"name":"Duke Of Firenze"}],"regulators":["MR_INT"],"venue":"Catterick","countryCode":"GB","discountAllowed":false,"timezone":"Europe/London","openDate":"2022-05-20T16:20:00.000Z","version":4565022575,"name":"Each Way","eventName":"Catterick 20th May"},"rc":[],"con":true,"img":false}]}'  # noqa
+    raw = RESOURCES_DIR.joinpath("streaming/market_definition_each_way.json").read_bytes()
     mcm: MCM = STREAM_DECODER.decode(raw)
     assert mcm.mc[0].marketDefinition.marketType == "EACH_WAY"
     assert mcm.mc[0].marketDefinition.eachWayDivisor == 4.0
 
 
 def test_bsp_data():
-    lines = json.loads((RESOURCES_DIR / "streaming/streaming_bsp_data.json").read_text())
+    lines = json.loads((RESOURCES_DIR / "streaming/bsp_data.json").read_text())
     # for line in lines:
     #     raw = msgspec.json.encode(line)
     #     mcm: MCM = parse(raw)
@@ -203,8 +202,8 @@ def test_bsp_data():
 
 
 def test_bsp_result():
-    r = b'{"op":"mcm","id":1,"clk":"ANjxBACiiQQAlpQD","pt":1672131753550,"mc":[{"id":"1.208011084","marketDefinition":{"bspMarket":true,"turnInPlayEnabled":false,"persistenceEnabled":false,"marketBaseRate":7,"eventId":"31987078","eventTypeId":"4339","numberOfWinners":1,"bettingType":"ODDS","marketType":"WIN","marketTime":"2022-12-27T09:00:00.000Z","suspendTime":"2022-12-27T09:00:00.000Z","bspReconciled":true,"complete":true,"inPlay":false,"crossMatching":false,"runnersVoidable":false,"numberOfActiveRunners":0,"betDelay":0,"status":"CLOSED","settledTime":"2022-12-27T09:02:21.000Z","runners":[{"status":"WINNER","sortPriority":1,"bsp":2.0008034621107256,"id":45967562},{"status":"LOSER","sortPriority":2,"bsp":5.5,"id":45565847},{"status":"LOSER","sortPriority":3,"bsp":9.2,"id":47727833},{"status":"LOSER","sortPriority":4,"bsp":166.61668896346615,"id":47179469},{"status":"LOSER","sortPriority":5,"bsp":44,"id":51247493},{"status":"LOSER","sortPriority":6,"bsp":32,"id":42324350},{"status":"LOSER","sortPriority":7,"bsp":7.4,"id":51247494},{"status":"LOSER","sortPriority":8,"bsp":32.28604557164013,"id":48516342}],"regulators":["MR_INT"],"venue":"Warragul","countryCode":"AU","discountAllowed":true,"timezone":"Australia/Sydney","openDate":"2022-12-27T07:46:00.000Z","version":4968605121,"priceLadderDefinition":{"type":"CLASSIC"}}}]}'  # noqa
-    mcm = parse(r)
+    raw = RESOURCES_DIR.joinpath("streaming/market_definition_bsp.json").read_bytes()
+    mcm = parse(raw)
     runners = mcm.mc[0].marketDefinition.runners
     assert runners[0].bsp == 2.0008034621107256
     assert runners[0].status == RunnerStatus.WINNER

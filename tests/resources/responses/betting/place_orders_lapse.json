@@ -1,0 +1,28 @@
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "customerRef": "344",
+    "status": "SUCCESS",
+    "marketId": "1.118298866",
+    "instructionReports": [
+      {
+        "status": "SUCCESS",
+        "instruction": {
+          "selectionId": 9350380,
+          "limitOrder": {
+            "size": 2.5,
+            "price": 1000,
+            "persistenceType": "LAPSE"
+          },
+          "orderType": "LIMIT",
+          "side": "BACK"
+        },
+        "betId": "49078012097",
+        "placedDate": "2015-04-17T08:12:42.000Z",
+        "averagePriceMatched": 0,
+        "sizeMatched": 0
+      }
+    ]
+  },
+  "id": 8
+}

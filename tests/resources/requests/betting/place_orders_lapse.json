@@ -1,0 +1,21 @@
+{
+  "params": {
+    "marketId": "1.118298866",
+    "customerRef": 344,
+    "instructions": [
+      {
+        "orderType": "LIMIT",
+        "selectionId": 9350380,
+        "limitOrder": {
+          "persistenceType": "LAPSE",
+          "price": "1000.00",
+          "size": "2.50"
+        },
+        "side": "BACK"
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 8,
+  "method": "SportsAPING/v1.0/placeOrders"
+}

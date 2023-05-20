@@ -1,0 +1,15 @@
+{
+  "params": {
+    "instructions": [
+      {
+        "betId": 49078012097,
+        "sizeReduction": 0.5
+      }
+    ],
+    "customerRef": 345,
+    "marketId": "1.118298866"
+  },
+  "jsonrpc": "2.0",
+  "id": 12,
+  "method": "SportsAPING/v1.0/cancelOrders"
+}

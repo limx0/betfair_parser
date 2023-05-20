@@ -2,7 +2,7 @@ import fsspec
 
 from betfair_parser.core import parse
 from betfair_parser.spec.streaming import MCM
-from tests.unit.conftest import RESOURCES_DIR
+from tests.resources import RESOURCES_DIR
 
 
 def run(lines: list[bytes]):

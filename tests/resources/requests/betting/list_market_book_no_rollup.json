@@ -1,0 +1,17 @@
+{
+  "params": {
+    "orderProjection": "ALL",
+    "matchProjection": "NO_ROLLUP",
+    "priceProjection": {
+      "priceData": [
+        "EX_BEST_OFFERS"
+      ]
+    },
+    "marketIds": [
+      "1.123398403"
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 11,
+  "method": "SportsAPING/v1.0/listMarketBook"
+}

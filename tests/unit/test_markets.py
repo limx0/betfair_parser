@@ -1,8 +1,9 @@
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.api.markets import MarketCatalog, Runner
-from tests.resources import read_test_file
+from betfair_parser.spec.betting.type_definitions import MarketCatalogue, RunnerCatalog
+from betfair_parser.spec.common import decode, encode
+from tests.resources import assert_json_equal, read_test_file
 
 
 @pytest.mark.parametrize(
@@ -27,7 +28,7 @@ from tests.resources import read_test_file
     ],
 )
 def test_runner_name(data):
-    runner: Runner = msgspec.json.decode(msgspec.json.encode(data), type=Runner)
+    runner: RunnerCatalog = msgspec.json.decode(msgspec.json.encode(data), type=RunnerCatalog)
     assert runner.runnerName == data["runnerName"]
     assert runner.handicap == data["handicap"]
     assert runner.sortPriority == data["sortPriority"]
@@ -36,8 +37,8 @@ def test_runner_name(data):
 
 
 def test_market_catalogue():
-    raw = read_test_file("responses/betting_list_market_catalogue.json")
-    catalog = msgspec.json.decode(raw, type=list[MarketCatalog])
+    raw = read_test_file("responses/betting/list_market_catalogue.json")
+    catalog = decode(raw, type=list[MarketCatalogue])
     assert len(catalog) == 12035
     expected = {
         "marketId": "1.180697651",
@@ -48,6 +49,7 @@ def test_market_catalogue():
             "bspMarket": False,
             "marketTime": "2021-03-19T19:00:00.000Z",
             "suspendTime": "2021-03-19T19:00:00.000Z",
+            "settleTime": None,
             "bettingType": "ODDS",
             "turnInPlayEnabled": True,
             "marketType": "FIRST_HALF_GOALS_25",
@@ -70,8 +72,6 @@ def test_market_catalogue():
                 "runnerName": "Under 2.5 Goals",
                 "sortPriority": 1,
                 "handicap": 0.0,
-                "status": None,
-                "adjustmentFactor": None,
                 "metadata": {"runnerId": "47972"},
             },
             {
@@ -79,12 +79,10 @@ def test_market_catalogue():
                 "runnerName": "Over 2.5 Goals",
                 "sortPriority": 2,
                 "handicap": 0.0,
-                "status": None,
-                "adjustmentFactor": None,
                 "metadata": {"runnerId": "47973"},
             },
         ],
-        "eventType": {"id": "1", "name": "Soccer"},
+        "eventType": {"id": 1, "name": "Soccer"},
         "event": {
             "id": "30359506",
             "name": "Almere City v Den Bosch",
@@ -95,5 +93,5 @@ def test_market_catalogue():
         },
         "competition": {"id": "11", "name": "Dutch Eerste Divisie"},
     }
-    result = msgspec.json.decode(msgspec.json.encode(catalog[5000]))
-    assert result == expected
+    result = decode(encode(catalog[5000]))
+    assert_json_equal(result, expected)

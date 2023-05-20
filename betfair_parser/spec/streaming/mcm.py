@@ -1,25 +1,9 @@
-import datetime
-from enum import auto
 from typing import List, Literal, Optional, Union
 
-from betfair_parser.spec.api.markets import PriceLadderDescription
-from betfair_parser.spec.common import BaseMessage, StrEnum
+from betfair_parser.spec.betting.enums import MarketStatus, RunnerStatus
+from betfair_parser.spec.betting.type_definitions import PriceLadderDescription
+from betfair_parser.spec.common import BaseMessage, Date
 from betfair_parser.spec.constants import EVENT_TYPE_TO_NAME
-
-
-class RunnerStatus(StrEnum):
-    ACTIVE = auto()
-    REMOVED = auto()
-    WINNER = auto()
-    PLACED = auto()
-    LOSER = auto()
-    HIDDEN = auto()
-
-
-class MarketStatus(StrEnum):
-    OPEN = auto()
-    SUSPENDED = auto()
-    CLOSED = auto()
 
 
 class RunnerValues(BaseMessage, frozen=True):
@@ -106,7 +90,7 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     discountAllowed: Optional[bool] = None
     raceType: Optional[str] = None
     priceLadderDefinition: Optional[Union[str, PriceLadderDescription]] = None
-    settledTime: Optional[datetime.datetime] = None
+    settledTime: Optional[Date] = None
     keyLineDefinition: Optional[KeyLineDefinition] = None
     eachWayDivisor: Optional[float] = None
 
