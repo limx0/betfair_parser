@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "betfair_parser"
-version = "0.1.22"
+version = "0.2.1"
 description = ""
 authors = ["Bradley McElroy <bradley.mcelroy@live.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-msgspec = ">=0.15"
+msgspec = "^0.15.1"
 fsspec = ">=2022"
 
 [tool.poetry.dev-dependencies]

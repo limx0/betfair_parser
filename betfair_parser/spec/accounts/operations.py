@@ -1,3 +1,5 @@
+from typing import Optional
+
 from betfair_parser.spec.accounts.enums import IncludeItem, Wallet
 from betfair_parser.spec.accounts.type_definitions import (
     AccountDetailsResponse,
@@ -29,18 +31,19 @@ class getAccountDetails(Request, kw_only=True, frozen=True):
 
 
 class getAccountStatementParams(BaseMessage, frozen=True):
-    locale: str | None = None  # The language to be used where applicable. Defaults to account settings
-    fromRecord: int | None = None  # Specifies the first record that will be returned, defaults to 0
-    recordCount: int | None = None  # Specifies the maximum number of records to be returned. Maximum 100
+    locale: Optional[str] = None  # The language to be used where applicable. Defaults to account settings
+    fromRecord: Optional[int] = None  # Specifies the first record that will be returned, defaults to 0
+    recordCount: Optional[int] = None  # Specifies the maximum number of records to be returned. Maximum 100
+    return_type = Response[AccountDetailsResponse]
 
     # Return items with an itemDate within this date range. Both from and to date times are inclusive.
     # If from is not specified then the oldest available items will be in range. If to is not specified
     # then the latest items will be in range. nb. This itemDataRange is currently only applied when
     # includeItem is set to ALL or not specified, else items are NOT bound by itemDate.
     # Please note:  You can only retrieve account statement items for the last 90 days.
-    itemDateRange: TimeRange | None = None
-    includeItem: IncludeItem | None = None  # Which items to include, if not specified then defaults to ALL.
-    wallet: Wallet | None = None  # Which wallet to return statementItems for. Defaults to UK
+    itemDateRange: Optional[TimeRange] = None
+    includeItem: Optional[IncludeItem] = None  # Which items to include, if not specified then defaults to ALL.
+    wallet: Optional[Wallet] = None  # Which wallet to return statementItems for. Defaults to UK
 
 
 class getAccountStatement(Request, kw_only=True, frozen=True):
@@ -51,7 +54,7 @@ class getAccountStatement(Request, kw_only=True, frozen=True):
 
 
 class listCurrencyRatesParams(BaseMessage, frozen=True):
-    fromCurrency: str | None = None  # The currency from which the rates are computed. Only GBP for now.
+    fromCurrency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
 
 
 class listCurrencyRates(Request, kw_only=True, frozen=True):

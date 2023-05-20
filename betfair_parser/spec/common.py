@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated, Generic, Literal, Optional, TypeVar
+from typing import Annotated, Generic, Literal, Optional, TypeVar, Union
 
 import msgspec
 
@@ -88,8 +88,8 @@ class ErrorResponse(RPC, kw_only=True, frozen=True):
 
 class APIException(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=True):
     errorCode: ErrorCode
-    errorDetails: str | None = None  # The stack trace of the error
-    requestUUID: str | None = None
+    errorDetails: Optional[str] = None  # The stack trace of the error
+    requestUUID: Optional[str] = None
 
 
 class Request(RPC, kw_only=True, frozen=True):
@@ -100,7 +100,6 @@ class Request(RPC, kw_only=True, frozen=True):
 
 
 # Type aliases with minimalistic validation
-
 
 Date = Annotated[datetime.datetime, msgspec.Meta(title="Date", tz=True)]
 SelectionId = Annotated[IntStr, msgspec.Meta(title="SelectionId")]
@@ -114,11 +113,11 @@ ExchangeId = Annotated[str, msgspec.Meta(title="ExchangeId")]
 CompetitionId = Annotated[str, msgspec.Meta(title="CompetitionId")]
 Price = Annotated[FloatStr, msgspec.Meta(title="Price")]
 Size = Annotated[FloatStr, msgspec.Meta(title="Size")]
-BetId = Annotated[str | int, msgspec.Meta(title="BetId")]
-MatchId = Annotated[str | int, msgspec.Meta(title="MatchId")]
-CustomerRef = Annotated[str | int, msgspec.Meta(title="CustomerRef")]
-CustomerOrderRef = Annotated[str | int, msgspec.Meta(title="CustomerOrderRef")]
-CustomerStrategyRef = Annotated[str | int, msgspec.Meta(title="CustomerStrategyRef")]
+BetId = Annotated[Union[str, int], msgspec.Meta(title="BetId")]
+MatchId = Annotated[Union[str, int], msgspec.Meta(title="MatchId")]
+CustomerRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerRef")]
+CustomerOrderRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerOrderRef")]
+CustomerStrategyRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerStrategyRef")]
 
 
 # Enums and type definitions, that are used in multiple parts of the API

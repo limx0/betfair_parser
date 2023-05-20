@@ -1,3 +1,5 @@
+from typing import Optional
+
 from betfair_parser.spec.betting.enums import (
     MarketProjection,
     MarketSort,
@@ -24,7 +26,7 @@ from betfair_parser.spec.common import BaseMessage, BetId, Date, MarketId, Reque
 
 class ListingParams(BaseMessage, frozen=True):
     filter: MarketFilter
-    locale: str | None = None
+    locale: Optional[str] = None
 
 
 class listCompetitions(Request, kw_only=True, frozen=True):
@@ -97,16 +99,22 @@ class listVenues(Request, kw_only=True, frozen=True):
 
 class listMarketBookParams(BaseMessage, frozen=True):
     marketIds: list[str]  # One or more market ids
-    priceProjection: PriceProjection | None = None  # The projection of price data you want to receive in the response
-    orderProjection: OrderProjection | None = None  # The orders you want to receive in the response
-    matchProjection: MatchProjection | None = None  # If you ask for orders, specifies the representation of matches
-    includeOverallPosition: bool | None = None  # If you ask for orders, returns matches for each selection
-    partitionMatchedByStrategyRef: bool | None = None  # Returns the breakdown of matches by strategy for each selection
-    customerStrategyRefs: set[str] | None = None
-    currencyCode: str | None = None  # A Betfair standard currency code
-    locale: str | None = None  # The language used for the response
-    matchedSince: Date | None = None  # Restricts to orders with at least one fragment matched since the specified date
-    betIds: set[BetId] | None = None  # Restricts to orders with the specified bet IDs
+    priceProjection: Optional[
+        PriceProjection
+    ] = None  # The projection of price data you want to receive in the response
+    orderProjection: Optional[OrderProjection] = None  # The orders you want to receive in the response
+    matchProjection: Optional[MatchProjection] = None  # If you ask for orders, specifies the representation of matches
+    includeOverallPosition: Optional[bool] = None  # If you ask for orders, returns matches for each selection
+    partitionMatchedByStrategyRef: Optional[
+        bool
+    ] = None  # Returns the breakdown of matches by strategy for each selection
+    customerStrategyRefs: Optional[set[str]] = None
+    currencyCode: Optional[str] = None  # A Betfair standard currency code
+    locale: Optional[str] = None  # The language used for the response
+    matchedSince: Optional[
+        Date
+    ] = None  # Restricts to orders with at least one fragment matched since the specified date
+    betIds: Optional[set[BetId]] = None  # Restricts to orders with the specified bet IDs
 
 
 class listMarketBook(Request, kw_only=True, frozen=True):
@@ -136,10 +144,10 @@ class listMarketBook(Request, kw_only=True, frozen=True):
 
 class listMarketCatalogueParams(BaseMessage, kw_only=True, frozen=True):
     filter: MarketFilter  # The filter to select desired markets
-    marketProjection: set[MarketProjection] | None = None  # The type and amount of data returned about the market
-    sort: MarketSort | None = None  # The order of the results, defaults to RANK
+    marketProjection: Optional[set[MarketProjection]] = None  # The type and amount of data returned about the market
+    sort: Optional[MarketSort] = None  # The order of the results, defaults to RANK
     maxResults: int  # Limit on the total number of results returned
-    locale: str | None = None  # The language used for the response
+    locale: Optional[str] = None  # The language used for the response
 
 
 class listMarketCatalogue(Request, kw_only=True, frozen=True):
@@ -175,17 +183,17 @@ class listMarketProfitAndLoss(Request, kw_only=True, frozen=True):
 class listRunnerBookParams(BaseMessage, frozen=True):
     marketId: MarketId  # The unique id for the market
     selectionId: SelectionId  # The unique id for the selection in the market
-    handicap: float | None = None  # The handicap associated with the runner in case of Asian handicap market
-    priceProjection: PriceProjection | None = None  # The projection of price data you want to receive in the response
-    orderProjection: OrderProjection | None = None  # The orders you want to receive in the response
-    matchProjection: MatchProjection | None = None  # If you ask for orders, specifies the representation of matches
-    includeOverallPosition: bool | None = None  # If you ask for orders, returns matches for each selection
-    partitionMatchedByStrategyRef: bool | None = None  # Returns the breakdown of matches by strategy for each selection
-    customerStrategyRefs: set[str] | None = None
-    currencyCode: str | None = None  # A Betfair standard currency code
-    locale: str | None = None  # The language used for the response
-    matchedSince: Date | None = None  # Restricts to orders with at least one fragment matched since the specified date
-    betIds: set[BetId] | None = None  # Restricts to orders with the specified bet IDs
+    handicap: Optional[float] = None  # The handicap associated with the runner in case of Asian handicap market
+    priceProjection: Optional[PriceProjection] = None
+    orderProjection: Optional[OrderProjection] = None
+    matchProjection: Optional[MatchProjection] = None  # If you ask for orders, specifies the representation of matches
+    includeOverallPosition: Optional[bool] = None  # If you ask for orders, returns matches for each selection
+    partitionMatchedByStrategyRef: Optional[bool] = None  # Return a breakdown of matches by strategy for each selection
+    customerStrategyRefs: Optional[set[str]] = None
+    currencyCode: Optional[str] = None  # A Betfair standard currency code
+    locale: Optional[str] = None  # The language used for the response
+    matchedSince: Optional[Date] = None  # Restricts to orders with at least one fragment matched since specified date
+    betIds: Optional[set[BetId]] = None  # Restricts to orders with the specified bet IDs
 
 
 class listRunnerBook(Request, kw_only=True, frozen=True):
