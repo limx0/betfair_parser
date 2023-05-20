@@ -52,8 +52,8 @@ def test_replace_order(path):
     "path",
     [
         "responses/betting/place_orders_lapse.json",
-        "responses/betting/place_orders_error.json",
         "responses/betting/place_orders_success.json",
+        "responses/betting/place_orders_failure.json",
     ],
     ids=id_from_path,
 )
@@ -66,9 +66,9 @@ def test_place_order_response(path):
 @pytest.mark.parametrize(
     "path",
     [
-        "responses/betting/cancel_orders_error.json",
         "responses/betting/cancel_orders_success.json",
         "responses/betting/cancel_orders_partly.json",
+        "responses/betting/cancel_orders_failure.json",
     ],
     ids=id_from_path,
 )

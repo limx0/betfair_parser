@@ -184,21 +184,15 @@ class listRunnerBookParams(BaseMessage, frozen=True):
     marketId: MarketId  # The unique id for the market
     selectionId: SelectionId  # The unique id for the selection in the market
     handicap: Optional[float] = None  # The handicap associated with the runner in case of Asian handicap market
-    priceProjection: Optional[
-        PriceProjection
-    ] = None  # The projection of price data you want to receive in the response
-    orderProjection: Optional[OrderProjection] = None  # The orders you want to receive in the response
+    priceProjection: Optional[PriceProjection] = None
+    orderProjection: Optional[OrderProjection] = None
     matchProjection: Optional[MatchProjection] = None  # If you ask for orders, specifies the representation of matches
     includeOverallPosition: Optional[bool] = None  # If you ask for orders, returns matches for each selection
-    partitionMatchedByStrategyRef: Optional[
-        bool
-    ] = None  # Returns the breakdown of matches by strategy for each selection
+    partitionMatchedByStrategyRef: Optional[bool] = None  # Return a breakdown of matches by strategy for each selection
     customerStrategyRefs: Optional[set[str]] = None
     currencyCode: Optional[str] = None  # A Betfair standard currency code
     locale: Optional[str] = None  # The language used for the response
-    matchedSince: Optional[
-        Date
-    ] = None  # Restricts to orders with at least one fragment matched since the specified date
+    matchedSince: Optional[Date] = None  # Restricts to orders with at least one fragment matched since specified date
     betIds: Optional[set[BetId]] = None  # Restricts to orders with the specified bet IDs
 
 

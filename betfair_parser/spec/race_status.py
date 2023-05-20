@@ -39,7 +39,7 @@ class ResponseCode(DocumentedEnum):
     )
 
 
-class RaceDetails(BaseMessage, frozen=True):
+class RaceDetails(BaseMessage, kw_only=True, frozen=True):
     meetingId: str  # The unique Id for the meeting equivalent to the eventId as returned by listEvents
     raceId: str  # The unique Id for the race in the format meetingId.raceTime (hhmm)
     raceStatus: RaceStatus  # The current status of the race.
@@ -53,7 +53,7 @@ class listRaceDetailsParams(BaseMessage, frozen=True):
     raceIds: Optional[set[str]] = None  # Restricts the results to the specified race IDs.
 
 
-class listRaceDetail(Request, frozen=True):
+class listRaceDetail(Request, kw_only=True, frozen=True):
     method = "ScoresAPING/v1.0/listRaceDetails"
     params: listRaceDetailsParams
     return_type = Response[list[RaceDetails]]

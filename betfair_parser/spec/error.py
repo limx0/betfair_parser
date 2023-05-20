@@ -1,16 +1,81 @@
-from typing import Union
-
-from betfair_parser.spec.common import BaseMessage
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
-class Error(BaseMessage, frozen=True):
-    code: Union[int, str]
-    message: str
+class JSONExceptionCode(DocumentedEnum):
+    INVALID_JSON = doc(
+        value=-32700,
+        docstring=(
+            "Invalid JSON was received by the server. An error occurred on the server while " "parsing the JSON text."
+        ),
+    )
+    METHOD_NOT_FOUND = doc(value=-32601, docstring="Method not found")
+    INVALID_PARAMETERS = doc(
+        value=-32602, docstring="Problem parsing the parameters, or a mandatory parameter was not found"
+    )
+    JSON_RPC_ERROR = doc(value=-32603, docstring="Internal JSON-RPC error")
 
 
-class ErrorResponse(BaseMessage, frozen=True):
-    error: Error
+class APIExceptionCode(DocumentedEnum):
+    TOO_MUCH_DATA = doc("The operation requested too much data")
+    INVALID_INPUT_DATA = doc("Invalid input data")
+    INVALID_SESSION_INFORMATION = doc("The session token passed is invalid or expired")
+    NO_APP_KEY = doc("An application key is required for this operation")
+    NO_SESSION = doc("A session token is required for this operation")
+    UNEXPECTED_ERROR = doc("An unexpected internal error occurred that prevented successful request processing.")
+    INVALID_APP_KEY = doc("The application key passed is invalid")
+    TOO_MANY_REQUESTS = doc("There are too many pending requests")
+    SERVICE_BUSY = doc("The service is currently too busy to service this request")
+    TIMEOUT_ERROR = doc("Internal call to downstream service timed out")
+    REQUEST_SIZE_EXCEEDS_LIMIT = doc(
+        "The request exceeds the request size limit. Requests are limited to a total of 250"
+        "betId's/marketId's (or a combination of both)"
+    )
+    ACCESS_DENIED = doc(
+        "The calling client is not permitted to perform the specific action e.g. the using a Delayed "
+        "App Key when placing bets or attempting to place a bet from a restricted jurisdiction."
+    )
+    SERVICE_UNAVAILABLE = doc("Service is currently unavailable")  # Used only in RaceStatus
+
+
+class AccountAPIExceptionCode(DocumentedEnum):
+    INVALID_INPUT_DATA = doc("Invalid input data. Please check the format of your request.")
+    INVALID_SESSION_INFORMATION = doc(
+        "The session token hasn't been provided, is invalid or has expired. You must login "
+        "again to create a new session token."
+    )
+    UNEXPECTED_ERROR = doc("An unexpected internal error occurred that prevented successful request processing.")
+    INVALID_APP_KEY = doc("The application key passed is invalid or is not present.")
+    SERVICE_BUSY = doc("The service is currently too busy to service this request.")
+    TIMEOUT_ERROR = doc("The internal call to downstream service timed out.")
+    DUPLICATE_APP_NAME = doc("Duplicate application name.")
+    APP_KEY_CREATION_FAILED = doc(
+        "Creating application key version has failed. Please check that your application name is unique "
+        "and doesn't contain your Betfair username."
+    )
+    APP_CREATION_FAILED = doc("Application creation has been failed.")
+    NO_SESSION = doc(
+        "A session token header ('X-Authentication') has not been provided in the request. Please note: "
+        "The same error is returned by the Keep Alive operation if the X-Authentication header is provided "
+        "but the session value is invalid or if the session has expired."
+    )
+    NO_APP_KEY = doc("An application key header ('X-Application') has not been provided in the request.")
+    SUBSCRIPTION_EXPIRED = doc("An application key is required for this operation.")
+    INVALID_SUBSCRIPTION_TOKEN = doc("The subscription token provided doesn't exist.")
+    TOO_MANY_REQUESTS = doc("Too many requests. For more details relating to this error please see FAQ's.")
+    INVALID_CLIENT_REF = doc("Invalid length for the client reference.")
+    WALLET_TRANSFER_ERROR = doc("There was a problem transferring funds between your wallets.")
+    INVALID_VENDOR_CLIENT_ID = doc("The vendor client ID is not subscribed to this Application Key.")
+    USER_NOT_SUBSCRIBED = doc(
+        "The user making the request is not subscribed to the Application Key they are trying to perform "
+        "the action on (e.g. creating an Authorisation Code)."
+    )
+    INVALID_SECRET = doc("The vendor making the request has provided a vendor secret that does not match our records.")
+    INVALID_AUTH_CODE = doc("The vendor making the request has not provided a valid authorization code.")
+    INVALID_GRANT_TYPE = doc(
+        "The vendor making the request has not provided a valid grant_type, or the grant_type they have "
+        "passed does not match the parameters (authCode/refreshToken)."
+    )
+    CUSTOMER_ACCOUNT_CLOSED = doc("A token could not be created because the customer's account is CLOSED.")
 
 
 class LoginExceptionCode(DocumentedEnum):

@@ -99,9 +99,7 @@ class listClearedOrdersParams(BaseMessage, frozen=True):
     eventIds: Optional[set[EventId]] = None  # Restricts the results to the specified Event IDs.
     marketIds: Optional[set[MarketId]] = None  # Restricts the results to the specified market IDs.
     runnerIds: Optional[set[RunnerId]] = None  # Restricts the results to the specified Runners.
-    betIds: Optional[
-        set[BetId]
-    ] = None  # Restricts the results to the specified bet IDs, maximum 1000 betId per request
+    betIds: Optional[set[BetId]] = None  # Restricts the results to the specified bet IDs, maximum 1000 betIds
     customerOrderRefs: Optional[set[CustomerOrderRef]] = None
     customerStrategyRefs: Optional[set[CustomerStrategyRef]] = None
     side: Optional[Side] = None  # Restricts the results to the specified side.
