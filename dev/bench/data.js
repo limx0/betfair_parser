@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684618502875,
+  "lastUpdate": 1684712720498,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1465,6 +1465,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006702299158743506",
             "extra": "mean: 47.60007999948356 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "michael@loeffler.io",
+            "name": "Michael",
+            "username": "ml31415"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1d981ba2dd9b7c157a0397368cf3cbd63ef82854",
+          "message": "Api completion & parametrized XML tests (#11)\n\n* Added tests against the betfair XML API specification for completeness and correctness\r\n\r\n* Last minute docstring fix",
+          "timestamp": "2023-05-22T09:44:27+10:00",
+          "tree_id": "849af7e6cfbf17ea6b7567c5b5bbf7add5dd3494",
+          "url": "https://github.com/limx0/betfair_parser/commit/1d981ba2dd9b7c157a0397368cf3cbd63ef82854"
+        },
+        "date": 1684712719647,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.16614833473138688,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.018718162999988 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 461447.0027404402,
+            "unit": "iter/sec",
+            "range": "stddev: 4.8488862760220673e-8",
+            "extra": "mean: 2.1670961000097577 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 18681.40654514575,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000006107600579906318",
+            "extra": "mean: 53.52916000106234 usec\nrounds: 5"
           }
         ]
       }
