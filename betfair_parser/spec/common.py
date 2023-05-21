@@ -154,14 +154,6 @@ class OrderStatus(DocumentedEnum):
     )
 
 
-class MarketType(DocumentedEnum):
-    A = doc("Asian Handicap")
-    L = doc("Line market")
-    O = doc("Odds market")  # noqa
-    R = doc("Range market.")
-    NOT_APPLICABLE = doc("The market does not have an applicable marketType.")
-
-
 class TimeRange(BaseMessage, frozen=True):
     from_: Optional[Date] = msgspec.field(name="from", default=None)
     to: Optional[Date] = None

@@ -14,6 +14,8 @@ from betfair_parser.spec.betting.type_definitions import (
     ReplaceExecutionReport,
     ReplaceInstruction,
     RunnerId,
+    UpdateExecutionReport,
+    UpdateInstruction,
 )
 from betfair_parser.spec.common import (
     BaseMessage,
@@ -36,7 +38,7 @@ class placeOrdersParams(BaseMessage, frozen=True):
     customerRef: Optional[CustomerRef] = None
     marketVersion: Optional[MarketVersion] = None
     customerStrategyRef: Optional[CustomerStrategyRef] = None
-    async_: bool = msgspec.field(name="async", default=False)
+    async_: Optional[bool] = msgspec.field(name="async", default=False)
 
 
 class placeOrders(Request, kw_only=True, frozen=True):
@@ -77,7 +79,7 @@ class replaceOrdersParams(BaseMessage, frozen=True):
     instructions: list[ReplaceInstruction]
     customerRef: Optional[CustomerRef] = None
     marketVersion: Optional[MarketVersion] = None
-    async_: bool = msgspec.field(name="async", default=False)
+    async_: Optional[bool] = msgspec.field(name="async", default=False)
 
 
 class replaceOrders(Request, kw_only=True, frozen=True):
@@ -136,7 +138,7 @@ class listClearedOrders(Request, kw_only=True, frozen=True):
 
     method = "SportsAPING/v1.0/listClearedOrders"
     params: listClearedOrdersParams
-    return_type = ClearedOrderSummaryReport
+    return_type = Response[ClearedOrderSummaryReport]
 
 
 class listCurrentOrdersParams(BaseMessage, frozen=True):
@@ -174,4 +176,18 @@ class listCurrentOrders(Request, kw_only=True, frozen=True):
 
     method = "SportsAPING/v1.0/listCurrentOrders"
     params: listCurrentOrdersParams
-    return_type = CurrentOrderSummaryReport
+    return_type = Response[CurrentOrderSummaryReport]
+
+
+class updateOrdersParams(BaseMessage, frozen=True):
+    marketId: str  # The market id these orders are to be placed on
+    instructions: list[UpdateInstruction]  # The limit of update instructions per request is 60
+    customerRef: Optional[CustomerRef] = None
+
+
+class updateOrders(Request, kw_only=True, frozen=True):
+    """Update non-exposure changing fields."""
+
+    method = "SportsAPING/v1.0/updateOrders"
+    params: updateOrdersParams
+    return_type = Response[UpdateExecutionReport]

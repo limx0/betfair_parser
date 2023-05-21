@@ -8,7 +8,7 @@ from betfair_parser.spec.accounts.enums import (
     Wallet,
     WinLose,
 )
-from betfair_parser.spec.common import BaseMessage, Date, MarketType
+from betfair_parser.spec.common import BaseMessage, Date
 
 
 class ApplicationSubscription(BaseMessage, frozen=True):
@@ -151,7 +151,7 @@ class StatementLegacyData(BaseMessage, frozen=True):
     marketName: Optional[str] = None
 
     # Market type. For account deposits and withdrawals, marketType is set to NOT_APPLICABLE.
-    marketType: Optional[MarketType] = None
+    marketType: Optional[str] = None
     placedDate: Optional[Date] = None  # Date and time of bet placement
 
     # Id of the selection (this will be the same for the same selection across markets)

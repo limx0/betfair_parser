@@ -167,9 +167,9 @@ class listMarketCatalogue(Request, kw_only=True, frozen=True):
 
 class listMarketProfitAndLossParams(BaseMessage, frozen=True):
     marketIds: set[MarketId]  # List of markets to calculate profit and loss
-    includeSettledBets: bool = False  # Option to include settled bets (partially settled markets only)
-    includeBspBets: bool = False  # Option to include BSP bets
-    netOfCommission: bool = False  # Option to return profit and loss net of users current commission rate
+    includeSettledBets: Optional[bool] = False  # Option to include settled bets (partially settled markets only)
+    includeBspBets: Optional[bool] = False  # Option to include BSP bets
+    netOfCommission: Optional[bool] = False  # Option to return profit and loss net of users current commission rate
 
 
 class listMarketProfitAndLoss(Request, kw_only=True, frozen=True):
