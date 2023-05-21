@@ -217,6 +217,9 @@ class ExecutionReportErrorCode(DocumentedEnum):
     TOO_MANY_INSTRUCTIONS = doc("The amount of orders exceeded the maximum amount allowed to be executed")
     INVALID_MARKET_VERSION = doc("The supplied market version is invalid. Max length allowed for market version is 12.")
     INVALID_PROFIT_RATIO = doc("The order falls outside the permitted price and size combination.")
+    EVENT_EXPOSURE_LIMIT_EXCEEDED = doc("@Deprecated Defined in XML specification but not in API doc")
+    EVENT_MATCHED_EXPOSURE_LIMIT_EXCEEDED = doc("@Deprecated Defined in XML specification but not in API doc")
+    EVENT_BLOCKED = doc("@Deprecated Defined in XML specification but not in API doc")
 
 
 class PersistenceType(DocumentedEnum):
@@ -307,6 +310,7 @@ class InstructionReportErrorCode(DocumentedEnum):
         "preferences don't allow the system to match your bet against better odds. Change your betting "
         "preferences to accept better odds if you don't want to receive this error."
     )
+    INVALID_CUSTOMER_STRATEGY_REF = doc("@Deprecated Defined in XML specification but not in API doc")
 
 
 class RollupModel(DocumentedEnum):
@@ -336,6 +340,8 @@ class GroupBy(DocumentedEnum):
         "selection within a specified market, that are either settled or voided"
     )
     BET = doc("The P&L, side and regulatory information etc, about each individual bet order.")
+    RUNNER = doc("@Deprecated Defined in XML specification but not in API doc")
+    STRATEGY = doc("@Deprecated Defined in XML specification but not in API doc")
 
 
 class BetStatus(DocumentedEnum):

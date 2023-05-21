@@ -19,92 +19,98 @@ from betfair_parser.spec.betting.enums import (
 from betfair_parser.spec.common import (
     BaseMessage,
     BetId,
+    CompetitionId,
     CountryCode,
     CustomerOrderRef,
     CustomerRef,
     CustomerStrategyRef,
     Date,
+    EventId,
     EventTypeId,
-    FloatStr,
+    ExchangeId,
     Handicap,
     MarketId,
+    MatchId,
     OrderStatus,
     OrderType,
     Price,
     SelectionId,
     Size,
     TimeRange,
+    Venue,
 )
 
 
 class Competition(BaseMessage, frozen=True):
-    id: str
-    name: str
+    id: Optional[CompetitionId] = None
+    name: Optional[str] = None
 
 
 class CompetitionResult(BaseMessage, frozen=True):
-    competition: Competition
-    marketCount: int  # Count of markets associated with this competition
-    competitionRegion: str  # Region in which this competition is happening
+    competition: Optional[Competition] = None
+    marketCount: Optional[int] = None  # Count of markets associated with this competition
+    competitionRegion: Optional[str] = None  # Region in which this competition is happening
 
 
 class Event(BaseMessage, frozen=True):
-    id: Optional[str] = None  # The unique id for the event
+    id: Optional[EventId] = None  # The unique id for the event
     name: Optional[str] = None  # The name of the event
-    countryCode: Optional[str] = None  # The ISO-2 code for the event, defaults to GB
+    countryCode: Optional[CountryCode] = None  # The ISO-2 code for the event, defaults to GB
     timezone: Optional[str] = None  # The timezone in which the event is taking place
     venue: Optional[str] = None
     openDate: Optional[Date] = None  # The scheduled start date and time of the event
 
 
 class EventResult(BaseMessage, frozen=True):
-    event: Event
-    marketCount: int  # Count of markets associated with this event
+    event: Optional[Event] = None
+    marketCount: Optional[int] = None  # Count of markets associated with this event
 
 
 class EventType(BaseMessage, frozen=True):
-    id: EventTypeId
-    name: str
+    id: Optional[EventTypeId] = None
+    name: Optional[str] = None
 
 
 class EventTypeResult(BaseMessage, frozen=True):
-    eventType: EventType  # The ID identifying the Event Type
-    marketCount: int  # Count of markets associated with this eventType
+    eventType: Optional[EventType] = None  # The ID identifying the Event Type
+    marketCount: Optional[int] = None  # Count of markets associated with this eventType
 
 
 class MarketTypeResult(BaseMessage, frozen=True):
-    marketType: str
-    marketCount: int  # Count of markets associated with this marketType
+    marketType: Optional[str] = None
+    marketCount: Optional[int] = None  # Count of markets associated with this marketType
 
 
 class CountryCodeResult(BaseMessage, frozen=True):
-    countryCode: CountryCode  # The ISO-2 code for the event
-    marketCount: int  # Count of markets associated with this Country Code
+    countryCode: Optional[CountryCode] = None  # The ISO-2 code for the event
+    marketCount: Optional[int] = None  # Count of markets associated with this Country Code
 
 
 class VenueResult(BaseMessage, frozen=True):
-    venue: str
-    marketCount: int  # Count of markets associated with this Venue
+    venue: Optional[Venue] = None
+    marketCount: Optional[int] = None  # Count of markets associated with this Venue
 
 
 class PriceSize(BaseMessage, frozen=True):
-    price: float  # Available price
-    size: float  # Available stake
+    price: Price  # Available price
+    size: Size  # Available stake
 
 
 class TimeRangeResult(BaseMessage, frozen=True):
-    timeRange: TimeRange
-    marketCount: int  # Count of markets associated with this TimeRange
+    timeRange: Optional[TimeRange] = None
+    marketCount: Optional[int] = None  # Count of markets associated with this TimeRange
 
 
 class MarketFilter(BaseMessage, frozen=True):
     textQuery: Optional[str] = None  # Restrict markets by any text associated with the Event name
-    exchangeIds: Optional[set[str]] = None  # DEPRECATED
-    eventTypeIds: Optional[set[str]] = None  # Restrict markets by event type associated with the market
-    eventIds: Optional[set[str]] = None  # Restrict markets by the event id associated with the market
-    competitionIds: Optional[set[str]] = None  # Restrict markets by the competitions associated with the market
+    exchangeIds: Optional[set[ExchangeId]] = None  # DEPRECATED
+    eventTypeIds: Optional[set[EventTypeId]] = None  # Restrict markets by event type associated with the market
+    eventIds: Optional[set[EventId]] = None  # Restrict markets by the event id associated with the market
+    competitionIds: Optional[
+        set[CompetitionId]
+    ] = None  # Restrict markets by the competitions associated with the market
     marketIds: Optional[set[MarketId]] = None  # Restrict markets by the market id associated with the market
-    venues: Optional[set[str]] = None  # Restrict markets by the venue associated with the market
+    venues: Optional[set[Venue]] = None  # Restrict markets by the venue associated with the market
     bspOnly: Optional[bool] = None  # Restrict to bsp markets only if True or non-bsp markets if False
 
     # Restrict to markets that will turn in play if True or will not turn in play if False
@@ -112,8 +118,12 @@ class MarketFilter(BaseMessage, frozen=True):
 
     # Restrict to markets that are currently in play if True or are not currently in play if False
     inPlayOnly: Optional[bool] = None
-    marketBettingTypes: Optional[set[str]] = None  # Restrict to markets that match the betting type of the market
-    marketCountries: Optional[set[str]] = None  # Restrict to markets that are in the specified country or countries
+    marketBettingTypes: Optional[
+        set[MarketBettingType]
+    ] = None  # Restrict to markets that match the betting type of the market
+    marketCountries: Optional[
+        set[CountryCode]
+    ] = None  # Restrict to markets that are in the specified country or countries
     marketTypeCodes: Optional[set[str]] = None  # Restrict to markets that match the type of the market
     marketStartTime: Optional[TimeRange] = None  # Restrict to markets with a market start time range
     withOrders: Optional[set[str]] = None  # Restrict to markets that I have one or more orders in these status
@@ -159,16 +169,16 @@ class Order(BaseMessage, frozen=True):
     status: OrderStatus
     persistenceType: PersistenceType
     side: Side  # Side (BACK or LAY)
-    price: float
-    size: float
-    bspLiability: float  # Liability of a given BSP bet
+    price: Price
+    size: Size
+    bspLiability: Size  # Liability of a given BSP bet
     placedDate: Date  # Date and time the bet was placed
-    avgPriceMatched: Optional[float] = None  # Average price matched at
-    sizeMatched: Optional[float] = None  # Current amount of this bet that was matched
-    sizeRemaining: Optional[float] = None  # Current amount of this bet that is unmatched
-    sizeLapsed: Optional[float] = None  # Current amount of this bet that was lapsed
-    sizeCancelled: Optional[float] = None  # Current amount of this bet that was cancelled
-    sizeVoided: Optional[float] = None  # Current amount of this bet that was voided
+    avgPriceMatched: Optional[Price] = None  # Average price matched at
+    sizeMatched: Optional[Size] = None  # Current amount of this bet that was matched
+    sizeRemaining: Optional[Size] = None  # Current amount of this bet that is unmatched
+    sizeLapsed: Optional[Size] = None  # Current amount of this bet that was lapsed
+    sizeCancelled: Optional[Size] = None  # Current amount of this bet that was cancelled
+    sizeVoided: Optional[Size] = None  # Current amount of this bet that was voided
     customerOrderRef: Optional[CustomerOrderRef] = None  # Customer Order Reference
     customerStrategyRef: Optional[CustomerStrategyRef] = None  # Customer Strategy Reference
 
@@ -179,15 +189,15 @@ class Match(BaseMessage, kw_only=True, frozen=True):
     """
 
     betId: Optional[BetId] = None  # Bet ID (present if no rollup)
-    matchId: Optional[str] = None  # Match ID (present if no rollup)
+    matchId: Optional[MatchId] = None  # Match ID (present if no rollup)
     side: Side  # Side (BACK or LAY)
-    price: float  # Match price
-    size: float  # Size matched at
+    price: Price  # Match price
+    size: Size  # Size matched at
     matchDate: Optional[Date] = None  # Match date (present if no rollup)
 
 
 class MarketVersion(BaseMessage, frozen=True):
-    version: int  # A non-monotonically increasing number indicating market changes
+    version: Optional[int] = None  # A non-monotonically increasing number indicating market changes
 
 
 class MarketRates(BaseMessage, frozen=True):
@@ -336,8 +346,8 @@ class ItemDescription(BaseMessage, frozen=True):
 class ClearedOrderSummary(BaseMessage, frozen=True):
     """Summary of a cleared order"""
 
-    eventTypeId: Optional[str] = None  # The id of the event type bet on
-    eventId: Optional[str] = None  # The id of the event bet on
+    eventTypeId: Optional[EventTypeId] = None  # The id of the event type bet on
+    eventId: Optional[EventId] = None  # The id of the event bet on
     marketId: Optional[MarketId] = None  # The id of the market bet on
     selectionId: Optional[int] = None  # The id of the selection bet on
     handicap: Optional[float] = None  # The handicap value for Asian handicap markets
@@ -348,20 +358,22 @@ class ClearedOrderSummary(BaseMessage, frozen=True):
     side: Optional[Side] = None  # Whether the bet was a back or lay bet
     itemDescription: Optional[ItemDescription] = None  # Container for ancillary data and localized text
     betOutcome: Optional[str] = None  # The settlement outcome of the bet
-    priceRequested: Optional[float] = None  # The average requested price across all settled bet orders under this item
+    priceRequested: Optional[Price] = None  # The average requested price across all settled bet orders under this item
     settledDate: Optional[Date] = None  # The date and time the bet order was settled by Betfair
     lastMatchedDate: Optional[Date] = None  # The date and time the last bet order was matched by Betfair
     betCount: Optional[int] = None  # The number of actual bets within this grouping
 
     # The cumulative amount of commission paid by the customer across all bets under this item
-    commission: Optional[float] = None
-    priceMatched: Optional[float] = None  # The average matched price across all settled bets or bet fragments
+    commission: Optional[Size] = None
+    priceMatched: Optional[Price] = None  # The average matched price across all settled bets or bet fragments
     priceReduced: Optional[bool] = None  # Indicates if the matched price was affected by a reduction factor
-    sizeSettled: Optional[float] = None  # The cumulative bet size that was settled as matched or voided under this item
-    profit: Optional[float] = None  # The profit or loss gained on this line
-    sizeCancelled: Optional[float] = None  # The amount of the bet that was cancelled
-    customerOrderRef: Optional[str] = None  # The order reference defined by the customer for the bet order
-    customerStrategyRef: Optional[str] = None  # The strategy reference defined by the customer for the bet order
+    sizeSettled: Optional[Size] = None  # The cumulative bet size that was settled as matched or voided under this item
+    profit: Optional[Size] = None  # The profit or loss gained on this line
+    sizeCancelled: Optional[Size] = None  # The amount of the bet that was cancelled
+    customerOrderRef: Optional[CustomerOrderRef] = None  # The order reference defined by the customer for the bet order
+    customerStrategyRef: Optional[
+        CustomerStrategyRef
+    ] = None  # The strategy reference defined by the customer for the bet order
 
 
 class ClearedOrderSummaryReport(BaseMessage, frozen=True):
@@ -393,19 +405,19 @@ class CurrentOrderSummary(BaseMessage, frozen=True):
     selectionId: int  # The selection ID the order is for
     handicap: float  # The handicap associated with the runner in case of Asian handicap markets
     priceSize: PriceSize  # The price and size of the bet
-    bspLiability: float  # The liability of a given BSP bet
+    bspLiability: Size  # The liability of a given BSP bet
     side: Side  # BACK/LAY
     status: OrderStatus  # The status of the order
     persistenceType: PersistenceType  # What to do with the order at turn-in-play
     orderType: OrderType  # BSP Order type
     placedDate: Date  # The date the bet was placed
     matchedDate: Date  # The date of the last matched bet fragment
-    averagePriceMatched: Optional[float] = None  # The average price matched at
-    sizeMatched: Optional[float] = None
-    sizeRemaining: Optional[float] = None
-    sizeLapsed: Optional[float] = None
-    sizeCancelled: Optional[float] = None
-    sizeVoided: Optional[float] = None
+    averagePriceMatched: Optional[Price] = None  # The average price matched at
+    sizeMatched: Optional[Size] = None
+    sizeRemaining: Optional[Size] = None
+    sizeLapsed: Optional[Size] = None
+    sizeCancelled: Optional[Size] = None
+    sizeVoided: Optional[Size] = None
     regulatorAuthCode: Optional[str] = None
     regulatorCode: Optional[str] = None
     customerOrderRef: Optional[str] = None  # The order reference defined by the customer for this bet
@@ -433,12 +445,12 @@ class LimitOrder(BaseMessage, frozen=True):
 
 
 class LimitOnCloseOrder(BaseMessage, frozen=True):
-    liability: FloatStr
-    price: FloatStr
+    liability: Size
+    price: Price
 
 
 class MarketOnCloseOrder(BaseMessage, frozen=True):
-    liability: FloatStr
+    liability: Size
 
 
 class PlaceInstruction(BaseMessage, kw_only=True, frozen=True):
@@ -467,7 +479,7 @@ class PlaceInstructionReport(BaseMessage, kw_only=True, frozen=True):
     instruction: PlaceInstruction  # The place instruction
     betId: Optional[BetId] = None  # The bet ID of the placed order, if successful
     placedDate: Optional[Date] = None  # The date and time the bet was placed, if successful
-    averagePriceMatched: Optional[float] = None  # The average price matched at, if successful
+    averagePriceMatched: Optional[Price] = None  # The average price matched at, if successful
     sizeMatched: Optional[Size] = None  # The current amount of the bet that was matched, if successful
 
 
@@ -476,7 +488,7 @@ class PlaceExecutionReport(BaseMessage, kw_only=True, frozen=True):
     status: ExecutionReportStatus  # The execution report status
     errorCode: Optional[ExecutionReportErrorCode] = None  # The execution report error code
     marketId: Optional[MarketId] = None  # Echo of the market ID passed
-    instructionReports: list[PlaceInstructionReport]  # The list of place instruction reports
+    instructionReports: Optional[list[PlaceInstructionReport]] = None  # The list of place instruction reports
 
 
 class CancelInstruction(BaseMessage, frozen=True):
@@ -485,14 +497,14 @@ class CancelInstruction(BaseMessage, frozen=True):
     betId: BetId
     # If supplied then this is a partial cancel. Should be set to 'null' if no size
     # reduction is required.
-    sizeReduction: Optional[float] = None
+    sizeReduction: Optional[Size] = None
 
 
 class ReplaceInstruction(BaseMessage, frozen=True):
     """Instruction to replace a LIMIT or LIMIT_ON_CLOSE order at a new price."""
 
     betId: BetId  # Unique identifier for the bet
-    newPrice: float  # The price to replace the bet at
+    newPrice: Price  # The price to replace the bet at
 
 
 class CancelInstructionReport(BaseMessage, kw_only=True, frozen=True):

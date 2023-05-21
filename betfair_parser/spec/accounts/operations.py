@@ -14,10 +14,15 @@ from betfair_parser.spec.error import AccountAPIExceptionCode
 AccountAPIException = APIException[AccountAPIExceptionCode]
 
 
+class getAccountFundsParams(BaseMessage, frozen=True):
+    wallet: Optional[Wallet] = None  # Name of the wallet in question. Global wallet is returned by default
+
+
 class getAccountFunds(Request, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
     method = "AccountAPING/v1.0/getAccountFunds"
+    params: getAccountFundsParams
     return_type = Response[AccountFundsResponse]
     throws = AccountAPIException
 
@@ -49,7 +54,7 @@ class getAccountStatementParams(BaseMessage, frozen=True):
 class getAccountStatement(Request, kw_only=True, frozen=True):
     method = "AccountAPING/v1.0/getAccountStatement"
     params: getAccountStatementParams
-    return_type = AccountStatementReport
+    return_type = Response[AccountStatementReport]
     throws = AccountAPIException
 
 
@@ -61,5 +66,6 @@ class listCurrencyRates(Request, kw_only=True, frozen=True):
     """Returns a list of currency rates based on given currency. Updates only once per hour."""
 
     method = "AccountAPING/v1.0/listCurrencyRates"
-    return_type = list[CurrencyRate]
+    params: listCurrencyRatesParams
+    return_type = Response[list[CurrencyRate]]
     throws = AccountAPIException

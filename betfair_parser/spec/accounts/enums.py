@@ -24,6 +24,7 @@ class ItemClass(DocumentedEnum):
 
 class Wallet(DocumentedEnum):
     UK = doc("The Global Exchange wallet")
+    AUSTRALIAN = doc("@Deprecated but still mentioned in the XML specification")
 
 
 class IncludeItem(DocumentedEnum):
@@ -67,3 +68,13 @@ class AffiliateRelationStatus(DocumentedEnum):
     INVALID_USER = doc("Provided vendor client ID is not valid")
     AFFILIATED = doc("Vendor client ID valid and affiliated")
     NOT_AFFILIATED = doc("Vendor client ID valid but not affiliated")
+
+
+class MarketType(DocumentedEnum):
+    """Legacy data"""
+
+    A = doc("Asian Handicap")
+    L = doc("Line market")
+    O = doc("Odds market")  # noqa
+    R = doc("Range market.")
+    NOT_APPLICABLE = doc("The market does not have an applicable marketType.")
