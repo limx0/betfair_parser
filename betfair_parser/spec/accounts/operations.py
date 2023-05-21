@@ -59,7 +59,7 @@ class getAccountStatement(Request, kw_only=True, frozen=True):
 
 
 class listCurrencyRatesParams(BaseMessage, frozen=True):
-    fromCurrency: Optional[str] = None  # Name of the wallet in question. Global wallet is returned by default
+    fromCurrency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
 
 
 class listCurrencyRates(Request, kw_only=True, frozen=True):
