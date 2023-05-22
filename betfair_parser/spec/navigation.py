@@ -29,32 +29,22 @@ class Locale(Enum):
 
 
 class navigationParams(BaseMessage, kw_only=True, frozen=True):
-    local: Locale
+    locale: Locale
 
 
-class Navigation(Request, kw_only=True, frozen=True):
+class NavigationRequest(Request, kw_only=True, frozen=True):
     """
-    Returns a list of Competitions (i.e., World Cup 2013) associated with the markets selected by
-    the MarketFilter. Currently only Football markets have an associated competition.
+    Navigation requests - https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Navigation+Data+For+Applications
     """
 
-    method_template = ClassVar[str] = "/betting/rest/v1/{locale}/navigation/menu.json"
+    METHOD_TEMPLATE: ClassVar[str] = "/betting/rest/v1/{locale}/navigation/menu.json"
     params: navigationParams
+    method: str = METHOD_TEMPLATE.format(locale=Locale.English.value)
 
-    @property
-    def method(self):
-        return self.method_template.format(locale=self.params.locale.value)
-
-
-def tag_func(s: str):
-    """
-    >>> tag_func("EventType")
-    'EVENT_TYPE'
-
-    >>> tag_func("Group")
-    'GROUP'
-    """
-    return re.sub(r"(?<!^)(?=[A-Z])", "_", s).upper()
+    @classmethod
+    def with_locale(cls, params: navigationParams, locale: Locale):
+        method = cls.METHOD_TEMPLATE.format(locale=locale.value)
+        return msgspec.structs.replace(cls(params=params), method=method)
 
 
 class Market(BaseMessage, tag=tag_func, frozen=True):
@@ -95,7 +85,7 @@ class EventType(BaseMessage, tag=tag_func, frozen=True):
     children: list[Union[Group, Event, Race]]
 
 
-class NavigationResponse(BaseMessage, frozen=True):
+class Navigation(BaseMessage, frozen=True):
     """Navigation"""
 
     type: Literal["GROUP"]
