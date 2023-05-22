@@ -155,8 +155,10 @@ def test_operations(spec, node):
     operation_cls = get_definition(spec, operation_name)
     xml_return_type = node.findall("parameters/simpleResponse")[0].get("type")
     assert xml_type_format(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
-    xml_error_type = node.findall("parameters/simpleResponse")[0].get("throws")
-    assert xml_type_format(xml_error_type) == py_type_format(operation_cls.throws)
+    xml_error_type = node.findall("parameters/exceptions/exception")[0].get("type")
+    assert compat_type_name(operation_cls.throws) == "APIException"
+    py_error_type = compat_type_name(py_type_unpack(operation_cls.throws)).replace("Code", "")
+    assert xml_type_format(xml_error_type).replace("APING", "API") == py_error_type
     try:
         params_cls = operation_cls.__annotations__["params"]
     except KeyError:
@@ -309,8 +311,16 @@ def compat_type_name(type_def):
         return type_def.__name__
     except AttributeError:
         # class name looks like _UnionGenericAlias, _AnnotatedAlias
+        if type_def.__class__.__name__.startswith("_Annotated"):
+            return "Annotated"
         name = type_def.__class__.__name__.lstrip("_").replace("Alias", "").replace("Generic", "")
         if name == "Union" and type_def.__args__[-1] is type(None):  # noqa
             # Optional looks just like Union, so we need to distinguish
             return "Optional"
+        if not name:
+            # Probably an enum
+            try:
+                return type_def.__origin__.__name__
+            except AttributeError:
+                pass
         return name
