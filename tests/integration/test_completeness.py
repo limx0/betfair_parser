@@ -155,6 +155,8 @@ def test_operations(spec, node):
     operation_cls = get_definition(spec, operation_name)
     xml_return_type = node.findall("parameters/simpleResponse")[0].get("type")
     assert xml_type_format(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
+    xml_error_type = node.findall("parameters/simpleResponse")[0].get("throws")
+    assert xml_type_format(xml_error_type) == py_type_format(operation_cls.throws)
     try:
         params_cls = operation_cls.__annotations__["params"]
     except KeyError:
