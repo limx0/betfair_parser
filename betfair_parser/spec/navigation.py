@@ -1,9 +1,49 @@
 import re
-from typing import Literal, Optional, Union
+from enum import Enum
+from typing import ClassVar, Literal, Optional, Union
 
 import msgspec
 
-from betfair_parser.spec.common import BaseMessage, Date
+from betfair_parser.spec.common import BaseMessage, Date, Request
+
+
+def tag_func(s: str):
+    """
+    >>> tag_func("EventType")
+    'EVENT_TYPE'
+
+    >>> tag_func("Group")
+    'GROUP'
+    """
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", s).upper()
+
+
+class Locale(Enum):
+    English = "en"
+    Spanish = "es"
+    Italian = "it"
+    German = "de"
+    Swedish = "sv"
+    Portuguese = "pt"
+    Russian = "ru"
+
+
+class navigationParams(BaseMessage, kw_only=True, frozen=True):
+    local: Locale
+
+
+class Navigation(Request, kw_only=True, frozen=True):
+    """
+    Returns a list of Competitions (i.e., World Cup 2013) associated with the markets selected by
+    the MarketFilter. Currently only Football markets have an associated competition.
+    """
+
+    method_template = ClassVar[str] = "/betting/rest/v1/{locale}/navigation/menu.json"
+    params: navigationParams
+
+    @property
+    def method(self):
+        return self.method_template.format(locale=self.params.locale.value)
 
 
 def tag_func(s: str):
@@ -55,7 +95,7 @@ class EventType(BaseMessage, tag=tag_func, frozen=True):
     children: list[Union[Group, Event, Race]]
 
 
-class Navigation(BaseMessage, frozen=True):
+class NavigationResponse(BaseMessage, frozen=True):
     """Navigation"""
 
     type: Literal["GROUP"]
