@@ -155,33 +155,20 @@ def test_operations(spec, node):
     operation_cls = get_definition(spec, operation_name)
     xml_return_type = node.findall("parameters/simpleResponse")[0].get("type")
     assert xml_type_format(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
+    xml_error_type = node.findall("parameters/exceptions/exception")[0].get("type")
+    assert compat_type_name(operation_cls.throws) == "APIException"
+    py_error_type = compat_type_name(py_type_unpack(operation_cls.throws)).replace("Code", "")
+    assert xml_type_format(xml_error_type).replace("APING", "API") == py_error_type
     try:
         params_cls = operation_cls.__annotations__["params"]
     except KeyError:
         params_cls = None
     else:
-        assert params_cls.__name__.endswith("Params")
+        params_cls_name = compat_type_name(params_cls)
+        assert params_cls_name.endswith("Params") or params_cls_name == "Struct"  # Struct: no arguments
     params = node.findall("parameters/request/parameter")
     for param in params:
         check_typedef_param(param, params_cls, operation_name)
-
-
-#        if param_deprecated(param):
-#            continue
-#        assert param_defined(param, op_cls)
-#        paramname = param_name(param)
-#        assert param_defined(param, op_cls), f"Operation {opname} does not define {paramname}"
-#        if param_mandatory(param):
-#            assert not param_optional(param, op_cls), f"Operation {opname} does not require {paramname}"
-#        else:
-#            assert param_optional(param, op_cls), f"Operation {opname} wrongly requires {paramname}"
-#            op_cls = py_type_unpack(op_cls)
-#
-#        paramtypename = param.get("type")
-#       paramobjname = op_cls.__name__
-#       assert (
-#           paramobjname == paramtypename
-#       ), f"Operation parameter {opname}.{paramname} of invalid type: {paramtypename} != {paramobjname}"
 
 
 # Little helper functions
@@ -235,19 +222,20 @@ def py_type_unpack(type_def):
 
 
 def py_type_unpack_annotated(type_def):
-    if type_def.__name__ == "Annotated":
+    if compat_type_name(type_def) == "Annotated":
         return py_type_unpack(type_def)
     return type_def
 
 
 def py_type_format(type_def):
+    type_def_name = compat_type_name(type_def)
     if hasattr(type_def, "__metadata__"):
         return py_type_replace(type_def.__metadata__[0].title)
     if not hasattr(type_def, "__args__"):
-        return py_type_replace(type_def.__name__)
-    args = type_def.__args__ if type_def.__name__ != "Optional" else type_def.__args__[:-1]
+        return py_type_replace(type_def_name)
+    args = type_def.__args__ if type_def_name != "Optional" else type_def.__args__[:-1]
     args_fmt = ",".join(py_type_format(arg) for arg in args)
-    return f"{py_type_replace(type_def.__name__)}[{args_fmt}]"
+    return f"{py_type_replace(type_def_name)}[{args_fmt}]"
 
 
 PY_TYPE_NAME_REPLACEMENTS = {
@@ -315,3 +303,24 @@ def xml_type_format(xml_type_def):
     if "MarketTypeResult" not in xml_type_def:
         xml_type_def = xml_type_def.replace("MarketType", "str")
     return xml_type_def
+
+
+def compat_type_name(type_def):
+    """Workaround for py3.9 which does not define a __name__ attribute for typing classes."""
+    try:
+        return type_def.__name__
+    except AttributeError:
+        # class name looks like _UnionGenericAlias, _AnnotatedAlias
+        if type_def.__class__.__name__.startswith("_Annotated"):
+            return "Annotated"
+        name = type_def.__class__.__name__.lstrip("_").replace("Alias", "").replace("Generic", "")
+        if name == "Union" and type_def.__args__[-1] is type(None):  # noqa
+            # Optional looks just like Union, so we need to distinguish
+            return "Optional"
+        if not name:
+            # Probably an enum
+            try:
+                return type_def.__origin__.__name__
+            except AttributeError:
+                pass
+        return name
