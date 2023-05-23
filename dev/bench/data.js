@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684826627285,
+  "lastUpdate": 1684826656961,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1596,6 +1596,47 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000004217624925544403",
             "extra": "mean: 51.54087999812873 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "limx0",
+            "username": "limx0"
+          },
+          "committer": {
+            "name": "limx0",
+            "username": "limx0"
+          },
+          "id": "894d7d7e3cec720c6b5e135c5d29556ca9c84a1f",
+          "message": "Navigation update",
+          "timestamp": "2023-04-11T15:47:15Z",
+          "url": "https://github.com/limx0/betfair_parser/pull/13/commits/894d7d7e3cec720c6b5e135c5d29556ca9c84a1f"
+        },
+        "date": 1684826655666,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.14909286934985935,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.707228885999996 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 537186.4066914617,
+            "unit": "iter/sec",
+            "range": "stddev: 6.664546056694957e-8",
+            "extra": "mean: 1.861551199999667 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 15896.047480104437,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00000722055618575208",
+            "extra": "mean: 62.90871999794945 usec\nrounds: 5"
           }
         ]
       }
