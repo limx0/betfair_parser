@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684712720498,
+  "lastUpdate": 1684826595183,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1510,6 +1510,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006107600579906318",
             "extra": "mean: 53.52916000106234 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "michael@loeffler.io",
+            "name": "Michael",
+            "username": "ml31415"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "48647e4fc809b28501c29fe1028b7560c5f31884",
+          "message": "Api completion py3.9 (#12)\n\n* Added tests against the betfair XML API specification for completeness and correctness\r\n\r\n* Last minute docstring fix\r\n\r\n* Fix py3.9 issue with completeness tests\r\n\r\n* Fix py3.9 issue with completeness tests\r\n\r\n* Added XML tests for error type",
+          "timestamp": "2023-05-23T17:22:34+10:00",
+          "tree_id": "57362bb8a19476daad7f59769fec5303bfaa5fe8",
+          "url": "https://github.com/limx0/betfair_parser/commit/48647e4fc809b28501c29fe1028b7560c5f31884"
+        },
+        "date": 1684826594651,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.1688126325179064,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 5.923727300999985 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 604103.5667915955,
+            "unit": "iter/sec",
+            "range": "stddev: 2.884677788822911e-8",
+            "extra": "mean: 1.6553452999971796 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 18634.285743790355,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000005732245005140447",
+            "extra": "mean: 53.66452000089339 usec\nrounds: 5"
           }
         ]
       }
