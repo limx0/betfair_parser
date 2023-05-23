@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1684826887789,
+  "lastUpdate": 1684827020718,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -1678,6 +1678,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000008169713643612628",
             "extra": "mean: 60.567519999494834 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bradley.mcelroy@live.com",
+            "name": "Brad",
+            "username": "limx0"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ee68e2439ab973de008ee9a3343fbcbc7ec6e733",
+          "message": "Navigation update (#13)\n\n* WIP\r\n\r\n* Add simple navigation test\r\n\r\n* Api completion py3.9 (#12)\r\n\r\n* Added tests against the betfair XML API specification for completeness and correctness\r\n\r\n* Last minute docstring fix\r\n\r\n* Fix py3.9 issue with completeness tests\r\n\r\n* Fix py3.9 issue with completeness tests\r\n\r\n* Added XML tests for error type\r\n\r\n---------\r\n\r\nCo-authored-by: brad <brad@edgestackers.com>\r\nCo-authored-by: Michael <michael@loeffler.io>",
+          "timestamp": "2023-05-23T17:29:33+10:00",
+          "tree_id": "37075601f9ac818326d81afc650f654f22d90a73",
+          "url": "https://github.com/limx0/betfair_parser/commit/ee68e2439ab973de008ee9a3343fbcbc7ec6e733"
+        },
+        "date": 1684827019606,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.1553551414712299,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.436864531999987 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 458162.9215444872,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000025270567155136036",
+            "extra": "mean: 2.1826296999961414 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 18583.215639283175,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000009569750257035584",
+            "extra": "mean: 53.81200000101671 usec\nrounds: 5"
           }
         ]
       }
