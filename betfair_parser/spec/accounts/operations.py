@@ -35,7 +35,7 @@ class GetAccountDetails(Request, kw_only=True, frozen=True):
     throws = AccountAPIException
 
 
-class _GetAccountStatementParams(BaseMessage, frozen=True, rename="camel"):
+class _GetAccountStatementParams(BaseMessage, frozen=True):
     locale: Optional[str] = None  # The language to be used where applicable. Defaults to account settings
     from_record: Optional[int] = None  # Specifies the first record that will be returned, defaults to 0
     record_count: Optional[int] = None  # Specifies the maximum number of records to be returned. Maximum 100
@@ -57,7 +57,7 @@ class GetAccountStatement(Request, kw_only=True, frozen=True):
     throws = AccountAPIException
 
 
-class _ListCurrencyRatesParams(BaseMessage, frozen=True, rename="camel"):
+class _ListCurrencyRatesParams(BaseMessage, frozen=True):
     from_currency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
 
 
