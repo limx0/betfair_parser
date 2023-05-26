@@ -1,10 +1,10 @@
 import re
-from enum import Enum
 from typing import ClassVar, Literal, Optional, Union
 
 import msgspec
 
-from betfair_parser.spec.common import BaseMessage, Date, Request
+from betfair_parser.spec.common import BaseMessage, Date, Request, decode, encode
+from betfair_parser.spec.constants import Locale
 
 
 def tag_func(s: str):
@@ -18,17 +18,7 @@ def tag_func(s: str):
     return re.sub(r"(?<!^)(?=[A-Z])", "_", s).upper()
 
 
-class Locale(Enum):
-    English = "en"
-    Spanish = "es"
-    Italian = "it"
-    German = "de"
-    Swedish = "sv"
-    Portuguese = "pt"
-    Russian = "ru"
-
-
-class navigationParams(BaseMessage, kw_only=True, frozen=True):
+class _NavigationParams(BaseMessage, kw_only=True, frozen=True):
     locale: Locale
 
 
@@ -38,11 +28,11 @@ class NavigationRequest(Request, kw_only=True, frozen=True):
     """
 
     METHOD_TEMPLATE: ClassVar[str] = "/betting/rest/v1/{locale}/navigation/menu.json"
-    params: navigationParams
+    params: _NavigationParams
     method: str = METHOD_TEMPLATE.format(locale=Locale.English.value)
 
     @classmethod
-    def with_locale(cls, params: navigationParams, locale: Locale):
+    def with_locale(cls, params: _NavigationParams, locale: Locale):
         method = cls.METHOD_TEMPLATE.format(locale=locale.value)
         return msgspec.structs.replace(cls(params=params), method=method)
 
@@ -50,27 +40,27 @@ class NavigationRequest(Request, kw_only=True, frozen=True):
 class Market(BaseMessage, tag=tag_func, frozen=True):
     name: str
     id: str
-    exchangeId: str
-    marketType: str
-    marketStartTime: str
-    numberOfWinners: Union[int, str]
+    exchange_id: str
+    market_type: str
+    market_start_time: str
+    number_of_winners: Union[int, str]
 
 
 class Event(BaseMessage, tag=tag_func, frozen=True):
     name: str
     id: str
-    countryCode: str
+    country_code: str
     children: list[Union["Group", "Event", Market]]
 
 
 class Race(BaseMessage, tag=tag_func, frozen=True):
     name: str
     id: str
-    countryCode: str
+    country_code: str
     venue: str
-    startTime: Date
+    start_time: Date
     children: list[Market]
-    raceNumber: Optional[str] = None
+    race_number: Optional[str] = None
 
 
 class Group(BaseMessage, tag=tag_func, frozen=True):
@@ -94,34 +84,34 @@ class Navigation(BaseMessage, frozen=True):
     children: list[EventType]
 
 
-class FlattenedMarket(BaseMessage, kw_only=True, frozen=True):
+class FlattenedMarket(BaseMessage, kw_only=True, frozen=True, rename=None):
     event_type_name: str
     event_type_id: str
     event_name: Optional[str] = None
     event_id: Optional[str] = None
-    event_countryCode: Optional[str] = None
+    event_country_code: Optional[str] = None
     market_name: str
     market_id: str
-    market_exchangeId: str
-    market_marketType: str
-    market_marketStartTime: str
-    market_numberOfWinners: Union[int, str]
+    market_exchange_id: str
+    market_market_type: str
+    market_market_start_time: str
+    market_number_of_winners: Union[int, str]
     group_name: Optional[str] = None
     group_id: Optional[str] = None
     race_name: Optional[str] = None
     race_id: Optional[str] = None
-    race_countryCode: Optional[str] = None
+    race_country_code: Optional[str] = None
     race_venue: Optional[str] = None
-    race_startTime: Optional[str] = None
-    race_raceNumber: Optional[str] = None
+    race_start_time: Optional[str] = None
+    race_race_number: Optional[str] = None
 
 
 def navigation_to_flatten_markets(navigation: Navigation, **filters) -> list[FlattenedMarket]:
-    flattened = flatten_tree(msgspec.json.decode(msgspec.json.encode(navigation)), **filters)
-    return msgspec.json.decode(msgspec.json.encode(flattened), type=list[FlattenedMarket])
+    flattened = flatten_tree(decode(encode(navigation), type=Navigation), **filters)
+    return decode(encode(flattened), type=list[FlattenedMarket])
 
 
-def flatten_tree(data: dict, **filters):
+def flatten_tree(navigation: dict, **filters):
     """
     Flatten a nested dict into a list of dicts with each nested level combined
     into a single dict.
@@ -129,20 +119,19 @@ def flatten_tree(data: dict, **filters):
     results = []
     ignore_keys = ("type", "children")
 
-    def flatten(dict_like, depth: Optional[int] = None):
-        def _filter(k, v):
-            if isinstance(v, str):
-                return k == v
-            elif isinstance(v, (tuple, list)):
-                return k in v
-            else:
-                raise TypeError
+    def _filter(k, v):
+        if isinstance(v, str):
+            return k == v
+        if isinstance(v, (tuple, list)):
+            return k in v
+        raise TypeError
 
+    def flatten(nav_item, depth: Optional[int] = None):
         depth = depth or 0
-        node_type = dict_like["type"].lower()
-        data = {f"{node_type}_{k}": v for k, v in dict_like.items() if k not in ignore_keys}
-        if "children" in dict_like:
-            for child in dict_like["children"]:
+        node_type = tag_func(nav_item.__class__.__name__).lower()
+        data = {f"{node_type}_{k}": v for k, v in nav_item.to_dict().items() if k not in ignore_keys}
+        if hasattr(nav_item, "children"):
+            for child in nav_item.children:
                 for child_data in flatten(child, depth=depth + 1):
                     if depth == 0:
                         if all(_filter(child_data[k], v) for k, v in filters.items()):
@@ -152,5 +141,5 @@ def flatten_tree(data: dict, **filters):
         else:
             yield data
 
-    list(flatten(data))
+    list(flatten(navigation))
     return results

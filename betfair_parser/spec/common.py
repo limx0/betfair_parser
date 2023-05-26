@@ -56,7 +56,7 @@ def encode(data):
     return msgspec.json.encode(data, enc_hook=encode_intfloat)
 
 
-class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, frozen=True):
+class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, frozen=True, rename="camel"):
     def validate(self):
         return bool(decode(encode(self), type=type(self)))
 
@@ -87,9 +87,9 @@ class ErrorResponse(RPC, kw_only=True, frozen=True):
 
 
 class APIException(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=True):
-    errorCode: ErrorCode
-    errorDetails: Optional[str] = None  # The stack trace of the error
-    requestUUID: Optional[str] = None
+    error_code: ErrorCode
+    error_details: Optional[str] = None  # The stack trace of the error
+    request_uuid: Optional[str] = msgspec.field(name="requestUUID", default=None)
 
 
 class Request(RPC, kw_only=True, frozen=True):
@@ -97,6 +97,11 @@ class Request(RPC, kw_only=True, frozen=True):
     params: msgspec.Struct
     response_type = None  # not to be serialized, so no type definition
     throws = APIException[APIExceptionCode]  # not to be serialized, so no type definition
+
+    @classmethod
+    def with_params(cls, **kwargs):
+        params_cls = cls.__annotations__["params"]
+        return cls(params=params_cls(**kwargs))
 
 
 # Type aliases with minimalistic validation

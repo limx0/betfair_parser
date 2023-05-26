@@ -40,20 +40,20 @@ class ResponseCode(DocumentedEnum):
 
 
 class RaceDetails(BaseMessage, kw_only=True, frozen=True):
-    meetingId: str  # The unique Id for the meeting equivalent to the eventId as returned by listEvents
-    raceId: str  # The unique Id for the race in the format meetingId.raceTime (hhmm)
-    raceStatus: RaceStatus  # The current status of the race.
-    lastUpdated: Date  # This is the time the data was last updated
+    meeting_Id: str  # The unique Id for the meeting equivalent to the eventId as returned by listEvents
+    race_id: str  # The unique Id for the race in the format meetingId.raceTime (hhmm)
+    race_status: RaceStatus  # The current status of the race.
+    last_updated: Date  # This is the time the data was last updated
     sequence: int  # This is the unique identifier associated to each update of the data
-    responseCode: ResponseCode
+    response_code: ResponseCode
 
 
-class listRaceDetailsParams(BaseMessage, frozen=True):
-    meetingIds: Optional[set[str]] = None  # Restricts the results to the specified meeting IDs.
-    raceIds: Optional[set[str]] = None  # Restricts the results to the specified race IDs.
+class _ListRaceDetailsParams(BaseMessage, frozen=True):
+    meeting_ids: Optional[set[str]] = None  # Restricts the results to the specified meeting IDs.
+    race_ids: Optional[set[str]] = None  # Restricts the results to the specified race IDs.
 
 
-class listRaceDetail(Request, kw_only=True, frozen=True):
+class ListRaceDetail(Request, kw_only=True, frozen=True):
     method = "ScoresAPING/v1.0/listRaceDetails"
-    params: listRaceDetailsParams
+    params: _ListRaceDetailsParams
     return_type = Response[list[RaceDetails]]

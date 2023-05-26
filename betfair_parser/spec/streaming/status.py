@@ -45,10 +45,10 @@ class Connection(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
 class Status(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """Status Message"""
 
-    statusCode: Literal["SUCCESS", "FAILURE"]
-    connectionClosed: bool
+    status_code: Literal["SUCCESS", "FAILURE"]
+    connection_closed: bool
     id: Optional[int] = None
-    connectionsAvailable: Optional[int] = None
-    connectionId: Optional[str] = None
-    errorCode: Optional[StatusErrorCode] = None
-    errorMessage: Optional[str] = None
+    connections_available: Optional[int] = None
+    connection_id: Optional[str] = None
+    error_code: Optional[StatusErrorCode] = None
+    error_message: Optional[str] = None

@@ -47,7 +47,7 @@ class OrderChanges(BaseMessage, frozen=True):
     """
 
     id: int
-    fullImage: Optional[bool] = False
+    full_image: Optional[bool] = False
     hc: Optional[float] = None
     uo: Optional[List[UnmatchedOrder]] = []
     mb: Optional[List[MatchedOrder]] = []
@@ -61,8 +61,8 @@ class OrderAccountChange(BaseMessage, frozen=True):
     """
 
     id: str
-    accountId: Optional[int] = None
-    fullImage: Optional[bool] = False
+    account_id: Optional[int] = None
+    full_image: Optional[bool] = False
     orc: List[OrderChanges] = []
     closed: Optional[bool] = None
 
@@ -76,9 +76,9 @@ class OCM(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     clk: str
     pt: int
     oc: List[OrderAccountChange] = []
-    initialClk: Optional[str] = None
+    initial_clk: Optional[str] = None
     status: Optional[int] = None
-    conflateMs: Optional[int] = None
-    heartbeatMs: Optional[int] = None
+    conflate_ms: Optional[int] = None
+    heartbeat_ms: Optional[int] = None
     ct: Optional[Literal["HEARTBEAT", "SUB_IMAGE"]] = None
     con: Optional[bool] = None

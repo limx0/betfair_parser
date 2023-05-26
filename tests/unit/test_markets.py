@@ -29,9 +29,8 @@ from tests.resources import assert_json_equal, read_test_file
 )
 def test_runner_name(data):
     runner: RunnerCatalog = msgspec.json.decode(msgspec.json.encode(data), type=RunnerCatalog)
-    assert runner.runnerName == data["runnerName"]
     assert runner.handicap == data["handicap"]
-    assert runner.sortPriority == data["sortPriority"]
+    assert runner.sort_priority == data["sortPriority"]
     assert runner.runner_name == data["runnerName"]
     assert runner.runner_id == int(data["metadata"]["runnerId"])
 

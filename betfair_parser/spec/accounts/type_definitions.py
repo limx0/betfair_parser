@@ -14,95 +14,95 @@ from betfair_parser.spec.common import BaseMessage, Date
 class ApplicationSubscription(BaseMessage, frozen=True):
     """Application subscription details"""
 
-    subscriptionToken: str  # Application key identifier
-    expiryDateTime: Optional[Date] = None
-    expiredDateTime: Optional[Date] = None
-    createdDateTime: Optional[Date] = None
-    activationDateTime: Optional[Date] = None
-    cancellationDateTime: Optional[Date] = None
-    subscriptionStatus: Optional[SubscriptionStatus] = None
-    clientReference: Optional[str] = None
-    vendorClientId: Optional[str] = None
+    subscription_token: str  # Application key identifier
+    expiry_date_time: Optional[Date] = None
+    expired_date_time: Optional[Date] = None
+    created_date_time: Optional[Date] = None
+    activation_date_time: Optional[Date] = None
+    cancellation_date_time: Optional[Date] = None
+    subscription_status: Optional[SubscriptionStatus] = None
+    client_reference: Optional[str] = None
+    vendor_client_id: Optional[str] = None
 
 
 class SubscriptionHistory(BaseMessage, frozen=True):
     """Application subscription history details"""
 
-    subscriptionToken: str  # Application key identifier
-    expiryDateTime: Optional[Date] = None
-    expiredDateTime: Optional[Date] = None
-    createdDateTime: Optional[Date] = None
-    activationDateTime: Optional[Date] = None
-    cancellationDateTime: Optional[Date] = None
-    subscriptionStatus: Optional[SubscriptionStatus] = None
-    clientReference: Optional[str] = None
+    subscription_token: str  # Application key identifier
+    expiry_date_time: Optional[Date] = None
+    expired_date_time: Optional[Date] = None
+    created_date_time: Optional[Date] = None
+    activation_date_time: Optional[Date] = None
+    cancellation_date_time: Optional[Date] = None
+    subscription_status: Optional[SubscriptionStatus] = None
+    client_reference: Optional[str] = None
 
 
 class SubscriptionTokenInfo(BaseMessage, frozen=True):
     """Subscription token information"""
 
-    subscriptionToken: str
-    activatedDateTime: Optional[Date] = None
-    expiryDateTime: Optional[Date] = None
-    expiredDateTime: Optional[Date] = None
-    cancellationDateTime: Optional[Date] = None
-    subscriptionStatus: Optional[SubscriptionStatus] = None
+    subscription_token: str
+    activated_date_time: Optional[Date] = None
+    expiry_date_time: Optional[Date] = None
+    expired_date_time: Optional[Date] = None
+    cancellation_date_time: Optional[Date] = None
+    subscription_status: Optional[SubscriptionStatus] = None
 
 
 class AccountSubscription(BaseMessage, frozen=True):
     """Application subscription details"""
 
-    subscriptionTokens: list[SubscriptionTokenInfo]
-    applicationName: Optional[str] = None
-    applicationVersionId: Optional[str] = None
+    subscription_tokens: list[SubscriptionTokenInfo]
+    application_name: Optional[str] = None
+    application_version_id: Optional[str] = None
 
 
 class DeveloperAppVersion(BaseMessage, frozen=True):
     """Describes a version of an external application"""
 
     owner: str  # The user who owns the specific version of the application
-    versionId: int  # The unique Id of the application version
+    version_id: int  # The unique Id of the application version
     version: str  # identifier string such as 1.0, 2.0. Unique for a given application.
-    applicationKey: str  # The unique application key associated with this application version
+    application_key: str  # The unique application key associated with this application version
 
     # Indicates whether the data exposed by platform services as seen by this
     # application key is delayed or realtime.
     delayData: bool
-    subscriptionRequired: bool  # Indicates whether the application version needs explicit subscription
+    subscription_required: bool  # Indicates whether the application version needs explicit subscription
 
     # Indicates whether the application version needs explicit management by the software owner.
     # A value of false indicates, this is a version meant for personal developer use.
-    ownerManaged: bool
+    owner_managed: bool
     active: bool  # Indicates whether the application version is currently active
 
     # Public unique string provided to the Vendor that they can use to pass to the
     # Betfair API in order to identify themselves.
-    vendorId: Optional[str] = None
+    vendor_id: Optional[str] = None
     # Private unique string provided to the Vendor that they pass with certain calls
     # to confirm their identity. Linked to a particular App Key.
-    vendorSecret: Optional[str] = None
+    vendor_secret: Optional[str] = None
 
 
 class DeveloperApp(BaseMessage, frozen=True):
     """Describes developer/vendor specific application"""
 
-    appName: str  # The unique name of the application
-    appId: int  # A unique id of this application
-    appVersions: list[DeveloperAppVersion]  # The application versions (including application keys)
+    app_name: str  # The unique name of the application
+    app_id: int  # A unique id of this application
+    app_versions: list[DeveloperAppVersion]  # The application versions (including application keys)
 
 
 class AccountFundsResponse(BaseMessage, frozen=True):
     """Response for retrieving available to bet."""
 
-    availableToBetBalance: Optional[float] = None
+    available_to_bet_balance: Optional[float] = None
     exposure: Optional[float] = None
-    retainedCommission: Optional[float] = None  # Sum of retained commission.
-    exposureLimit: Optional[float] = None
+    retained_commission: Optional[float] = None  # Sum of retained commission.
+    exposure_limit: Optional[float] = None
 
     # User Discount Rate. Please note: Betfair AUS/NZ customers should not rely on this to determine
     # their discount rates which are now applied at the account level.
-    discountRate: Optional[float] = None
-    pointsBalance: Optional[int] = None
+    discount_rate: Optional[float] = None
+    points_balance: Optional[int] = None
 
     # This is NOT documented in the API description, but seems to be present at least int recorded data
     wallet: Optional[Wallet] = None
@@ -112,10 +112,10 @@ class AccountDetailsResponse(BaseMessage, frozen=True):
     """Response for Account details."""
 
     # Default user currency Code. See Currency Parameters for minimum bet sizes relating to each currency.
-    currencyCode: Optional[str] = None
-    firstName: Optional[str] = None
-    lastName: Optional[str] = None
-    localeCode: Optional[str] = None
+    currency_code: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    locale_code: Optional[str] = None
 
     # Region based on users zip/postcode (ISO 3166-1 alpha-3 format). Defaults to GBR if
     # zip/postcode cannot be identified.
@@ -124,95 +124,97 @@ class AccountDetailsResponse(BaseMessage, frozen=True):
 
     # User Discount Rate.   Please note:  Betfair AUS/NZ customers should not rely on this to
     # determine their discount rates which are now applied at the account level.
-    discountRate: Optional[float] = None
-    pointsBalance: Optional[int] = None  # The Betfair points balance.
-    countryCode: Optional[str] = None  # The customer's country of residence (ISO 2 Char format)
+    discount_rate: Optional[float] = None
+    points_balance: Optional[int] = None  # The Betfair points balance.
+    country_code: Optional[str] = None  # The customer's country of residence (ISO 2 Char format)
 
 
 class StatementLegacyData(BaseMessage, frozen=True):
     """Summary of a cleared order."""
 
-    avgPrice: Optional[float]  # The average matched price of the bet (null if no part has been matched)
+    avg_price: Optional[float]  # The average matched price of the bet (null if no part has been matched)
 
     # The amount of the stake of your bet. (0 for commission payments or deposit/withdrawals)
-    betSize: Optional[float] = None
-    betType: Optional[str] = None  # Back or lay
-    betCategoryType: Optional[str] = None  # Exchange, Market on Close SP bet, or Limit on Close SP bet.
-    commissionRate: Optional[str] = None  # Commission rate on market
-    eventId: Optional[int] = None  # Please note: this is the Id of the market without the associated exchangeId
-    eventTypeId: Optional[int] = None
+    bet_size: Optional[float] = None
+    bet_type: Optional[str] = None  # Back or lay
+    bet_category_type: Optional[str] = None  # Exchange, Market on Close SP bet, or Limit on Close SP bet.
+    commission_rate: Optional[str] = None  # Commission rate on market
+    event_id: Optional[int] = None  # Please note: this is the Id of the market without the associated exchangeId
+    event_type_id: Optional[int] = None
 
     # Full Market Name. For card payment items, this field contains the card name
-    fullMarketName: Optional[str] = None
-    grossBetAmount: Optional[float] = None  # The winning amount to which commission is applied.
+    full_market_name: Optional[str] = None
+    gross_bet_amount: Optional[float] = None  # The winning amount to which commission is applied.
 
     # Market Name. For card transactions, this field indicates the type of card
     # transaction (deposit, deposit fee, or withdrawal).
-    marketName: Optional[str] = None
+    market_name: Optional[str] = None
 
     # Market type. For account deposits and withdrawals, marketType is set to NOT_APPLICABLE.
-    marketType: Optional[str] = None
-    placedDate: Optional[Date] = None  # Date and time of bet placement
+    market_type: Optional[str] = None
+    placed_date: Optional[Date] = None  # Date and time of bet placement
 
     # Id of the selection (this will be the same for the same selection across markets)
-    selectionId: Optional[int] = None
-    selectionName: Optional[str] = None  # Name of the selection
-    startDate: Optional[Date] = None  # Date and time at the bet portion was settled
-    transactionType: Optional[str] = None  # Debit or credit
-    transactionId: Optional[int] = None  # The unique reference Id assigned to account deposit and withdrawals.
-    winLose: Optional[WinLose] = None
+    selection_id: Optional[int] = None
+    selection_name: Optional[str] = None  # Name of the selection
+    start_date: Optional[Date] = None  # Date and time at the bet portion was settled
+    transaction_type: Optional[str] = None  # Debit or credit
+    transaction_id: Optional[int] = None  # The unique reference Id assigned to account deposit and withdrawals.
+    win_lose: Optional[WinLose] = None
 
     # In the instance of a dead heat, this field will indicate the number of winners
     # involved in the dead heat (null otherwise)
-    deadHeatPriceDivisor: Optional[float] = None
+    dead_heat_price_divisor: Optional[float] = None
 
     # Currently returns same value as avgPrice. Once released will display the average matched
     # price of the bet with no rounding applied
-    avgPriceRaw: Optional[float] = None
+    avg_price_raw: Optional[float] = None
 
 
 class StatementItem(BaseMessage, kw_only=True, frozen=True):
     """Summary of a cleared order."""
 
     # An external reference, eg. equivalent to betId in the case of an exchange bet statement item.
-    refId: Optional[str] = None
+    ref_id: Optional[str] = None
 
     # The date and time of the statement item, eg. equivalent to settledData for an exchange
     # bet statement item. (in ISO-8601 format, not translated)
-    itemDate: Date
+    item_date: Date
     amount: Optional[float] = None  # The amount of money the balance is adjusted by
     balance: Optional[float] = None
 
     # Class of statement item. This value will determine which set of keys will be included in itemClassData
-    itemClass: Optional[ItemClass] = None
+    item_class: Optional[ItemClass] = None
     # Key value pairs describing the current statement item. The set of keys will be
     # determined by the itemClass
-    itemClassData: Optional[dict[str, str]] = None
+    item_class_data: Optional[dict[str, str]] = None
     # Set of fields originally returned from APIv6. Provided to facilitate migration from
     # APIv6 to API-NG, and ultimately onto itemClass and itemClassData
-    legacyData: Optional[StatementLegacyData] = None
+    legacy_data: Optional[StatementLegacyData] = None
 
 
 class AccountStatementReport(BaseMessage, frozen=True):
     """A container representing search results."""
 
-    accountStatement: list[StatementItem]  # The list of statement items returned by your request.
-    moreAvailable: bool  # Indicates whether there are further result items beyond this page.
+    account_statement: list[StatementItem]  # The list of statement items returned by your request.
+    more_available: bool  # Indicates whether there are further result items beyond this page.
 
 
 class CurrencyRate(BaseMessage, frozen=True):
-    currencyCode: Optional[str] = None  # Three-letter ISO 4217 code
+    currency_code: Optional[str] = None  # Three-letter ISO 4217 code
     rate: Optional[float] = None  # Exchange rate for the currency specified in the request
 
 
 class AuthorisationResponse(BaseMessage, frozen=True):
     """Wrapper object containing authorisation code and redirect URL for web vendors"""
 
-    authorisationCode: str  # The authorisation code
-    redirectUrl: str  # URL to redirect the user to the vendor page
+    authorisation_code: str  # The authorisation code
+    redirect_url: str  # URL to redirect the user to the vendor page
 
 
-class SubscriptionOptions(BaseMessage, frozen=True):
+class SubscriptionOptions(BaseMessage, frozen=True, rename=None):
+    # No rename: SubscriptionOption fields don't use camelCase in Betfair API
+
     """Wrapper object containing details of how a subscription should be created"""
 
     # How many days should a created subscription last for. Open-ended subscription created
@@ -225,7 +227,9 @@ class SubscriptionOptions(BaseMessage, frozen=True):
     client_reference: Optional[str] = None  # Any client reference for this subscription token request.
 
 
-class VendorAccessTokenInfo(BaseMessage, frozen=True):
+class VendorAccessTokenInfo(BaseMessage, frozen=True, rename=None):
+    # No rename: VendorAccessTokenInfo fields don't use camelCase in Betfair API
+
     """
     Wrapper object containing UserVendorSessionToken, RefreshToken and
     optionally a Subscription Token if one was created
@@ -243,13 +247,13 @@ class VendorAccessTokenInfo(BaseMessage, frozen=True):
 class VendorDetails(BaseMessage, frozen=True):
     """Wrapper object containing vendor name and redirect url"""
 
-    appVersionId: int  # Internal id of the application
-    vendorName: str
-    redirectUrl: Optional[str] = None  # URL to be redirected to
+    app_version_id: int  # Internal id of the application
+    vendor_name: str
+    redirect_url: Optional[str] = None  # URL to be redirected to
 
 
 class AffiliateRelation(BaseMessage, frozen=True):
     """Wrapper object containing affiliate relation details"""
 
-    vendorClientId: str  # ID of user
     status: AffiliateRelationStatus
+    vendor_client_id: str  # ID of user

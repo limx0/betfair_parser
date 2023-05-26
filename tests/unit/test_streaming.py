@@ -54,11 +54,11 @@ def test_mcm():
     )
     mcm: MCM = STREAM_DECODER.decode(raw)
     assert isinstance(mcm, MCM)
-    assert mcm.mc[0].marketDefinition.runners[0].hc == 0.0
-    assert mcm.mc[0].marketDefinition.runners[0].handicap == "0.0"
-    assert mcm.mc[0].marketDefinition.runners[0].id == 237474
-    assert mcm.mc[0].marketDefinition.runners[0].selectionId is None
-    assert mcm.mc[0].marketDefinition.runners[0].runner_id == 237474
+    assert mcm.mc[0].market_definition.runners[0].hc == 0.0
+    assert mcm.mc[0].market_definition.runners[0].handicap == "0.0"
+    assert mcm.mc[0].market_definition.runners[0].id == 237474
+    assert mcm.mc[0].market_definition.runners[0].selection_id is None
+    assert mcm.mc[0].market_definition.runners[0].runner_id == 237474
 
 
 def test_mcm_no_missing_fields():
@@ -170,8 +170,8 @@ def test_mcm_no_clk():
 def test_mcm_market_definition_each_way():
     raw = RESOURCES_DIR.joinpath("streaming/market_definition_each_way.json").read_bytes()
     mcm: MCM = STREAM_DECODER.decode(raw)
-    assert mcm.mc[0].marketDefinition.marketType == "EACH_WAY"
-    assert mcm.mc[0].marketDefinition.eachWayDivisor == 4.0
+    assert mcm.mc[0].market_definition.market_type == "EACH_WAY"
+    assert mcm.mc[0].market_definition.each_way_divisor == 4.0
 
 
 def test_bsp_data():
@@ -192,6 +192,6 @@ def test_bsp_data():
 def test_bsp_result():
     raw = RESOURCES_DIR.joinpath("streaming/market_definition_bsp.json").read_bytes()
     mcm = parse(raw)
-    runners = mcm.mc[0].marketDefinition.runners
+    runners = mcm.mc[0].market_definition.runners
     assert runners[0].bsp == 2.0008034621107256
     assert runners[0].status == RunnerStatus.WINNER
