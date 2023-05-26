@@ -22,15 +22,15 @@ class Runner(BaseMessage, frozen=True):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    sortPriority: int
+    sort_priority: int
     id: Union[int, str]
     name: Optional[str] = None
     hc: Optional[Union[float, str]] = None
     status: Optional[RunnerStatus] = None
-    adjustmentFactor: Optional[float] = None
-    selectionId: Optional[str] = None
+    adjustment_factor: Optional[float] = None
+    selection_id: Optional[str] = None
     bsp: Optional[Union[str, float]] = None
-    removalDate: Optional[str] = None
+    removal_date: Optional[str] = None
 
     @property
     def handicap(self) -> str:
@@ -38,7 +38,7 @@ class Runner(BaseMessage, frozen=True):
 
     @property
     def runner_id(self) -> int:
-        return int(self.selectionId or self.id)
+        return int(self.selection_id or self.id)
 
 
 class RunnerKeyLine(BaseMessage, frozen=True):
@@ -55,51 +55,48 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
     """
 
-    bspMarket: bool
-    turnInPlayEnabled: bool
-    persistenceEnabled: bool
-    marketBaseRate: Optional[float]
-    marketId: Optional[str] = ""
-    marketName: Optional[str] = ""
-    eventId: str
-    eventTypeId: str
-    numberOfWinners: int
-    bettingType: str
-    marketType: str
-    marketTime: str
-    competitionId: Optional[str] = ""
-    competitionName: Optional[str] = ""
-    eventName: Optional[str] = ""
-    suspendTime: str
-    bspReconciled: bool
+    bsp_market: bool
+    turn_in_play_enabled: bool
+    persistence_enabled: bool
+    market_base_rate: Optional[float]
+    market_id: Optional[str] = ""
+    market_name: Optional[str] = ""
+    event_id: str
+    event_type_id: str
+    number_of_winners: int
+    betting_type: str
+    market_type: str
+    market_time: str
+    competition_id: Optional[str] = ""
+    competition_name: Optional[str] = ""
+    event_name: Optional[str] = ""
+    suspend_time: str
+    bsp_reconciled: bool
     complete: bool
-    inPlay: bool
-    crossMatching: bool
-    runnersVoidable: bool
-    numberOfActiveRunners: int
-    betDelay: int
+    in_play: bool
+    cross_matching: bool
+    runners_voidable: bool
+    number_of_active_runners: int
+    bet_delay: int
     status: MarketStatus
     runners: List[Runner]
     regulators: List[str]
     name: Optional[str] = None
-    openDate: Optional[str] = None
+    open_date: Optional[str] = None
     timezone: Optional[str] = None
     venue: Optional[str] = None
     version: Optional[int] = None
-    countryCode: Optional[str] = None
-    discountAllowed: Optional[bool] = None
-    raceType: Optional[str] = None
-    priceLadderDefinition: Optional[Union[str, PriceLadderDescription]] = None
-    settledTime: Optional[Date] = None
-    keyLineDefinition: Optional[KeyLineDefinition] = None
-    eachWayDivisor: Optional[float] = None
+    country_code: Optional[str] = None
+    discount_allowed: Optional[bool] = None
+    race_type: Optional[str] = None
+    price_ladder_definition: Optional[Union[str, PriceLadderDescription]] = None
+    settled_time: Optional[Date] = None
+    key_line_definition: Optional[KeyLineDefinition] = None
+    each_way_divisor: Optional[float] = None
 
     @property
     def event_type_name(self) -> str:
-        return EVENT_TYPE_TO_NAME[self.eventTypeId]
-
-    def to_dict(self):
-        return {f: getattr(self, f) for f in self.__struct_fields__}
+        return EVENT_TYPE_TO_NAME[self.event_type_id]
 
 
 class AvailableToBack(BaseMessage, array_like=True, frozen=True):
@@ -197,7 +194,7 @@ class MarketChange(BaseMessage, frozen=True):
     """
 
     id: str
-    marketDefinition: Optional[MarketDefinition] = None
+    market_definition: Optional[MarketDefinition] = None
     rc: List[RunnerChange] = []
     img: bool = False
     tv: Optional[float] = None
@@ -212,11 +209,11 @@ class MCM(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     pt: int
     clk: Optional[str] = None
     id: Optional[int] = None
-    initialClk: Optional[str] = None
-    marketDefinition: Optional[MarketDefinition] = None
+    initial_clk: Optional[str] = None
+    market_definition: Optional[MarketDefinition] = None
     status: Optional[int] = None
-    conflateMs: Optional[int] = None
-    heartbeatMs: Optional[int] = None
+    conflate_ms: Optional[int] = None
+    heartbeat_ms: Optional[int] = None
     ct: Optional[Literal["HEARTBEAT", "SUB_IMAGE", "RESUB_DELTA"]] = None
     mc: List[MarketChange] = []
     con: Optional[bool] = None

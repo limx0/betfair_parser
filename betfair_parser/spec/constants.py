@@ -1,3 +1,6 @@
+from betfair_parser.strenums import StrEnum
+
+
 EVENT_TYPE_TO_NAME = {
     "1": "Soccer",
     "2": "Tennis",
@@ -27,3 +30,13 @@ EVENT_TYPE_TO_NAME = {
     "4339": "Greyhound Racing",
     "2378961": "Politics",
 }
+
+
+class Locale(StrEnum):
+    English = "en"
+    Spanish = "es"
+    Italian = "it"
+    German = "de"
+    Swedish = "sv"
+    Portuguese = "pt"
+    Russian = "ru"

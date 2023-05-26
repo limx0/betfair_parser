@@ -1,4 +1,5 @@
 import keyword
+import re
 import xml.etree.ElementTree as etree  # noqa
 
 import pytest
@@ -152,7 +153,7 @@ def test_operations(spec, node):
     }:
         pytest.skip("Not mentioned anywhere in the documentation")
 
-    operation_cls = get_definition(spec, operation_name)
+    operation_cls = get_definition(spec, capitalize(operation_name))
     xml_return_type = node.findall("parameters/simpleResponse")[0].get("type")
     assert xml_type_format(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
     xml_error_type = node.findall("parameters/exceptions/exception")[0].get("type")
@@ -174,12 +175,14 @@ def test_operations(spec, node):
 # Little helper functions
 
 
-def _capitalize(val):
-    return val[0].upper() + val[1:]
+def capitalize(val):
+    return f"{val[0].upper()}{val[1:]}"
 
 
-def _decapitalize(val):
-    return val[0].lower() + val[1:]
+def snake_case(val):
+    # https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
+    val = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", val)
+    return re.sub("([a-z0-9])([A-Z])", r"\1_\2", val).lower()
 
 
 def get_definition(spec, definition):
@@ -191,7 +194,7 @@ def get_definition(spec, definition):
 
 
 def param_name(xml_param):
-    paramname = _decapitalize(xml_param.get("name"))
+    paramname = snake_case(xml_param.get("name"))
     if paramname in keyword.kwlist:
         return f"{paramname}_"
     return paramname
