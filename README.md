@@ -2,12 +2,11 @@
 
 A simple and fast betfair parser, built with [msgspec](https://github.com/jcrist/msgspec).
 
-
 ### Releasing
 
 Releases are published automatically when a tag is pushed to GitHub.
 
-``` bash
+```
 # Set next version number
 export RELEASE=x.x.x
 
