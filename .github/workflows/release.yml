@@ -24,7 +24,9 @@ jobs:
 
       - name: Build distributions
         shell: bash -l {0}
-        run: python -m poetry build
+        run: |
+          python -m poetry version $(git describe --tags --abbrev=0)
+          python -m poetry build
 
       - name: Publish package to PyPI
         if: github.repository == 'limx0/betfair_parser' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
