@@ -1,3 +1,43 @@
+[project]
+name = "betfair_parser"
+description = "A betfair parser"
+dynamic = ["version"]
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+authors = [
+    {name = "Bradley McElroy", email = "bradley.mcelroy@live.com"}
+]
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: File Formats :: JSON",
+    "Development Status :: 4 - Beta",
+]
+keywords = ["parser", "betfair", "api", "json", "streaming"]
+dependencies = [
+    "msgspec>=0.15.1",
+    "fsspec>=2022",
+]
+
+[project.urls]
+Homepage = "https://github.com/limx0/betfair_parser"
+Documentation = "https://limx0.github.io/betfair_parser/"
+"Bug Tracker" = "https://github.com/limx0/betfair_parser/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.1",
+    "pytest-benchmark>=4.0",
+    "twine>=4.0.2",
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "betfair_parser"
 version = "0.0.0"
@@ -29,7 +69,3 @@ lines_after_imports = 2
 use_parentheses = true
 include_trailing_comma = true
 combine_as_imports = true
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
