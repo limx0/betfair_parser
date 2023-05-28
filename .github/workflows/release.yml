@@ -39,6 +39,7 @@ jobs:
 
   upload-test-pypi:
     needs: build
+    if: github.repository == 'limx0/betfair_parser' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v4
