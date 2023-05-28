@@ -3,7 +3,7 @@ name: Build distribution
 on: [push, pull_request]
 
 jobs:
-  release:
+  build:
     runs-on: "ubuntu-latest"
 
     steps:
@@ -28,8 +28,56 @@ jobs:
           python -m poetry version $(git describe --tags --abbrev=0)
           python -m poetry build
 
+      - name: Check build artifacts
+        run: |
+          python -m twine check --strict dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: releases
+          path: dist
+
+  upload-test-pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: "3.10"
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: releases
+          path: dist
+
+      - name: Verify the built dist/wheel is valid
+        if: github.event_name == 'push'
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install dist/betfair_parser*.whl
+
+      - name: Publish package to TestPyPI
+        if: github.event_name == 'push'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.TESTPYPI_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+          verbose: true
+
+  upload-pypi:
+    needs: upload-test-pypi
+    if: github.repository == 'limx0/betfair_parser' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: releases
+          path: dist
+
       - name: Publish package to PyPI
-        if: github.repository == 'limx0/betfair_parser' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
