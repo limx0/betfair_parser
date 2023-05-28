@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685240966743,
+  "lastUpdate": 1685241300716,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -2497,6 +2497,49 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.00000858317407581004",
             "extra": "mean: 49.612159999696814 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "committer": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "distinct": true,
+          "id": "eac60102dba907ebe7741981a7b553e8799f1793",
+          "message": "Fix workflow name",
+          "timestamp": "2023-05-28T12:33:59+10:00",
+          "tree_id": "91b378325dc5e67b6c1bee9304cc9b58e1e019d0",
+          "url": "https://github.com/limx0/betfair_parser/commit/eac60102dba907ebe7741981a7b553e8799f1793"
+        },
+        "date": 1685241300110,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.12472789032916873,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 8.017453012000004 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 606447.4827940946,
+            "unit": "iter/sec",
+            "range": "stddev: 3.0610575370876654e-8",
+            "extra": "mean: 1.6489474000167093 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 17943.901621737317,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000008115960524752053",
+            "extra": "mean: 55.72923999920931 usec\nrounds: 5"
           }
         ]
       }
