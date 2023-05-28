@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685173174985,
+  "lastUpdate": 1685238190507,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -2157,6 +2157,49 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006653805917086897",
             "extra": "mean: 48.67176000061591 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "committer": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "distinct": true,
+          "id": "f2d4ae1a84c2f6895c38d7eb9dc0df5840485c71",
+          "message": "Add test pypi workflow",
+          "timestamp": "2023-05-28T11:42:13+10:00",
+          "tree_id": "96f6954db8abb74ec291f7f30585294d7a91f3ef",
+          "url": "https://github.com/limx0/betfair_parser/commit/f2d4ae1a84c2f6895c38d7eb9dc0df5840485c71"
+        },
+        "date": 1685238189969,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.1705399574174583,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 5.863728449000007 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 621505.4303425478,
+            "unit": "iter/sec",
+            "range": "stddev: 3.058498805657633e-8",
+            "extra": "mean: 1.6089963999974088 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 18290.71109827465,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000007387152578027968",
+            "extra": "mean: 54.672560002018145 usec\nrounds: 5"
           }
         ]
       }
