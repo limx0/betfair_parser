@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685240856449,
+  "lastUpdate": 1685240919495,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -2411,6 +2411,49 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0000069080389996535735",
             "extra": "mean: 54.24896000022272 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "committer": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "distinct": true,
+          "id": "b5ee7f51b80bdda16426c3adfd347559bc764603",
+          "message": "Fix workflow",
+          "timestamp": "2023-05-28T12:27:44+10:00",
+          "tree_id": "8a482527a2ad9594ef62ba36296a380c0479c40f",
+          "url": "https://github.com/limx0/betfair_parser/commit/b5ee7f51b80bdda16426c3adfd347559bc764603"
+        },
+        "date": 1685240918531,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.14622309993801208,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.838864724000018 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 524494.4411248023,
+            "unit": "iter/sec",
+            "range": "stddev: 4.547147441538345e-8",
+            "extra": "mean: 1.906597899980511 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 15660.264959014137,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000007265563417477799",
+            "extra": "mean: 63.85588000057396 usec\nrounds: 5"
           }
         ]
       }
