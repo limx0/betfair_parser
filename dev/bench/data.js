@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685240005458,
+  "lastUpdate": 1685240622257,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -2323,6 +2323,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000007561490249284171",
             "extra": "mean: 65.8455200004937 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "bradley.mcelroy@live.com",
+            "name": "Brad",
+            "username": "limx0"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a3bc4d43ae3435ca3744f35486226e384eecd8a8",
+          "message": "Test ci (#17)\n\n* Add twine\r\n\r\n* Only run on tags\r\n\r\n* Run builds and testpypi on all events\r\n\r\n* Don't upload to testpypi\r\n\r\n* Merge jobs\r\n\r\n* Only update testpypi on tags\r\n\r\n---------\r\n\r\nCo-authored-by: brad <brad@edgestackers.com>",
+          "timestamp": "2023-05-28T12:22:58+10:00",
+          "tree_id": "8041062c3aa08fe4ca978d15b1b1d11b7ed55173",
+          "url": "https://github.com/limx0/betfair_parser/commit/a3bc4d43ae3435ca3744f35486226e384eecd8a8"
+        },
+        "date": 1685240621708,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.17179888741545918,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 5.8207594649999805 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 600657.6720987527,
+            "unit": "iter/sec",
+            "range": "stddev: 2.8862121965922653e-8",
+            "extra": "mean: 1.6648417999988396 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 18387.51767027902,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000055147747742640484",
+            "extra": "mean: 54.38472000037109 usec\nrounds: 5"
           }
         ]
       }
