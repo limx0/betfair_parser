@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685240622257,
+  "lastUpdate": 1685240856449,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -2368,6 +2368,49 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.0000055147747742640484",
             "extra": "mean: 54.38472000037109 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "committer": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "distinct": true,
+          "id": "cfb4a62b4de23959a60b056c52f8a97d36cfedc2",
+          "message": "Release 0.2.5",
+          "timestamp": "2023-05-28T12:25:56+10:00",
+          "tree_id": "8041062c3aa08fe4ca978d15b1b1d11b7ed55173",
+          "url": "https://github.com/limx0/betfair_parser/commit/cfb4a62b4de23959a60b056c52f8a97d36cfedc2"
+        },
+        "date": 1685240855453,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.15820035165359528,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 6.3210984649999915 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 628019.2811973185,
+            "unit": "iter/sec",
+            "range": "stddev: 3.1919963817215384e-8",
+            "extra": "mean: 1.5923077999985935 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 18433.53310360041,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000069080389996535735",
+            "extra": "mean: 54.24896000022272 usec\nrounds: 5"
           }
         ]
       }
