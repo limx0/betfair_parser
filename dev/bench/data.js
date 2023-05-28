@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685240919495,
+  "lastUpdate": 1685240966743,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -2454,6 +2454,49 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000007265563417477799",
             "extra": "mean: 63.85588000057396 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "committer": {
+            "email": "brad@edgestackers.com",
+            "name": "brad"
+          },
+          "distinct": true,
+          "id": "563db8a282ec8f3682df0754b5ee51e757aa791d",
+          "message": "Release 0.2.5",
+          "timestamp": "2023-05-28T12:28:27+10:00",
+          "tree_id": "8a482527a2ad9594ef62ba36296a380c0479c40f",
+          "url": "https://github.com/limx0/betfair_parser/commit/563db8a282ec8f3682df0754b5ee51e757aa791d"
+        },
+        "date": 1685240965521,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.13716980021372782,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 7.290234427999998 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 624408.5290199879,
+            "unit": "iter/sec",
+            "range": "stddev: 3.851037656738836e-8",
+            "extra": "mean: 1.6015156000023012 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 20156.348766232135,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00000858317407581004",
+            "extra": "mean: 49.612159999696814 usec\nrounds: 5"
           }
         ]
       }
