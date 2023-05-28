@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1685241315616,
+  "lastUpdate": 1685308743193,
   "repoUrl": "https://github.com/limx0/betfair_parser",
   "entries": {
     "Python Benchmark with pytest-benchmark": [
@@ -2583,6 +2583,51 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.000006578611769721231",
             "extra": "mean: 49.4277600012083 usec\nrounds: 5"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "michael@loeffler.io",
+            "name": "Michael",
+            "username": "ml31415"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c1a80085c1ec226be9cb25d6ff44543334620a09",
+          "message": "Packaging improvements (#20)\n\n* BSD 2-clause license added\r\n\r\n* Updated project description and definitions\r\n\r\n* Added pypi badge",
+          "timestamp": "2023-05-29T07:18:09+10:00",
+          "tree_id": "cc29c02aa0e64d9f8a12c091b290e3d74f5691d0",
+          "url": "https://github.com/limx0/betfair_parser/commit/c1a80085c1ec226be9cb25d6ff44543334620a09"
+        },
+        "date": 1685308741960,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/integration/benchmark.py::test_performance",
+            "value": 0.12988655675790975,
+            "unit": "iter/sec",
+            "range": "stddev: 0",
+            "extra": "mean: 7.699026173000021 sec\nrounds: 1"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_update_performance",
+            "value": 496324.02574098157,
+            "unit": "iter/sec",
+            "range": "stddev: 3.424519937046768e-7",
+            "extra": "mean: 2.0148127999789267 usec\nrounds: 100"
+          },
+          {
+            "name": "tests/integration/benchmark.py::test_market_definition_performance",
+            "value": 16164.30172224159,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000007040604008181364",
+            "extra": "mean: 61.86471999740206 usec\nrounds: 5"
           }
         ]
       }
