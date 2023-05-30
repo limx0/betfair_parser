@@ -1,4 +1,4 @@
-from betfair_parser.strenums import StrEnum
+from betfair_parser.strenums import LowerStrEnum, auto
 
 
 EVENT_TYPE_TO_NAME = {
@@ -32,11 +32,11 @@ EVENT_TYPE_TO_NAME = {
 }
 
 
-class Locale(StrEnum):
-    English = "en"
-    Spanish = "es"
-    Italian = "it"
-    German = "de"
-    Swedish = "sv"
-    Portuguese = "pt"
-    Russian = "ru"
+class EndpointType(LowerStrEnum):
+    IDENTITY = auto()
+    IDENTITY_CERT = auto()
+    NAVIGATION = auto()
+    HEARTBEAT = auto()
+    ACCOUNTS = auto()
+    BETTING = auto()
+    SCORES = auto()

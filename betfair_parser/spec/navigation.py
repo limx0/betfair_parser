@@ -1,10 +1,8 @@
 import re
-from typing import ClassVar, Literal, Optional, Union
-
-import msgspec
+from typing import Literal, Optional, Union
 
 from betfair_parser.spec.common import BaseMessage, Date, Request, decode, encode
-from betfair_parser.spec.constants import Locale
+from betfair_parser.spec.constants import EndpointType
 
 
 def tag_func(s: str):
@@ -18,23 +16,14 @@ def tag_func(s: str):
     return re.sub(r"(?<!^)(?=[A-Z])", "_", s).upper()
 
 
-class _NavigationParams(BaseMessage, kw_only=True, frozen=True):
-    locale: Locale
-
-
 class NavigationRequest(Request, kw_only=True, frozen=True):
-    """
-    Navigation requests - https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Navigation+Data+For+Applications
+    """Navigation requests
+
+    https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Navigation+Data+For+Applications
     """
 
-    METHOD_TEMPLATE: ClassVar[str] = "/betting/rest/v1/{locale}/navigation/menu.json"
-    params: _NavigationParams
-    method: str = METHOD_TEMPLATE.format(locale=Locale.English.value)
-
-    @classmethod
-    def with_locale(cls, params: _NavigationParams, locale: Locale):
-        method = cls.METHOD_TEMPLATE.format(locale=locale.value)
-        return msgspec.structs.replace(cls(params=params), method=method)
+    endpoint_type = EndpointType.NAVIGATION
+    method = ""
 
 
 class Market(BaseMessage, tag=tag_func, frozen=True):

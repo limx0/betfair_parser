@@ -57,11 +57,22 @@ def encode(data):
 
 
 class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, frozen=True, rename="camel"):
+    @classmethod
+    def parse(cls, raw):
+        return decode(raw, type=cls)
+
     def validate(self):
         return bool(decode(encode(self), type=type(self)))
 
     def to_dict(self):
         return msgspec.structs.asdict(self)
+
+
+class BaseResponse(BaseMessage, frozen=True):
+    """Base class for Response and IdentityResponse."""
+
+    def raise_on_error(self):
+        """If the response contains some kind of error condition, raise an according Exception."""
 
 
 class RPC(BaseMessage, frozen=True):
@@ -70,10 +81,11 @@ class RPC(BaseMessage, frozen=True):
 
 
 ResultType = TypeVar("ResultType")
+ParamsType = TypeVar("ParamsType")
 ErrorCode = TypeVar("ErrorCode")
 
 
-class Response(RPC, Generic[ResultType], kw_only=True, frozen=True):
+class Response(RPC, BaseResponse, Generic[ResultType], kw_only=True, frozen=True):
     result: ResultType
 
 
@@ -92,16 +104,40 @@ class APIException(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=True):
     request_uuid: Optional[str] = msgspec.field(name="requestUUID", default=None)
 
 
-class Request(RPC, kw_only=True, frozen=True):
-    method: str
-    params: msgspec.Struct
-    response_type = None  # not to be serialized, so no type definition
+class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
+    method: str = ""
+    params: ParamsType = {}  # type: ignore
+    return_type = BaseResponse  # not to be serialized, so no type definition
     throws = APIException[APIExceptionCode]  # not to be serialized, so no type definition
+    endpoint_type = "api"
 
     @classmethod
-    def with_params(cls, **kwargs):
+    def with_params(cls, request_id=1, **kwargs):
         params_cls = cls.__annotations__["params"]
-        return cls(params=params_cls(**kwargs))
+        return cls(
+            params=params_cls(**kwargs),
+            method=cls.method,
+            id=request_id,
+        )
+
+    @staticmethod
+    def headers():
+        return {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            # X-Application to be set by the application
+            # X-Authentication to be set by the application
+        }
+
+    def body(self):
+        return encode(self)
+
+    def parse_response(self, response):
+        resp = decode(response, type=self.return_type)
+        if resp.id != self.id:
+            raise ValueError(f"Response ID ({resp.id}) does not match Request ID ({self.id})")
+        resp.raise_on_error()
+        return resp.result
 
 
 # Type aliases with minimalistic validation

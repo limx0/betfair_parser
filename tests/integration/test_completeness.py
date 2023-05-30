@@ -154,6 +154,7 @@ def test_operations(spec, node):
         pytest.skip("Not mentioned anywhere in the documentation")
 
     operation_cls = get_definition(spec, capitalize(operation_name))
+    assert isinstance(operation_cls.endpoint_type.value, str)
     xml_return_type = node.findall("parameters/simpleResponse")[0].get("type")
     assert xml_type_format(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
     xml_error_type = node.findall("parameters/exceptions/exception")[0].get("type")

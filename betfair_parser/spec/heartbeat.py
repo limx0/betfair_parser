@@ -1,4 +1,5 @@
 from betfair_parser.spec.common import BaseMessage, Request, Response
+from betfair_parser.spec.constants import EndpointType
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
@@ -31,6 +32,7 @@ class Heartbeat(Request, kw_only=True, frozen=True):
     the MarketFilter. Currently only Football markets have an associated competition.
     """
 
+    endpoint_type = EndpointType.HEARTBEAT
     method = "HeartbeatAPING/v1.0/heartbeat"
     params: _HeartbeatParams
     return_type = Response[HeartbeatReport]

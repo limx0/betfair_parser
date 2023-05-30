@@ -79,52 +79,67 @@ class AccountAPIExceptionCode(DocumentedEnum):
 
 
 class LoginExceptionCode(DocumentedEnum):
-    INVALID_USERNAME_OR_PASSWORD = doc("the username or password are invalid")
-    ACCOUNT_NOW_LOCKED = doc("the account was just locked")
     ACCOUNT_ALREADY_LOCKED = doc("the account is already locked")
-    PENDING_AUTH = doc("pending authentication")
-    TELBET_TERMS_CONDITIONS_NA = doc("Telbet terms and conditions rejected")
-    DUPLICATE_CARDS = doc("duplicate cards")
-    SECURITY_QUESTION_WRONG_3X = doc("the user has entered wrong the security answer 3 times")
-    KYC_SUSPEND = doc("KYC suspended")
-    SUSPENDED = doc("the account is suspended")
+    ACCOUNT_NOW_LOCKED = doc("the account was just locked")
+    ACCOUNT_PENDING_PASSWORD_CHANGE = doc("The account must undergo password recovery to reactivate")
+    ACTIONS_REQUIRED = doc("You must login to https://www.betfair.com to provide missing information.")
+    AGENT_CLIENT_MASTER = doc("Agent Client Master")
+    AGENT_CLIENT_MASTER_SUSPENDED = doc("Suspended Agent Client Master")
+    AUTHORIZED_ONLY_FOR_DOMAIN_RO = doc("Attempting to login to the Betfair Romania with a non .ro account.")
+    AUTHORIZED_ONLY_FOR_DOMAIN_SE = doc("Attempting to login to the Betfair Sweden with a non .se account.")
+    BETTING_RESTRICTED_LOCATION = doc("the account is accessed from a location where betting is restricted")
+    CERT_AUTH_REQUIRED = doc("Certificate required or certificate present but could not authenticate with it")
+    CHANGE_PASSWORD_REQUIRED = doc("change password required")
     CLOSED = doc("the account is closed")
-    SELF_EXCLUDED = doc("the account has been self-excluded")
+    DANISH_AUTHORIZATION_REQUIRED = doc("Danish authorization required")
+    DENMARK_MIGRATION_REQUIRED = doc("Denmark migration required")
+    DUPLICATE_CARDS = doc("duplicate cards")
+    EMAIL_LOGIN_NOT_ALLOWED = doc("This account has not opted in to log in with the email")
+    INPUT_VALIDATION_ERROR = doc("Input validation failed for not further specified reason")  # not listed
+    INTERNAL_ERROR = doc("Not further specified internal error")  # not listed
+    INTERNATIONAL_TERMS_ACCEPTANCE_REQUIRED = doc("The latest international terms and conditions must be accepted.")
     INVALID_CONNECTIVITY_TO_REGULATOR_DK = doc(
         "the DK regulator cannot be accessed due to some internal problems in the system behind or in "
         "at regulator; timeout cases included."
     )
+    INVALID_CONNECTIVITY_TO_REGULATOR_IT = doc(
+        "the IT regulator cannot be accessed due to some internal problems in the system behind or in at "
+        "regulator; timeout cases included."
+    )
+    INVALID_USERNAME_OR_PASSWORD = doc("the username or password are invalid")
+    ITALIAN_CONTRACT_ACCEPTANCE_REQUIRED = doc("The latest Italian contract version must be accepted")
+    ITALIAN_PROFILING_ACCEPTANCE_REQUIRED = doc("You must login to the website to accept the new conditions")
+    KYC_SUSPEND = doc("KYC suspended")
+    MULTIPLE_USERS_WITH_SAME_CREDENTIAL = doc("There is more than one account with the same credential")
     NOT_AUTHORIZED_BY_REGULATOR_DK = doc(
         "the user identified by the given credentials is not authorized in the DK's jurisdictions due to the "
         "regulators' policies. Ex: the user for which this session should be created is not allowed to "
         "act(play, bet) in the DK's jurisdiction."
-    )
-    INVALID_CONNECTIVITY_TO_REGULATOR_IT = doc(
-        "the IT regulator cannot be accessed due to some internal problems in the system behind or in at "
-        "regulator; timeout cases included."
     )
     NOT_AUTHORIZED_BY_REGULATOR_IT = doc(
         "the user identified by the given credentials is not authorized in the IT's jurisdictions due to the "
         "regulators' policies. Ex: the user for which this session should be created is not allowed to "
         "act(play, bet) in the IT's jurisdiction."
     )
+    PENDING_AUTH = doc("pending authentication")
+    PERSONAL_MESSAGE_REQUIRED = doc("personal message required for the user")
+    SECURITY_QUESTION_WRONG_3X = doc("the user has entered wrong the security answer 3 times")
     SECURITY_RESTRICTED_LOCATION = doc("the account is restricted due to security concerns")
-    BETTING_RESTRICTED_LOCATION = doc("the account is accessed from a location where betting is restricted")
+    SELF_EXCLUDED = doc("the account has been self-excluded")
+    SPAIN_MIGRATION_REQUIRED = doc("Spain migration required")
+    SPANISH_TERMS_ACCEPTANCE_REQUIRED = doc("The latest Spanish terms and conditions version must be accepted")
+    STRONG_AUTH_CODE_REQUIRED = doc("2 Step Authentication code is required.")
+    SUSPENDED = doc("the account is suspended")
+    SWEDEN_BANK_ID_VERIFICATION_REQUIRED = doc("Swedish bank id for Betfair.se not provided.")
+    SWEDEN_NATIONAL_IDENTIFIER_REQUIRED = doc("Swedish National identifier for Betfair.se not provided.")
+    TELBET_TERMS_CONDITIONS_NA = doc("Telbet terms and conditions rejected")
+    TEMPORARY_BAN_TOO_MANY_REQUESTS = doc(
+        "The limit for successful login requests per minute has been exceeded. "
+        "New login attempts will be banned for 20 minutes"
+    )
     TRADING_MASTER = doc("Trading Master Account")
     TRADING_MASTER_SUSPENDED = doc("Suspended Trading Master Account")
-    AGENT_CLIENT_MASTER = doc("Agent Client Master")
-    AGENT_CLIENT_MASTER_SUSPENDED = doc("Suspended Agent Client Master")
-    DANISH_AUTHORIZATION_REQUIRED = doc("Danish authorization required")
-    SPAIN_MIGRATION_REQUIRED = doc("Spain migration required")
-    DENMARK_MIGRATION_REQUIRED = doc("Denmark migration required")
-    SPANISH_TERMS_ACCEPTANCE_REQUIRED = doc("The latest Spanish terms and conditions version must be accepted")
-    ITALIAN_CONTRACT_ACCEPTANCE_REQUIRED = doc("The latest Italian contract version must be accepted")
-    CERT_AUTH_REQUIRED = doc("Certificate required or certificate present but could not authenticate with it")
-    CHANGE_PASSWORD_REQUIRED = doc("change password required")
-    PERSONAL_MESSAGE_REQUIRED = doc("personal message required for the user")
-    INTERNATIONAL_TERMS_ACCEPTANCE_REQUIRED = doc(
-        "The latest international terms and conditions must be accepted prior to logging in."
-    )
-    EMAIL_LOGIN_NOT_ALLOWED = doc("This account has not opted in to log in with the email")
-    MULTIPLE_USERS_WITH_SAME_CREDENTIAL = doc("There is more than one account with the same credential")
-    ACCOUNT_PENDING_PASSWORD_CHANGE = doc("The account must undergo password recovery to reactivate")
+
+    # As there can't be a union of two string classes for unambiguous parsing,
+    # we need to include the successful case here as well
+    NO_ERROR = doc(value="", docstring="No error occured")

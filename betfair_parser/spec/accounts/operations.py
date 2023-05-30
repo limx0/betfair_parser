@@ -8,31 +8,35 @@ from betfair_parser.spec.accounts.type_definitions import (
     CurrencyRate,
 )
 from betfair_parser.spec.common import APIException, BaseMessage, Request, Response, TimeRange
+from betfair_parser.spec.constants import EndpointType
 from betfair_parser.spec.error import AccountAPIExceptionCode
 
 
 AccountAPIException = APIException[AccountAPIExceptionCode]
 
 
+class AccountRequest(Request, frozen=True):
+    endpoint_type = EndpointType.ACCOUNTS
+    throws = AccountAPIException
+
+
 class _GetAccountFundsParams(BaseMessage, frozen=True):
     wallet: Optional[Wallet] = None  # Name of the wallet in question. Global wallet is returned by default
 
 
-class GetAccountFunds(Request, kw_only=True, frozen=True):
+class GetAccountFunds(AccountRequest, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
     method = "AccountAPING/v1.0/getAccountFunds"
     params: _GetAccountFundsParams
     return_type = Response[AccountFundsResponse]
-    throws = AccountAPIException
 
 
-class GetAccountDetails(Request, kw_only=True, frozen=True):
+class GetAccountDetails(AccountRequest, kw_only=True, frozen=True):
     """Returns the details relating your account, including your discount rate and Betfair point balance."""
 
     method = "AccountAPING/v1.0/getAccountDetails"
     return_type = Response[AccountDetailsResponse]
-    throws = AccountAPIException
 
 
 class _GetAccountStatementParams(BaseMessage, frozen=True):
@@ -50,21 +54,19 @@ class _GetAccountStatementParams(BaseMessage, frozen=True):
     wallet: Optional[Wallet] = None  # Which wallet to return statementItems for. Defaults to UK
 
 
-class GetAccountStatement(Request, kw_only=True, frozen=True):
+class GetAccountStatement(AccountRequest, kw_only=True, frozen=True):
     method = "AccountAPING/v1.0/getAccountStatement"
     params: _GetAccountStatementParams
     return_type = Response[AccountStatementReport]
-    throws = AccountAPIException
 
 
 class _ListCurrencyRatesParams(BaseMessage, frozen=True):
     from_currency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
 
 
-class ListCurrencyRates(Request, kw_only=True, frozen=True):
+class ListCurrencyRates(AccountRequest, kw_only=True, frozen=True):
     """Returns a list of currency rates based on given currency. Updates only once per hour."""
 
     method = "AccountAPING/v1.0/listCurrencyRates"
     params: _ListCurrencyRatesParams
     return_type = Response[list[CurrencyRate]]
-    throws = AccountAPIException

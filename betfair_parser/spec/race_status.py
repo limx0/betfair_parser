@@ -1,6 +1,7 @@
 from typing import Optional
 
 from betfair_parser.spec.common import BaseMessage, Date, Request, Response
+from betfair_parser.spec.constants import EndpointType
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
@@ -54,6 +55,7 @@ class _ListRaceDetailsParams(BaseMessage, frozen=True):
 
 
 class ListRaceDetail(Request, kw_only=True, frozen=True):
+    endpoint_type = EndpointType.SCORES
     method = "ScoresAPING/v1.0/listRaceDetails"
     params: _ListRaceDetailsParams
     return_type = Response[list[RaceDetails]]

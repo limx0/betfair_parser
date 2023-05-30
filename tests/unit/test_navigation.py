@@ -1,14 +1,14 @@
 import msgspec.json
 
 from betfair_parser.spec.common import decode
+from betfair_parser.spec.endpoints import endpoint
 from betfair_parser.spec.navigation import Navigation, NavigationRequest, navigation_to_flatten_markets
 from tests.resources import read_test_file
 
 
 def test_navigation_request():
-    request = NavigationRequest.with_params(locale="de")
-    assert request.method == "/betting/rest/v1/en/navigation/menu.json"
-    assert request.params.locale == "de"
+    url = endpoint("ITA").url_for_request(NavigationRequest)
+    assert url.endswith("/betting/rest/v1/it/navigation/menu.json")
 
 
 def test_navigation():

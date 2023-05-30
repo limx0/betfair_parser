@@ -54,7 +54,7 @@ repos:
             --ignore-missing-imports,
             --warn-no-return,
         ]
-        additional_dependencies: [msgspec]
+        additional_dependencies: [msgspec, types-requests]
 
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
