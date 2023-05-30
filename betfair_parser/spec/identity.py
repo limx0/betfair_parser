@@ -1,9 +1,9 @@
 from typing import Literal, Union
 from urllib.parse import quote
 
-from betfair_parser.spec.common import BaseMessage, BaseResponse, Request, decode
+from betfair_parser.spec.common import BaseResponse, Params, Request, decode
 from betfair_parser.spec.constants import EndpointType
-from betfair_parser.spec.error import LoginExceptionCode
+from betfair_parser.spec.error_codes import LoginExceptionCode
 from betfair_parser.strenums import StrEnum, auto
 
 
@@ -17,6 +17,7 @@ class IdentityRequest(Request, frozen=True):
 class IdentityResponse(BaseResponse, frozen=True):
     def raise_on_error(self):
         """If the response contains some kind of error condition, raise an according Exception."""
+        # TODO: Error handling
 
 
 class LoginStatus(StrEnum):
@@ -33,7 +34,7 @@ class LoginResponse(IdentityResponse, frozen=True):
     error: LoginExceptionCode
 
 
-class _LoginParams(BaseMessage, frozen=True):
+class _LoginParams(Params, frozen=True):
     username: str  # The username to be used for the login
 
     # The password to be used for the login. For strong auth customers, this should
@@ -79,9 +80,14 @@ class CertLoginResponse(IdentityResponse, frozen=True):
     session_token: str
     login_status: Union[LoginExceptionCode, Literal["SUCCESS"]]
 
+    # Behave like LoginResponse
     @property
     def token(self):
         return self.session_token
+
+    @property
+    def status(self):
+        return self.login_status
 
 
 class CertLogin(IdentityRequest, kw_only=True, frozen=True):

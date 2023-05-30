@@ -8,8 +8,8 @@ the specification provide a straight forward way to quickly construct a http req
 of a prepared header and body.
 """
 
+from betfair_parser.endpoints import ENDPOINTS
 from betfair_parser.spec.common import Request
-from betfair_parser.spec.endpoints import ENDPOINTS
 from betfair_parser.spec.identity import CertLogin, KeepAlive, Login, Logout
 
 

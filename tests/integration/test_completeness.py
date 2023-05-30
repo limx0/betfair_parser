@@ -154,7 +154,8 @@ def test_operations(spec, node):
         pytest.skip("Not mentioned anywhere in the documentation")
 
     operation_cls = get_definition(spec, capitalize(operation_name))
-    assert isinstance(operation_cls.endpoint_type.value, str)
+    assert isinstance(operation_cls.endpoint_type.value, str), "EndpointType was not defined correctly"
+    assert operation_cls.__doc__, "No documentation was provided"
     xml_return_type = node.findall("parameters/simpleResponse")[0].get("type")
     assert xml_type_format(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
     xml_error_type = node.findall("parameters/exceptions/exception")[0].get("type")

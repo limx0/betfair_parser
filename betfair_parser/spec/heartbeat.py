@@ -1,4 +1,4 @@
-from betfair_parser.spec.common import BaseMessage, Request, Response
+from betfair_parser.spec.common import BaseMessage, Params, Request, Response
 from betfair_parser.spec.constants import EndpointType
 from betfair_parser.strenums import DocumentedEnum, doc
 
@@ -19,7 +19,7 @@ class HeartbeatReport(BaseMessage, frozen=True):
     actual_timeout_seconds: int  # The actual timeout applied to your heartbeat request
 
 
-class _HeartbeatParams(BaseMessage, frozen=True):
+class _HeartbeatParams(Params, frozen=True):
     # Maximum period in seconds that may elapse (without a subsequent heartbeat request),
     # before a cancellation request is automatically submitted on your behalf. The minimum
     # value is 10, the maximum value permitted is 300.
@@ -28,8 +28,17 @@ class _HeartbeatParams(BaseMessage, frozen=True):
 
 class Heartbeat(Request, kw_only=True, frozen=True):
     """
-    Returns a list of Competitions (i.e., World Cup 2013) associated with the markets selected by
-    the MarketFilter. Currently only Football markets have an associated competition.
+    This heartbeat operation is provided to help customers have their positions managed automatically in the
+    event of their API clients losing connectivity with the Betfair API. If a heartbeat request is not received
+    within a prescribed time period, then Betfair will attempt to cancel all 'LIMIT' type bets for the given
+    customer on the given exchange. There is no guarantee that this service will result in all bets being
+    cancelled as there are a number of circumstances where bets are unable to be cancelled. Manual intervention
+    is strongly advised in the event of a loss of connectivity to ensure that positions are correctly managed.
+    If this service becomes unavailable for any reason, then your heartbeat will be unregistered automatically
+    to avoid bets being inadvertently cancelled upon resumption of service. you should manage your position
+    manually until the service is resumed. Heartbeat data may also be lost in the unlikely event of nodes
+    failing within the cluster, which may result in your position not being managed until a subsequent heartbeat
+    request is received.
     """
 
     endpoint_type = EndpointType.HEARTBEAT

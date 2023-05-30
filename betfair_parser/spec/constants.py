@@ -1,4 +1,4 @@
-from betfair_parser.strenums import LowerStrEnum, auto
+from betfair_parser.strenums import DocumentedEnum, LowerStrEnum, auto, doc
 
 
 EVENT_TYPE_TO_NAME = {
@@ -40,3 +40,12 @@ class EndpointType(LowerStrEnum):
     ACCOUNTS = auto()
     BETTING = auto()
     SCORES = auto()
+    NONE = auto()  # To avoid issues with mypy
+
+
+class RegulatorCodes(DocumentedEnum):
+    MR_ESP = doc("SPANISH GAMBLING AUTHORITY")
+    MR_INT = doc("GIBRALTER REGULATOR")
+    MR_ITA = doc("AMMINISTRAZIONE AUTONOMA DEI MONOPOLI DI STATO")
+    MR_NJ = doc("NJRC - NEW JERSEY RACING COMMISSION")
+    MR_TGC = doc("THE TASMANIAN GAMING COMMISSION")

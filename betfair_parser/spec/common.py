@@ -3,7 +3,8 @@ from typing import Annotated, Generic, Literal, Optional, TypeVar, Union
 
 import msgspec
 
-from betfair_parser.spec.error import APIExceptionCode, JSONExceptionCode
+from betfair_parser.spec.constants import EndpointType
+from betfair_parser.spec.error_codes import APIExceptionCode, JSONExceptionCode
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
@@ -68,8 +69,12 @@ class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, froz
         return msgspec.structs.asdict(self)
 
 
+class Params(BaseMessage, omit_defaults=True, frozen=True):
+    """By default, don't send None and other default values in operation parameters."""
+
+
 class BaseResponse(BaseMessage, frozen=True):
-    """Base class for Response and IdentityResponse."""
+    """Base class for Response, ErrorResponse and IdentityResponse."""
 
     def raise_on_error(self):
         """If the response contains some kind of error condition, raise an according Exception."""
@@ -94,7 +99,7 @@ class JsonError(BaseMessage, frozen=True):
     message: str
 
 
-class ErrorResponse(RPC, kw_only=True, frozen=True):
+class ErrorResponse(RPC, BaseResponse, kw_only=True, frozen=True):
     error: JsonError
 
 
@@ -109,7 +114,7 @@ class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
     params: ParamsType = {}  # type: ignore
     return_type = BaseResponse  # not to be serialized, so no type definition
     throws = APIException[APIExceptionCode]  # not to be serialized, so no type definition
-    endpoint_type = "api"
+    endpoint_type = EndpointType.NONE
 
     @classmethod
     def with_params(cls, request_id=1, **kwargs):

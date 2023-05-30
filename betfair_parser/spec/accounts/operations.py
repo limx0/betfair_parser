@@ -7,9 +7,9 @@ from betfair_parser.spec.accounts.type_definitions import (
     AccountStatementReport,
     CurrencyRate,
 )
-from betfair_parser.spec.common import APIException, BaseMessage, Request, Response, TimeRange
+from betfair_parser.spec.common import APIException, Params, Request, Response, TimeRange
 from betfair_parser.spec.constants import EndpointType
-from betfair_parser.spec.error import AccountAPIExceptionCode
+from betfair_parser.spec.error_codes import AccountAPIExceptionCode
 
 
 AccountAPIException = APIException[AccountAPIExceptionCode]
@@ -20,7 +20,7 @@ class AccountRequest(Request, frozen=True):
     throws = AccountAPIException
 
 
-class _GetAccountFundsParams(BaseMessage, frozen=True):
+class _GetAccountFundsParams(Params, frozen=True):
     wallet: Optional[Wallet] = None  # Name of the wallet in question. Global wallet is returned by default
 
 
@@ -39,7 +39,7 @@ class GetAccountDetails(AccountRequest, kw_only=True, frozen=True):
     return_type = Response[AccountDetailsResponse]
 
 
-class _GetAccountStatementParams(BaseMessage, frozen=True):
+class _GetAccountStatementParams(Params, frozen=True):
     locale: Optional[str] = None  # The language to be used where applicable. Defaults to account settings
     from_record: Optional[int] = None  # Specifies the first record that will be returned, defaults to 0
     record_count: Optional[int] = None  # Specifies the maximum number of records to be returned. Maximum 100
@@ -55,12 +55,14 @@ class _GetAccountStatementParams(BaseMessage, frozen=True):
 
 
 class GetAccountStatement(AccountRequest, kw_only=True, frozen=True):
+    """Return the account statement. Essentially a large ist of your last profits and losses."""
+
     method = "AccountAPING/v1.0/getAccountStatement"
     params: _GetAccountStatementParams
     return_type = Response[AccountStatementReport]
 
 
-class _ListCurrencyRatesParams(BaseMessage, frozen=True):
+class _ListCurrencyRatesParams(Params, frozen=True):
     from_currency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
 
 

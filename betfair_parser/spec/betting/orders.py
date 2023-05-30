@@ -18,7 +18,6 @@ from betfair_parser.spec.betting.type_definitions import (
     UpdateInstruction,
 )
 from betfair_parser.spec.common import (
-    BaseMessage,
     BetId,
     CustomerOrderRef,
     CustomerRef,
@@ -26,6 +25,7 @@ from betfair_parser.spec.common import (
     EventId,
     EventTypeId,
     MarketId,
+    Params,
     Request,
     Response,
     TimeRange,
@@ -37,7 +37,7 @@ class OrderRequest(Request, frozen=True):
     endpoint_type = EndpointType.BETTING
 
 
-class _PlaceOrdersParams(BaseMessage, frozen=True):
+class _PlaceOrdersParams(Params, frozen=True):
     market_id: str
     instructions: list[PlaceInstruction]
     customer_ref: Optional[CustomerRef] = None
@@ -62,7 +62,7 @@ class PlaceOrders(OrderRequest, kw_only=True, frozen=True):
     return_type = Response[PlaceExecutionReport]
 
 
-class _CancelOrdersParams(BaseMessage, frozen=True):
+class _CancelOrdersParams(Params, frozen=True):
     market_id: Optional[str] = None
     instructions: Optional[list[CancelInstruction]] = None
     customer_ref: Optional[CustomerRef] = None
@@ -79,7 +79,7 @@ class CancelOrders(OrderRequest, kw_only=True, frozen=True):
     return_type = Response[CancelExecutionReport]
 
 
-class _ReplaceOrdersParams(BaseMessage, frozen=True):
+class _ReplaceOrdersParams(Params, frozen=True):
     market_id: str
     instructions: list[ReplaceInstruction]
     customer_ref: Optional[CustomerRef] = None
@@ -100,7 +100,7 @@ class ReplaceOrders(OrderRequest, kw_only=True, frozen=True):
     return_type = Response[ReplaceExecutionReport]
 
 
-class _ListClearedOrdersParams(BaseMessage, frozen=True):
+class _ListClearedOrdersParams(Params, frozen=True):
     bet_status: BetStatus  # Restricts the results to the specified status.
     event_type_ids: Optional[set[EventTypeId]] = None  # Restricts the results to the specified Event Type IDs.
     event_ids: Optional[set[EventId]] = None  # Restricts the results to the specified Event IDs.
@@ -146,7 +146,7 @@ class ListClearedOrders(OrderRequest, kw_only=True, frozen=True):
     return_type = Response[ClearedOrderSummaryReport]
 
 
-class _ListCurrentOrdersParams(BaseMessage, frozen=True):
+class _ListCurrentOrdersParams(Params, frozen=True):
     """
     Parameters for retrieving a list of current orders.
     """
@@ -184,7 +184,7 @@ class ListCurrentOrders(OrderRequest, kw_only=True, frozen=True):
     return_type = Response[CurrentOrderSummaryReport]
 
 
-class _UpdateOrdersParams(BaseMessage, frozen=True):
+class _UpdateOrdersParams(Params, frozen=True):
     market_id: str  # The market id these orders are to be placed on
     instructions: list[UpdateInstruction]  # The limit of update instructions per request is 60
     customer_ref: Optional[CustomerRef] = None
