@@ -95,7 +95,7 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
 
     @property
     def event_type_name(self) -> str:
-        return EVENT_TYPE_TO_NAME[self.event_type_id]
+        return EVENT_TYPE_TO_NAME[int(self.event_type_id)]
 
 
 class AvailableToBack(BaseMessage, array_like=True, frozen=True):
