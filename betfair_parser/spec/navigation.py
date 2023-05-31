@@ -1,7 +1,7 @@
 import re
 from typing import Literal, Optional, Union
 
-from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Request, decode, encode
+from betfair_parser.spec.common import BaseMessage, BaseResponse, Date, EndpointType, Request, decode, encode
 
 
 def tag_func(s: str):
@@ -13,16 +13,6 @@ def tag_func(s: str):
     'GROUP'
     """
     return re.sub(r"(?<!^)(?=[A-Z])", "_", s).upper()
-
-
-class NavigationRequest(Request, kw_only=True, frozen=True):
-    """Navigation requests
-
-    https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Navigation+Data+For+Applications
-    """
-
-    endpoint_type = EndpointType.NAVIGATION
-    method = ""
 
 
 class Market(BaseMessage, tag=tag_func, frozen=True):
@@ -63,13 +53,30 @@ class EventType(BaseMessage, tag=tag_func, frozen=True):
     children: list[Union[Group, Event, Race]]
 
 
-class Navigation(BaseMessage, frozen=True):
-    """Navigation"""
+class Navigation(BaseResponse, frozen=True):
+    """Navigation root"""
 
     type: Literal["GROUP"]
     name: Literal["ROOT"]
     id: int
     children: list[EventType]
+
+    @property
+    def result(self):
+        # Play along with ordinary RPC Response objects
+        return self
+
+
+class Menu(Request, kw_only=True, frozen=True):
+    """Navigation requests
+
+    https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Navigation+Data+For+Applications
+    """
+
+    endpoint_type = EndpointType.NAVIGATION
+    method = ""
+    id: int = 0
+    return_type = Navigation  # type: ignore
 
 
 class FlattenedMarket(BaseMessage, kw_only=True, frozen=True, rename=None):

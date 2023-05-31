@@ -2,12 +2,12 @@ import msgspec.json
 
 from betfair_parser.endpoints import endpoint
 from betfair_parser.spec.common import decode
-from betfair_parser.spec.navigation import Navigation, NavigationRequest, navigation_to_flatten_markets
+from betfair_parser.spec.navigation import Menu, Navigation, navigation_to_flatten_markets
 from tests.resources import read_test_file
 
 
 def test_navigation_request():
-    url = endpoint("ITA").url_for_request(NavigationRequest)
+    url = endpoint("ITA").url_for_request(Menu)
     assert url.endswith("/betting/rest/v1/it/navigation/menu.json")
 
 

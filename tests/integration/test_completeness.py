@@ -159,9 +159,7 @@ def test_operations(spec, node):
     xml_return_type = node.findall("parameters/simpleResponse")[0].get("type")
     assert xml_type_format(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
     xml_error_type = node.findall("parameters/exceptions/exception")[0].get("type")
-    assert compat_type_name(operation_cls.throws) == "APIException"
-    py_error_type = compat_type_name(py_type_unpack(operation_cls.throws)).replace("Code", "")
-    assert xml_type_format(xml_error_type).replace("APING", "API") == py_error_type
+    assert xml_type_format(xml_error_type) == operation_cls.throws.__name__
     try:
         params_cls = operation_cls.__annotations__["params"]
     except KeyError:

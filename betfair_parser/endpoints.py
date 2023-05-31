@@ -2,14 +2,14 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 
-ACCOUNTS = "https://api.betfair.com/exchange/account/json-rpc/v1"
+ACCOUNTS = "https://api.betfair.com/exchange/account/json-rpc/v1/"
 BETTING = "https://api.betfair.com/exchange/betting/json-rpc/v1/"
-SCORES = "https://api.betfair.com/exchange/scores/json-rpc/v1"
+SCORES = "https://api.betfair.com/exchange/scores/json-rpc/v1/"
 
 _IDENTITY = "https://identitysso.betfair{tld}/api/"
 _IDENTITY_CERT = "https://identitysso-cert.betfair{tld}/api/"
 _NAVIGATION = "https://api.betfair{tld}/exchange/betting/rest/v1/{locale}/navigation/menu.json"
-_HEARTBEAT = "https://api.betfair{tld}/exchange/heartbeat/json-rpc/v1"
+_HEARTBEAT = "https://api.betfair{tld}/exchange/heartbeat/json-rpc/v1/"
 
 IDENTITY = defaultdict(
     lambda: _IDENTITY.format(tld=".com"),
@@ -63,7 +63,7 @@ class EndpointConfig:
 def endpoint(country_code="GBR"):
     return EndpointConfig(
         identity=IDENTITY[country_code],
-        identity_cert=IDENTITY[country_code],
+        identity_cert=IDENTITY_CERT[country_code],
         navigation=NAVIGATION[country_code],
         heartbeat=HEARTBEAT[country_code],
     )

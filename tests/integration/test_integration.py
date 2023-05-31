@@ -2,7 +2,7 @@ import pytest
 
 from betfair_parser.core import read_file
 from betfair_parser.spec.betting.type_definitions import MarketCatalogue
-from betfair_parser.spec.common import ErrorResponse, Request, Response, decode
+from betfair_parser.spec.common import Request, Response, decode
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -15,13 +15,20 @@ def test_read_requests(path):
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "responses").glob("*/*.json")), ids=id_from_path)
 def test_read_responses(path):
     raw = path.read_bytes()
-    if "error" in str(path):
-        parse_type = ErrorResponse
-    elif "market_catalogue" in str(path):
+    if "market_catalogue" in str(path):
+        # That data was cut out from the complete response
         parse_type = list[MarketCatalogue]
     else:
         parse_type = Response
-    assert decode(raw, type=parse_type)
+    resp = decode(raw, type=parse_type)
+    assert resp
+
+    if "market_catalogue" in str(path):
+        assert len(resp)
+    elif "error" in str(path):
+        assert resp.error
+    else:
+        assert resp.result
 
 
 @pytest.mark.parametrize(

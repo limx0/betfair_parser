@@ -18,8 +18,7 @@ def request(session, req: Request, endpoints=ENDPOINTS):
 
     url = endpoints.url_for_request(req)
     raw_resp = session.post(url, headers=req.headers(), data=req.body())
-    raw_resp.raise_for_status()  # TODO: This should be wrapped
-    resp = req.parse_response(raw_resp.content)
+    resp = req.parse_response(raw_resp.content, raise_errors=True)
     return resp
 
 
@@ -47,13 +46,13 @@ def keep_alive(session, endpoints=ENDPOINTS):
     session.headers.update({"X-Authentication": resp.token})
 
 
-def certlogin(session, username, password, app_key, two_factor_code="", endpoints=ENDPOINTS):
+def cert_login(session, username, password, app_key, endpoints=ENDPOINTS):
     """Bot authentication. Session certificates need to be properly configured already."""
 
     session.headers.update({"X-Application": app_key})
     resp = request(
         session,
-        CertLogin.with_params(username=username, password=password + two_factor_code),
+        CertLogin.with_params(username=username, password=password),
         endpoints=endpoints,
     )
     session.headers.update({"X-Authentication": resp.token})

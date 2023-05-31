@@ -83,5 +83,5 @@ class DocumentedEnum(Enum):
 
     def __str__(self):
         if self.__doc__:
-            return f"{super().__str__()}: {self.__doc__}"
-        return super().__str__()
+            return f"{self.name}: {self.__doc__}"
+        return self.name

@@ -4,7 +4,7 @@ import msgspec
 
 from betfair_parser.spec.betting.enums import MarketStatus, RunnerStatus
 from betfair_parser.spec.betting.type_definitions import PriceLadderDescription
-from betfair_parser.spec.common import EVENT_TYPE_TO_NAME, BaseMessage, Date
+from betfair_parser.spec.common import EVENT_TYPE_TO_NAME, BaseMessage, Date, RegulatorCode
 
 
 class RunnerValues(BaseMessage, frozen=True):
@@ -81,7 +81,7 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     bet_delay: int
     status: MarketStatus
     runners: List[Runner]
-    regulators: List[str]
+    regulators: List[RegulatorCode]
     name: Optional[str] = None
     open_date: Optional[str] = None
     timezone: Optional[str] = None

@@ -110,9 +110,7 @@ class MarketFilter(BaseMessage, omit_defaults=True, frozen=True):
     exchange_ids: Optional[set[ExchangeId]] = None  # DEPRECATED
     event_type_ids: Optional[set[EventTypeId]] = None  # Restrict markets by event type associated with the market
     event_ids: Optional[set[EventId]] = None  # Restrict markets by the event id associated with the market
-    competition_ids: Optional[
-        set[CompetitionId]
-    ] = None  # Restrict markets by the competitions associated with the market
+    competition_ids: Optional[set[CompetitionId]] = None  # Restrict markets by the competitions
     market_ids: Optional[set[MarketId]] = None  # Restrict markets by the market id associated with the market
     venues: Optional[set[Venue]] = None  # Restrict markets by the venue associated with the market
     bsp_only: Optional[bool] = None  # Restrict to bsp markets only if True or non-bsp markets if False

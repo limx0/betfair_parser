@@ -1,21 +1,19 @@
 from typing import Optional
 
-from betfair_parser.spec.accounts.enums import AccountAPIExceptionCode, IncludeItem, Wallet
+from betfair_parser.exceptions import AccountAPINGException
+from betfair_parser.spec.accounts.enums import IncludeItem, Wallet
 from betfair_parser.spec.accounts.type_definitions import (
     AccountDetailsResponse,
     AccountFundsResponse,
     AccountStatementReport,
     CurrencyRate,
 )
-from betfair_parser.spec.common import APIException, EndpointType, Params, Request, Response, TimeRange
-
-
-AccountAPIException = APIException[AccountAPIExceptionCode]
+from betfair_parser.spec.common import EndpointType, Params, Request, Response, TimeRange
 
 
 class AccountRequest(Request, frozen=True):
     endpoint_type = EndpointType.ACCOUNTS
-    throws = AccountAPIException
+    throws = AccountAPINGException  # type: ignore
 
 
 class _GetAccountFundsParams(Params, frozen=True):
