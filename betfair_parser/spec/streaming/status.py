@@ -39,7 +39,7 @@ class StatusErrorCode(DocumentedEnum):
 class Connection(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """Connection Message"""
 
-    connectionId: str
+    connection_id: str
 
 
 class Status(BaseMessage, tag_field="op", tag=str.lower, frozen=True):

@@ -1,4 +1,6 @@
-from typing import List, Literal, Optional, Union
+from typing import Annotated, List, Literal, Optional, Union
+
+import msgspec
 
 from betfair_parser.spec.betting.enums import MarketStatus, RunnerStatus
 from betfair_parser.spec.betting.type_definitions import PriceLadderDescription
@@ -98,71 +100,26 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
         return EVENT_TYPE_TO_NAME[int(self.event_type_id)]
 
 
-class AvailableToBack(BaseMessage, array_like=True, frozen=True):
-    """AvailableToBack"""
-
+class _PriceVolume(BaseMessage, array_like=True, frozen=True):
     price: float
     volume: float
 
 
-class AvailableToLay(BaseMessage, array_like=True, frozen=True):
-    """AvailableToLay"""
-
-    price: float
-    volume: float
-
-
-class BestAvailableToBack(BaseMessage, array_like=True, frozen=True):
-    """BestAvailableToBack"""
-
+class _LevelPriceVolume(BaseMessage, array_like=True, frozen=True):
     level: int
     price: float
     volume: float
 
 
-class BestAvailableToLay(BaseMessage, array_like=True, frozen=True):
-    """BestAvailableToLay"""
-
-    level: int
-    price: float
-    volume: float
-
-
-class BestDisplayAvailableToBack(BaseMessage, array_like=True, frozen=True):
-    """BestDisplayAvailableToBack"""
-
-    level: int
-    price: float
-    volume: float
-
-
-class BestDisplayAvailableToLay(BaseMessage, array_like=True, frozen=True):
-    """BestDisplayAvailableToLay"""
-
-    level: int
-    price: float
-    volume: float
-
-
-class Trade(BaseMessage, array_like=True, frozen=True):
-    """Trade"""
-
-    price: float
-    volume: float
-
-
-class StartingPriceBack(BaseMessage, array_like=True, frozen=True):
-    """StartingPriceBack"""
-
-    price: float
-    volume: float
-
-
-class StartingPriceLay(BaseMessage, array_like=True, frozen=True):
-    """StartingPriceLay"""
-
-    price: float
-    volume: float
+AvailableToBack = Annotated[_PriceVolume, msgspec.Meta(title="AvailableToBack")]
+AvailableToLay = Annotated[_PriceVolume, msgspec.Meta(title="AvailableToLay")]
+BestAvailableToBack = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestAvailableToBack")]
+BestAvailableToLay = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestAvailableToLay")]
+BestDisplayAvailableToBack = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestDisplayAvailableToBack")]
+BestDisplayAvailableToLay = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestDisplayAvailableToLay")]
+Trade = Annotated[_PriceVolume, msgspec.Meta(title="Trade")]
+StartingPriceBack = Annotated[_PriceVolume, msgspec.Meta(title="StartingPriceBack")]
+StartingPriceLay = Annotated[_PriceVolume, msgspec.Meta(title="StartingPriceLay")]
 
 
 class RunnerChange(BaseMessage, frozen=True):
