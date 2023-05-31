@@ -1,11 +1,8 @@
-import datetime
-from typing import Annotated, Generic, Literal, Optional, TypeVar, Union
+from typing import Generic, Literal, Optional, TypeVar
 
 import msgspec
 
-from betfair_parser.spec.constants import EndpointType
-from betfair_parser.spec.error_codes import APIExceptionCode, JSONExceptionCode
-from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
+from betfair_parser.spec.common.enums import APIExceptionCode, EndpointType, JSONExceptionCode
 
 
 class IntStr(int):
@@ -143,63 +140,3 @@ class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
             raise ValueError(f"Response ID ({resp.id}) does not match Request ID ({self.id})")
         resp.raise_on_error()
         return resp.result
-
-
-# Type aliases with minimalistic validation
-
-Date = Annotated[datetime.datetime, msgspec.Meta(title="Date", tz=True)]
-SelectionId = Annotated[IntStr, msgspec.Meta(title="SelectionId")]
-Venue = Annotated[str, msgspec.Meta(title="Venue")]
-MarketId = Annotated[str, msgspec.Meta(title="MarketId")]
-Handicap = Annotated[FloatStr, msgspec.Meta(title="Handicap")]
-EventId = Annotated[str, msgspec.Meta(title="EventId")]
-EventTypeId = Annotated[IntStr, msgspec.Meta(title="EventTypeId")]
-CountryCode = Annotated[str, msgspec.Meta(title="CountryCode", min_length=2, max_length=3)]
-ExchangeId = Annotated[str, msgspec.Meta(title="ExchangeId")]
-CompetitionId = Annotated[str, msgspec.Meta(title="CompetitionId")]
-Price = Annotated[FloatStr, msgspec.Meta(title="Price")]
-Size = Annotated[FloatStr, msgspec.Meta(title="Size")]
-BetId = Annotated[Union[str, int], msgspec.Meta(title="BetId")]
-MatchId = Annotated[Union[str, int], msgspec.Meta(title="MatchId")]
-CustomerRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerRef")]
-CustomerOrderRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerOrderRef")]
-CustomerStrategyRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerStrategyRef")]
-
-
-# Enums and type definitions, that are used in multiple parts of the API
-
-
-class OrderType(DocumentedEnum):
-    LIMIT = doc("A normal exchange limit order for immediate execution")
-    LIMIT_ON_CLOSE = doc("Limit order for the auction (SP)")
-    MARKET_ON_CLOSE = doc("Market order for the auction (SP)")
-
-
-class OrderSide(StrEnum):
-    BACK = auto()
-    LAY = auto()
-
-
-class OrderResponse(StrEnum):
-    SUCCESS = auto()
-    FAILURE = auto()
-
-
-class OrderStatus(DocumentedEnum):
-    PENDING = doc(
-        "An asynchronous order is yet to be processed. Once the bet has been processed by the exchange "
-        "(including waiting for any in-play delay), the result will be reported and available on the "
-        "Exchange Stream API and API NG. Not a valid search criteria on MarketFilter."
-    )
-    EXECUTION_COMPLETE = doc("An order that does not have any remaining unmatched portion.")
-    EXECUTABLE = doc("An order that has a remaining unmatched portion.")
-    EXPIRED = doc(
-        "The order is no longer available for execution due to its time in force constraint. "
-        "In the case of FILL_OR_KILL orders, this means the order has been killed because it "
-        "could not be filled to your specifications. Not a valid search criteria on MarketFilter."
-    )
-
-
-class TimeRange(BaseMessage, frozen=True):
-    from_: Optional[Date] = msgspec.field(name="from", default=None)
-    to: Optional[Date] = None

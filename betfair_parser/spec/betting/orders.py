@@ -22,6 +22,7 @@ from betfair_parser.spec.common import (
     CustomerOrderRef,
     CustomerRef,
     CustomerStrategyRef,
+    EndpointType,
     EventId,
     EventTypeId,
     MarketId,
@@ -30,7 +31,6 @@ from betfair_parser.spec.common import (
     Response,
     TimeRange,
 )
-from betfair_parser.spec.constants import EndpointType
 
 
 class OrderRequest(Request, frozen=True):

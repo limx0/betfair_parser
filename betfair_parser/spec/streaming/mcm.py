@@ -2,8 +2,7 @@ from typing import List, Literal, Optional, Union
 
 from betfair_parser.spec.betting.enums import MarketStatus, RunnerStatus
 from betfair_parser.spec.betting.type_definitions import PriceLadderDescription
-from betfair_parser.spec.common import BaseMessage, Date
-from betfair_parser.spec.constants import EVENT_TYPE_TO_NAME
+from betfair_parser.spec.common import EVENT_TYPE_TO_NAME, BaseMessage, Date
 
 
 class RunnerValues(BaseMessage, frozen=True):

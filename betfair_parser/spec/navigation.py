@@ -1,8 +1,7 @@
 import re
 from typing import Literal, Optional, Union
 
-from betfair_parser.spec.common import BaseMessage, Date, Request, decode, encode
-from betfair_parser.spec.constants import EndpointType
+from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Request, decode, encode
 
 
 def tag_func(s: str):

@@ -21,8 +21,7 @@ from betfair_parser.spec.betting.type_definitions import (
     TimeRangeResult,
     VenueResult,
 )
-from betfair_parser.spec.common import BetId, Date, MarketId, Params, Request, Response, SelectionId
-from betfair_parser.spec.constants import EndpointType
+from betfair_parser.spec.common import BetId, Date, EndpointType, MarketId, Params, Request, Response, SelectionId
 
 
 class ListingRequest(Request, frozen=True):

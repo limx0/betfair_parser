@@ -1,7 +1,6 @@
 from typing import Optional
 
-from betfair_parser.spec.common import BaseMessage, Date, Params, Request, Response
-from betfair_parser.spec.constants import EndpointType
+from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Params, Request, Response
 from betfair_parser.strenums import DocumentedEnum, doc
 
 

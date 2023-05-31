@@ -1,5 +1,4 @@
-from betfair_parser.spec.common import BaseMessage, Params, Request, Response
-from betfair_parser.spec.constants import EndpointType
+from betfair_parser.spec.common import BaseMessage, EndpointType, Params, Request, Response
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
