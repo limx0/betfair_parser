@@ -163,6 +163,9 @@ class ListMarketCatalogue(ListingRequest, kw_only=True, frozen=True):
     return_type = Response[list[MarketCatalogue]]
 
 
+ListMarketCatalog = ListMarketCatalogue  # allow both spellings
+
+
 class _ListMarketProfitAndLossParams(Params, frozen=True):
     market_ids: set[MarketId]  # List of markets to calculate profit and loss
     include_settled_bets: Optional[bool] = False  # Option to include settled bets (partially settled markets only)
@@ -186,9 +189,7 @@ class _ListRunnerBookParams(Params, frozen=True):
     order_projection: Optional[OrderProjection] = None
     match_projection: Optional[MatchProjection] = None  # If you ask for orders, specifies the representation of matches
     include_overall_position: Optional[bool] = None  # If you ask for orders, returns matches for each selection
-    partition_matched_by_strategy_ref: Optional[
-        bool
-    ] = None  # Return a breakdown of matches by strategy for each selection
+    partition_matched_by_strategy_ref: Optional[bool] = None  # Return a breakdown of matches by strategy
     customer_strategy_refs: Optional[set[str]] = None
     currency_code: Optional[str] = None  # A Betfair standard currency code
     locale: Optional[str] = None  # The language used for the response

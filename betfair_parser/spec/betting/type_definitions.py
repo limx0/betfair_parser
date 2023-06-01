@@ -2,6 +2,7 @@ from typing import Optional
 
 import msgspec
 
+from betfair_parser.endpoints import SILKS
 from betfair_parser.spec.betting.enums import (
     BetTargetType,
     ExecutionReportErrorCode,
@@ -124,7 +125,7 @@ class MarketFilter(BaseMessage, omit_defaults=True, frozen=True):
     market_countries: Optional[set[CountryCode]] = None  # Match the specified country or countries
     market_type_codes: Optional[set[str]] = None  # Restrict to markets that match the type of the market
     market_start_time: Optional[TimeRange] = None  # Restrict to markets with a market start time range
-    with_orders: Optional[set[str]] = None  # Restrict to markets that I have one or more orders in these status
+    with_orders: Optional[set[str]] = None  # Markets that have one or more orders of defined OrderStatus
     race_types: Optional[set[str]] = None  # Restrict by race type
 
 
@@ -276,9 +277,14 @@ class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, rename="upper
     jockey_name: Optional[str] = None  # Name of the jockey. This field will contain 'Reserve' if its a reserve runner
     dam_bred: Optional[_MetaCountryCode] = None  # The country where the horse's mother was born
     colours_description: Optional[str] = None  # The textual description of the jockey silk
-    colours_filename: Optional[str] = None  # Prepend: https://content-cache.cdnppb.net/feeds_images/Horses/SilkColours/
+    colours_filename: Optional[str] = None  # Image representing the jockey silk
     cloth_number: Optional[IntStr] = None  # The number on the saddle-cloth
     cloth_number_alpha: Optional[str] = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
+
+    @property
+    def colours_url(self):
+        if self.colours_filename:
+            return SILKS + self.colours_filename
 
 
 class RunnerCatalog(BaseMessage, frozen=True):
@@ -292,6 +298,10 @@ class RunnerCatalog(BaseMessage, frozen=True):
     handicap: float
     sort_priority: Optional[int] = None  # This is marked as REQUIRED in the API doc, but omitted sometimes
     metadata: Optional[RunnerMetaData] = None  # Metadata associated with the runner
+
+    @property
+    def name(self):
+        return self.runner_name
 
     @property
     def runner_id(self):
@@ -318,7 +328,7 @@ class Runner(BaseMessage, frozen=True):
     ex: Optional[ExchangePrices] = None  # The Exchange prices available for this runner
     orders: Optional[list[Order]] = None  # List of orders in the market
     matches: Optional[list[Match]] = None  # List of matches (i.e., orders that have been fully or partially executed)
-    matches_by_strategy: Optional[dict[str, Match]] = None  # List of matches for each strategy, ordered by matched data
+    matches_by_strategy: Optional[dict[str, list[Match]]] = None  # All matches for each strategy, sort by matched data
 
 
 class MarketCatalogue(BaseMessage, frozen=True):
@@ -451,7 +461,10 @@ class CurrentOrderSummary(BaseMessage, frozen=True):
     persistence_type: PersistenceType  # What to do with the order at turn-in-play
     order_type: OrderType  # BSP Order type
     placed_date: Date  # The date the bet was placed
-    matched_date: Date  # The date of the last matched bet fragment
+
+    # The date of the last matched bet fragment.
+    # Mandatory according to documentation, but optional in reality
+    matched_date: Optional[Date] = None
     average_price_matched: Optional[Price] = None  # The average price matched at
     size_matched: Optional[Size] = None
     size_remaining: Optional[Size] = None
@@ -552,7 +565,7 @@ class CancelInstructionReport(BaseMessage, kw_only=True, frozen=True):
     error_code: Optional[InstructionReportErrorCode] = None  # Cause of failure, or null if command succeeds
     instruction: Optional[CancelInstruction] = None  # The instruction that was requested
     size_cancelled: Optional[float] = None  # The API states, that this is mandatory, but it's skipped in case of error
-    cancelled_date: Optional[Date] = None
+    cancelled_date: Optional[Date] = None  # The API states, that this is mandatory, but it's skipped in case of error
 
 
 class CancelExecutionReport(BaseMessage, kw_only=True, frozen=True):

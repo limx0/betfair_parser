@@ -35,7 +35,7 @@ def test_runner_name(data):
 
 
 def test_market_catalogue():
-    raw = read_test_file("responses/betting/list_market_catalogue.json")
+    raw = read_test_file("responses/market_catalogue_trimmed.json")
     catalog = decode(raw, type=list[MarketCatalogue])
     assert len(catalog) == 12035
     expected = {

@@ -1,9 +1,29 @@
+"""Check a broad selection of common API requests and responses for correct parsing."""
+
 import pytest
 
-from betfair_parser.core import read_file
-from betfair_parser.spec.betting.type_definitions import MarketCatalogue
-from betfair_parser.spec.common import Request, Response, decode
+from betfair_parser.core import STREAM_DECODER, read_file
+from betfair_parser.spec import accounts, betting
+from betfair_parser.spec.common import Request, decode
 from tests.resources import RESOURCES_DIR, id_from_path
+
+
+def _name_parts(name):
+    # There are some file names, that have special remarks in the end, so we can't just mangle the name:
+    # list_cleared_orders_empty etc.
+    if name.startswith(("get_", "list_")):
+        return 3
+    if name.startswith(("cancel_", "place_", "replace_")):
+        return 2
+    raise ValueError(f"Filename {name} not yet covered by integration tests")
+
+
+def op_cls_from_path(path):
+    snake_op_name = path.name.split(".")[0]
+    no_parts = _name_parts(snake_op_name)
+    cls_name = "".join(pt.capitalize() for pt in snake_op_name.split("_")[:no_parts])
+    mod = {"betting": betting.operations, "accounts": accounts.operations}[path.parent.name]
+    return getattr(mod, cls_name)
 
 
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "requests").glob("*/*.json")), ids=id_from_path)
@@ -15,17 +35,13 @@ def test_read_requests(path):
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "responses").glob("*/*.json")), ids=id_from_path)
 def test_read_responses(path):
     raw = path.read_bytes()
-    if "market_catalogue" in str(path):
-        # That data was cut out from the complete response
-        parse_type = list[MarketCatalogue]
+    if "streaming" in str(path):
+        resp = STREAM_DECODER.decode(raw)
     else:
-        parse_type = Response
-    resp = decode(raw, type=parse_type)
+        parse_type = op_cls_from_path(path).return_type
+        resp = decode(raw, type=parse_type)
     assert resp
-
-    if "market_catalogue" in str(path):
-        assert len(resp)
-    elif "error" in str(path):
+    if "error" in str(path):
         assert resp.error
     else:
         assert resp.result

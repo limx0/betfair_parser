@@ -5,6 +5,7 @@ from dataclasses import dataclass
 ACCOUNTS = "https://api.betfair.com/exchange/account/json-rpc/v1/"
 BETTING = "https://api.betfair.com/exchange/betting/json-rpc/v1/"
 SCORES = "https://api.betfair.com/exchange/scores/json-rpc/v1/"
+SILKS = "https://content-cache.cdnppb.net/feeds_images/Horses/SilkColours/"
 
 _IDENTITY = "https://identitysso.betfair{tld}/api/"
 _IDENTITY_CERT = "https://identitysso-cert.betfair{tld}/api/"

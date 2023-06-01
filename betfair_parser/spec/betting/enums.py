@@ -1,3 +1,4 @@
+from betfair_parser.spec.common import EventTypeIdCode  # noqa for reimport
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
@@ -371,3 +372,43 @@ class PriceLadderType(DocumentedEnum):
     CLASSIC = doc("Price ladder increments traditionally used for Odds Markets.")
     FINEST = doc("Price ladder with the finest available increment, traditionally used for Asian Handicap markets.")
     LINE_RANGE = doc("Price ladder used for LINE markets. Refer to MarketLineRangeInfo for more details.")
+
+
+class MarketTypeCode(StrEnum):
+    """This is not a complete list, but only a selection of some popular options for direct access.
+
+    A full list can be retrieved from the API using ListMarketTypes.
+    """
+
+    ALT_TOTAL_GOALS = auto()
+    ANTEPOST_WIN = auto()
+    ASIAN_HANDICAP = auto()
+    BOTH_TEAMS_TO_SCORE = auto()
+    COMBINED_TOTAL = auto()
+    CORRECT_SCORE = auto()
+    EACH_WAY = auto()
+    EXACTA = auto()
+    FORECAST = auto()
+    HANDICAP = auto()
+    MATCH_BET = auto()
+    MATCH_ODDS = auto()
+    NUMBER_OF_SETS = auto()
+    OTHER_PLACE = auto()
+    OUTRIGHT_WINNER = auto()
+    OVER_UNDER_05 = auto()
+    OVER_UNDER_25 = auto()
+    PLACE = auto()
+    PLAYER_A_WIN_A_SET = auto()
+    PLAYER_B_WIN_A_SET = auto()
+    QUARTER_WINNER = auto()
+    QUINELLA = auto()
+    RACE_WIN_DIST = auto()
+    SEASON_SPECIALS = auto()
+    SET_BETTING = auto()
+    SET_CORRECT_SCORE = auto()
+    SET_WINNER = auto()
+    TOURNAMENT_WINNER = auto()
+    TRAP_CHALLENGE = auto()
+    UNUSED = auto()
+    WIN = auto()
+    WITHOUT_FAV = auto()

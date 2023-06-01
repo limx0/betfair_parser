@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 from betfair_parser.strenums import DocumentedEnum, LowerStrEnum, StrEnum, auto, doc
 
 
@@ -24,6 +26,7 @@ class OrderType(DocumentedEnum):
     LIMIT = doc("A normal exchange limit order for immediate execution")
     LIMIT_ON_CLOSE = doc("Limit order for the auction (SP)")
     MARKET_ON_CLOSE = doc("Market order for the auction (SP)")
+    MARKET_AT_THE_CLOSE = doc("Undocumented, but found out there in the wild, likely a mistake by Betfair")
 
 
 class OrderSide(StrEnum):
@@ -129,128 +132,121 @@ class AccountAPINGExceptionCode(DocumentedEnum):
     CUSTOMER_ACCOUNT_CLOSED = doc("A token could not be created because the customer's account is CLOSED.")
 
 
-# https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Additional+Information?preview=/43090178/43090179/EventTypIds.xlsx
-EVENT_TYPE_TO_NAME = {
-    1: "Soccer",
-    2: "Tennis",
-    3: "Golf",
-    4: "Cricket",
-    5: "Rugby Union",
-    6: "Boxing",
-    7: "Horse Racing",
-    8: "Motor Sport",
-    9: "Soccer Euro 2000",
-    10: "Special Bets",
-    11: "Cycling",
-    12: "Rowing",
-    1477: "Rugby League",
-    3503: "Darts",
-    3988: "Athletics",
-    4339: "Greyhound Racing",
-    6231: "Financial Bets",
-    6422: "Snooker",
-    6423: "American Football",
-    7228: "Olympics - Sydney 2000",
-    7511: "Baseball",
-    7522: "Basketball",
-    7523: "Hockey",
-    7524: "Ice Hockey",
-    7525: "Sumo Wrestling",
-    61420: "Australian Rules",
-    66598: "Gaelic Football",
-    66599: "Hurling",
-    72382: "Pool",
-    136332: "Chess",
-    141540: "2002 Winter Olympics",
-    189929: "Poker Room",
-    256284: "Trotting",
-    300000: "Commonwealth Games",
-    315220: "Poker",
-    451485: "Winter Sports",
-    468328: "Handball",
-    606611: "Netball",
-    620576: "Swimming",
-    627555: "Badminton",
-    678378: "International Rules",
-    982477: "Bridge",
-    998916: "Yachting",
-    998917: "Volleyball",
-    998918: "Bowls",
-    998919: "Bandy",
-    998920: "Floorball",
-    1444073: "Exchange Poker",
-    1444076: "Exchange Blackjack",
-    1444085: "Exchange Baccarat",
-    1444092: "Exchange Hi Lo",
-    1444099: "Exchange Omaha Hi",
-    1444115: "Exchange Card Racing",
-    1444120: "Casino",
-    1444130: "Exchange Roulette",
-    1444150: "Exchange Bullseye Roulette",
-    1564529: "Soccer - Euro 2004",
-    1896798: "Olympics 2004",
-    1938544: "Backgammon",
-    2030972: "GAA Sports",
-    2152880: "Gaelic Games",
-    2264869: "Internal Markets",
-    2378961: "Politics",
-    2593174: "Table Tennis",
-    2791893: "Yahoo Racing",
-    2872194: "Beach Volleyball",
-    2872196: "Canoeing",
-    2901849: "Water Polo",
-    2977000: "Polo",
-    3088925: "Fishing",
-    3130721: "Roller Hockey",
-    3145419: "Cross Sport Accumulators",
-    4609466: "Squash",
-    4726642: "Surfing",
-    4968929: "Combat Sports",
-    5402258: "Exchange Games",
-    5412697: "Pelota",
-    5545196: "Featured Markets",
-    5545197: "Featured Markets",
-    10271443: "Exchange Casino",
-    10390264: "Ten Pin Bowling",
-    15242720: "Tradefair",
-    15826206: "Futsal",
-    15826207: "Fussball",
-    16872235: "Harness Racing",
-    18051261: "Olympics 2008",
-    18643353: "Equestrian",
-    26397698: "Horse Racing - Virtual",
-    26420387: "Mixed Martial Arts",
-    26686903: "Olympics 2012",
-    26886906: "Paralympics 2012",
-    27065662: "Triathlon",
-    27105927: "Winter Olympics 2018",
-    27388198: "Current Affairs",
-    27438978: "Virtual Sports",
-    27454571: "E-Sports",
-    27456382: "Baku 2015",
-    27485048: "Wrestling",
-    27589895: "Olympics 2016",
-    27596832: "New Customer Offer",
-    27610222: "UFC",
-    27610230: "GAA Football",
-    27610231: "GAA Hurling",
-    27829360: "MMA / UFC",
-    27979456: "Kabaddi",
-    28347302: "Gymnastics",
-    28347303: "TV Specials",
-    28347304: "Music",
-    28347305: "Novelty Bets",
-    28361978: "Lottery Specials",
-    28361979: "Beach Soccer",
-    28361980: "Hollywood",
-    28361982: "Weightlifting",
-    28361983: "Weather",
-    28361984: "Ski Jumping",
-    28361985: "Nordic Combined",
-    28361987: "Alpine Skiing",
-    28361988: "Cross Country",
-    28361989: "Biathlon",
-    28361990: "Freestyle Skiing",
-    28361992: "Speed Skating",
-    28373540: "Sports Novelties",
-}
+class EventTypeIdCode(IntEnum):
+    """Unique identifier for event types
+
+    This is not a complete list and only serves for ease of use. For a full list, use the ListEventTypes API call.
+
+    https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Additional+Information?preview=/43090178/43090179/EventTypIds.xlsx
+    """
+
+    SOCCER = 1
+    TENNIS = 2
+    GOLF = 3
+    CRICKET = 4
+    RUGBY_UNION = 5
+    BOXING = 6
+    HORSE_RACING = 7
+    MOTOR_SPORT = 8
+    SPECIAL_BETS = 10
+    CYCLING = 11
+    ROWING = 12
+    RUGBY_LEAGUE = 1477
+    DARTS = 3503
+    ATHLETICS = 3988
+    GREYHOUND_RACING = 4339
+    FINANCIAL_BETS = 6231
+    SNOOKER = 6422
+    AMERICAN_FOOTBALL = 6423
+    BASEBALL = 7511
+    BASKETBALL = 7522
+    HOCKEY = 7523
+    ICE_HOCKEY = 7524
+    SUMO_WRESTLING = 7525
+    AUSTRALIAN_RULES = 61420
+    GAELIC_FOOTBALL = 66598
+    HURLING = 66599
+    POOL = 72382
+    CHESS = 136332
+    POKER_ROOM = 189929
+    TROTTING = 256284
+    COMMONWEALTH_GAMES = 300000
+    POKER = 315220
+    WINTER_SPORTS = 451485
+    HANDBALL = 468328
+    NETBALL = 606611
+    SWIMMING = 620576
+    BADMINTON = 627555
+    INTERNATIONAL_RULES = 678378
+    BRIDGE = 982477
+    YACHTING = 998916
+    VOLLEYBALL = 998917
+    BOWLS = 998918
+    BANDY = 998919
+    FLOORBALL = 998920
+    EXCHANGE_POKER = 1444073
+    EXCHANGE_BLACKJACK = 1444076
+    EXCHANGE_BACCARAT = 1444085
+    EXCHANGE_HI_LO = 1444092
+    EXCHANGE_OMAHA_HI = 1444099
+    EXCHANGE_CARD_RACING = 1444115
+    CASINO = 1444120
+    EXCHANGE_ROULETTE = 1444130
+    EXCHANGE_BULLSEYE_ROULETTE = 1444150
+    BACKGAMMON = 1938544
+    GAA_SPORTS = 2030972
+    GAELIC_GAMES = 2152880
+    INTERNAL_MARKETS = 2264869
+    POLITICS = 2378961
+    TABLE_TENNIS = 2593174
+    YAHOO_RACING = 2791893
+    BEACH_VOLLEYBALL = 2872194
+    CANOEING = 2872196
+    WATER_POLO = 2901849
+    POLO = 2977000
+    FISHING = 3088925
+    ROLLER_HOCKEY = 3130721
+    CROSS_SPORT_ACCUMULATORS = 3145419
+    SQUASH = 4609466
+    SURFING = 4726642
+    COMBAT_SPORTS = 4968929
+    EXCHANGE_GAMES = 5402258
+    PELOTA = 5412697
+    FEATURED_MARKETS = 5545197
+    EXCHANGE_CASINO = 10271443
+    TEN_PIN_BOWLING = 10390264
+    TRADEFAIR = 15242720
+    FUTSAL = 15826206
+    FUSSBALL = 15826207
+    HARNESS_RACING = 16872235
+    EQUESTRIAN = 18643353
+    HORSE_RACING_VIRTUAL = 26397698
+    MIXED_MARTIAL_ARTS = 26420387
+    TRIATHLON = 27065662
+    CURRENT_AFFAIRS = 27388198
+    VIRTUAL_SPORTS = 27438978
+    E_SPORTS = 27454571
+    WRESTLING = 27485048
+    NEW_CUSTOMER_OFFER = 27596832
+    UFC = 27610222
+    GAA_FOOTBALL = 27610230
+    GAA_HURLING = 27610231
+    MMA_UFC = 27829360
+    KABADDI = 27979456
+    GYMNASTICS = 28347302
+    TV_SPECIALS = 28347303
+    MUSIC = 28347304
+    NOVELTY_BETS = 28347305
+    LOTTERY_SPECIALS = 28361978
+    BEACH_SOCCER = 28361979
+    HOLLYWOOD = 28361980
+    WEIGHTLIFTING = 28361982
+    WEATHER = 28361983
+    SKI_JUMPING = 28361984
+    NORDIC_COMBINED = 28361985
+    ALPINE_SKIING = 28361987
+    CROSS_COUNTRY = 28361988
+    BIATHLON = 28361989
+    FREESTYLE_SKIING = 28361990
+    SPEED_SKATING = 28361992
+    SPORTS_NOVELTIES = 28373540

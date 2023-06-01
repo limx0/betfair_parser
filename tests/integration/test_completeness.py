@@ -1,3 +1,9 @@
+"""
+This module checks against the published betfair XML API definition files,
+if all operations, type definitions and enums are covered within this package.
+This includes checking of all parameters of operations and type definitions.
+"""
+
 import keyword
 import re
 import xml.etree.ElementTree as etree  # noqa
@@ -77,14 +83,6 @@ def test_typedef(spec, node):
         pytest.skip("Subscription and vendor operations are not covered by this API implementation")
     if typedef_name == "TransferResponse":
         pytest.skip("Deprecated according to documentation")
-    if typedef_name == "CancelInstructionReport":
-        pytest.skip("sizeCancelled is marked as mandatory, but seems to be optional in real data")
-    if typedef_name == "RunnerCatalog":
-        pytest.skip("sortPriority is marked as mandatory, but seems to be optional in real data")
-    if typedef_name == "Runner":
-        pytest.skip("adjustmentFactor is marked as mandatory, but optional according to the documentation")
-    if typedef_name == "LimitOrder":
-        pytest.skip("size is marked as optional, but mandatory according to the documentation")
     if typedef_name in {
         "LimitBreachAction",
         "MarketGroupExposureLimit",
@@ -101,10 +99,29 @@ def test_typedef(spec, node):
         check_typedef_param(param, typedef_cls, typedef_name)
 
 
+DOCUMENTATION_ERRORS = {
+    "CancelInstructionReport": {
+        "size_cancelled": "Marked as mandatory, but it's skipped in case of errors",
+        "cancelled_date": "Marked as mandatory, but it's skipped in case of errors",
+    },
+    "RunnerCatalog": {"sort_priority": "Marked as mandatory, but seems to be optional in real data"},
+    "Runner": {"adjustment_factor": "Marked as mandatory in the XML, but optional according to the documentation"},
+    "LimitOrder": {
+        "size": "Marked as optional, but mandatory according to the documentation",
+        "persistence_type": "Marked as optional in the XML, but mandatory according to the documentation",
+    },
+    "CurrentOrderSummary": {"matched_date": "Marked as mandatory, but is occasionally missing in real data"},
+}
+
+
 def check_typedef_param(param, py_cls, typedef_name):
     xml_param_name = param_name(param)
     if param_deprecated(param):
         return
+    if DOCUMENTATION_ERRORS.get(typedef_name, {}).get(xml_param_name):
+        # Documented exception for this parameter found, skip checks
+        return
+
     assert py_cls is not None, f"{typedef_name} does not define parameters, but XML defines '{xml_param_name}'"
     assert param_defined(param, py_cls), f"{typedef_name}.{xml_param_name} not defined"
     param_cls = py_cls.__annotations__[xml_param_name]
@@ -266,6 +283,7 @@ PY_TYPE_NAME_REPLACEMENTS = {
     "CustomerOrderRef": "str",
     "CustomerStrategyRef": "str",
     "MarketBettingType": "str",
+    "RunnerMetaData": "dict[str,str]",
 }
 
 XML_TYPE_NAME_REPLACEMENTS = {
@@ -288,8 +306,10 @@ XML_TYPE_NAME_REPLACEMENTS = {
     "Side": "str",  # inconsistently used
     "MarketBettingType": "str",  # inconsistently used
     "Wallet": "str",  # inconsistently used
+    "Matches": "list[Match]",
     "(": "[",
     ")": "]",
+    ", ": ",",  # inconsistently used
 }
 
 

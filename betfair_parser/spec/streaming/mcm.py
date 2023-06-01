@@ -4,7 +4,7 @@ import msgspec
 
 from betfair_parser.spec.betting.enums import MarketStatus, RunnerStatus
 from betfair_parser.spec.betting.type_definitions import PriceLadderDescription
-from betfair_parser.spec.common import EVENT_TYPE_TO_NAME, BaseMessage, Date, RegulatorCode
+from betfair_parser.spec.common import BaseMessage, Date, EventTypeIdCode, RegulatorCode
 
 
 class RunnerValues(BaseMessage, frozen=True):
@@ -97,7 +97,7 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
 
     @property
     def event_type_name(self) -> str:
-        return EVENT_TYPE_TO_NAME[int(self.event_type_id)]
+        return EventTypeIdCode(int(self.event_type_id)).name
 
 
 class _PriceVolume(BaseMessage, array_like=True, frozen=True):

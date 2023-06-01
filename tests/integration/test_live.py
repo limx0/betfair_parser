@@ -7,7 +7,7 @@ from betfair_parser import client
 from betfair_parser.exceptions import AccountAPINGException
 from betfair_parser.spec import heartbeat, navigation, race_status
 from betfair_parser.spec.accounts import operations as ao, type_definitions as atd
-from betfair_parser.spec.betting import operations as bo, type_definitions as btd
+from betfair_parser.spec.betting import enums as be, operations as bo, type_definitions as btd
 
 
 @pytest.fixture(scope="module")
@@ -76,6 +76,41 @@ def test_events(session):
     resp = client.request(session, bo.ListEvents.with_params(filter=btd.MarketFilter(text_query="Horse Racing")))
     assert len(resp) > 10
     assert all(isinstance(item, btd.EventResult) for item in resp)
+
+
+@skip_not_logged_in
+def test_market_catalogue(session):
+    resp = client.request(
+        session,
+        bo.ListMarketCatalogue.with_params(
+            filter=btd.MarketFilter(
+                event_type_ids=[be.EventTypeIdCode.HORSE_RACING],
+                market_type_codes=[be.MarketTypeCode.WIN],
+                market_betting_types=[be.MarketBettingType.ODDS],
+            ),
+            market_projection=[
+                be.MarketProjection.EVENT,
+                be.MarketProjection.MARKET_DESCRIPTION,
+                be.MarketProjection.RUNNER_DESCRIPTION,
+                be.MarketProjection.RUNNER_METADATA,
+            ],
+            sort=be.MarketSort.FIRST_TO_START,
+            max_results=100,
+        ),
+    )
+
+    assert len(resp) <= 100
+    for runner in resp[0].runners:
+        assert runner.name
+        assert runner.metadata
+        assert runner.metadata.age
+
+
+@skip_not_logged_in
+def test_current_orders(session):
+    resp = client.request(session, bo.ListCurrentOrders.with_params())
+    assert len(resp.current_orders) == 0
+    assert not resp.more_available
 
 
 @skip_not_logged_in
