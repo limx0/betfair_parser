@@ -39,7 +39,7 @@ class StatusErrorCode(DocumentedEnum):
 class Connection(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """Connection Message"""
 
-    connectionId: str
+    connection_id: str
 
 
 class Status(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
@@ -52,3 +52,7 @@ class Status(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     connection_id: Optional[str] = None
     error_code: Optional[StatusErrorCode] = None
     error_message: Optional[str] = None
+
+    @property
+    def is_error(self):
+        return self.status_code != "SUCCESS"

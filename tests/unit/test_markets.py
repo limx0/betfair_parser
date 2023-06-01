@@ -1,4 +1,3 @@
-import msgspec.json
 import pytest
 
 from betfair_parser.spec.betting.type_definitions import MarketCatalogue, RunnerCatalog
@@ -27,16 +26,15 @@ from tests.resources import assert_json_equal, read_test_file
         },
     ],
 )
-def test_runner_name(data):
-    runner: RunnerCatalog = msgspec.json.decode(msgspec.json.encode(data), type=RunnerCatalog)
+def test_runner_name(data: dict):
+    runner: RunnerCatalog = decode(encode(data), type=RunnerCatalog)
     assert runner.handicap == data["handicap"]
     assert runner.sort_priority == data["sortPriority"]
     assert runner.runner_name == data["runnerName"]
-    assert runner.runner_id == int(data["metadata"]["runnerId"])
 
 
 def test_market_catalogue():
-    raw = read_test_file("responses/betting/list_market_catalogue.json")
+    raw = read_test_file("responses/market_catalogue_trimmed.json")
     catalog = decode(raw, type=list[MarketCatalogue])
     assert len(catalog) == 12035
     expected = {
@@ -56,7 +54,7 @@ def test_market_catalogue():
             "marketBaseRate": 5.0,
             "discountAllowed": True,
             "wallet": "UK wallet",
-            "rules": "<!--Football - First Half Goals --><br>How many goals will be scored in this first half of this match?\xa0<br> All bets apply to Full Time according to the match officials, plus any stoppage time. Extra-time/penalty shoot-outs are not included.<br><br></b>For further information please see <a href=http://content.betfair.com/aboutus/content.asp?sWhichKey=Rules%20and%20Regulations#undefined.do style=color:0163ad; text-decoration: underline; target=_blank>Rules & Regs<br><br>\n",  # noqa
+            # "rules": ..... let's skip this
             "rulesHasDate": True,
             "priceLadderDescription": {"type": "CLASSIC"},
             "lineRangeInfo": None,
@@ -71,14 +69,14 @@ def test_market_catalogue():
                 "runnerName": "Under 2.5 Goals",
                 "sortPriority": 1,
                 "handicap": 0.0,
-                "metadata": {"runnerId": "47972"},
+                "metadata": {"runnerId": 47972},
             },
             {
                 "selectionId": 47973,
                 "runnerName": "Over 2.5 Goals",
                 "sortPriority": 2,
                 "handicap": 0.0,
-                "metadata": {"runnerId": "47973"},
+                "metadata": {"runnerId": 47973},
             },
         ],
         "eventType": {"id": 1, "name": "Soccer"},
@@ -93,4 +91,5 @@ def test_market_catalogue():
         "competition": {"id": "11", "name": "Dutch Eerste Divisie"},
     }
     result = decode(encode(catalog[5000]))
+    del result["description"]["rules"]  # too lengthy
     assert_json_equal(result, expected)

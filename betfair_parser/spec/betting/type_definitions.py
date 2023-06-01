@@ -2,6 +2,7 @@ from typing import Optional
 
 import msgspec
 
+from betfair_parser.endpoints import SILKS
 from betfair_parser.spec.betting.enums import (
     BetTargetType,
     ExecutionReportErrorCode,
@@ -30,7 +31,9 @@ from betfair_parser.spec.common import (
     EventId,
     EventTypeId,
     ExchangeId,
+    FloatStr,
     Handicap,
+    IntStr,
     MarketId,
     MatchId,
     OrderStatus,
@@ -103,14 +106,12 @@ class TimeRangeResult(BaseMessage, frozen=True):
     market_count: Optional[int] = None  # Count of markets associated with this TimeRange
 
 
-class MarketFilter(BaseMessage, frozen=True):
+class MarketFilter(BaseMessage, omit_defaults=True, frozen=True):
     text_query: Optional[str] = None  # Restrict markets by any text associated with the Event name
     exchange_ids: Optional[set[ExchangeId]] = None  # DEPRECATED
     event_type_ids: Optional[set[EventTypeId]] = None  # Restrict markets by event type associated with the market
     event_ids: Optional[set[EventId]] = None  # Restrict markets by the event id associated with the market
-    competition_ids: Optional[
-        set[CompetitionId]
-    ] = None  # Restrict markets by the competitions associated with the market
+    competition_ids: Optional[set[CompetitionId]] = None  # Restrict markets by the competitions
     market_ids: Optional[set[MarketId]] = None  # Restrict markets by the market id associated with the market
     venues: Optional[set[Venue]] = None  # Restrict markets by the venue associated with the market
     bsp_only: Optional[bool] = None  # Restrict to bsp markets only if True or non-bsp markets if False
@@ -124,7 +125,7 @@ class MarketFilter(BaseMessage, frozen=True):
     market_countries: Optional[set[CountryCode]] = None  # Match the specified country or countries
     market_type_codes: Optional[set[str]] = None  # Restrict to markets that match the type of the market
     market_start_time: Optional[TimeRange] = None  # Restrict to markets with a market start time range
-    with_orders: Optional[set[str]] = None  # Restrict to markets that I have one or more orders in these status
+    with_orders: Optional[set[str]] = None  # Markets that have one or more orders of defined OrderStatus
     race_types: Optional[set[str]] = None  # Restrict by race type
 
 
@@ -233,6 +234,59 @@ class MarketDescription(BaseMessage, kw_only=True, frozen=True):
     price_ladder_description: Optional[PriceLadderDescription] = None  # Details about the price ladder in use
 
 
+# TODO: Some fields in the meta data should be country codes. Unfortunately, sometimes they contain
+#       erroneous data that fails verification. This should be switched to CountryCode as soon as there is
+#       some more fine-grained error handling possible in msgspec. Related issue:
+#       https://github.com/jcrist/msgspec/issues/420
+_MetaCountryCode = str  # CountryCode
+
+
+class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, rename="upper"):
+    # Yes, this is the only type definition, that has (mostly) uppered key names
+    """
+    Runner metadata as defined in the API as additional information.
+    https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Additional+Information
+    """
+
+    weight_units: Optional[str] = None  # The unit of weight used.
+    adjusted_rating: Optional[IntStr] = None  # Race-specific ratings that reflect weights allocated in the race
+    dam_year_born: Optional[IntStr] = None  # The year the horse’s mother's birth
+    days_since_last_run: Optional[IntStr] = None  # The number of days since the horse last ran
+    wearing: Optional[str] = None  # Any extra equipment the horse is wearing
+    damsire_year_born: Optional[IntStr] = None  # Year in which the horse's grandfather was born on its mother's side
+    sire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's father was bred
+    trainer_name: Optional[str] = None  # The name of the horse's trainer
+    stall_draw: Optional[IntStr] = None  # The stall number the horse is starting from
+    sex_type: Optional[str] = None  # The sex of the horse
+    owner_name: Optional[str] = None  # The owner of the horse
+    sire_name: Optional[str] = None  # The name of the horse's father
+    forecastprice_numerator: Optional[IntStr] = None  # The forecast price numerator
+    forecastprice_denominator: Optional[IntStr] = None  # The forecast price denominator
+    jockey_claim: Optional[IntStr] = None  # Reduction in the weight that the horse carries for a particular jockey
+    weight_value: Optional[FloatStr] = None  # The weight of the horse
+    dam_name: Optional[str] = None  # The name of the horse's mother
+    age: Optional[IntStr] = None  # The age of the horse
+    colour_type: Optional[str] = None  # The colour of the horse
+    damsire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's grandfather was born
+    damsire_name: Optional[str] = None  # The name of the horse's grandfather
+    sire_year_born: Optional[IntStr] = None  # The year the horse's father was born
+    official_rating: Optional[IntStr] = None  # The horses official rating
+    form: Optional[str] = None  # The horses recent form
+    bred: Optional[_MetaCountryCode] = None  # The country in which the horse was born
+    runner_id: Optional[IntStr] = msgspec.field(name="runnerId", default=None)  # The runnerId for the horse
+    jockey_name: Optional[str] = None  # Name of the jockey. This field will contain 'Reserve' if its a reserve runner
+    dam_bred: Optional[_MetaCountryCode] = None  # The country where the horse's mother was born
+    colours_description: Optional[str] = None  # The textual description of the jockey silk
+    colours_filename: Optional[str] = None  # Image representing the jockey silk
+    cloth_number: Optional[IntStr] = None  # The number on the saddle-cloth
+    cloth_number_alpha: Optional[str] = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
+
+    @property
+    def colours_url(self):
+        if self.colours_filename:
+            return SILKS + self.colours_filename
+
+
 class RunnerCatalog(BaseMessage, frozen=True):
     """Information about the Runners (selections) in a market"""
 
@@ -243,17 +297,11 @@ class RunnerCatalog(BaseMessage, frozen=True):
     # & ASIAN_HANDICAP_DOUBLE_LINE only
     handicap: float
     sort_priority: Optional[int] = None  # This is marked as REQUIRED in the API doc, but omitted sometimes
-    metadata: Optional[dict[str, Optional[str]]] = None  # Metadata associated with the runner
+    metadata: Optional[RunnerMetaData] = None  # Metadata associated with the runner
 
     @property
-    def runner_id(self):
-        # TODO: Careful, selectionId is simply a number for a certain string. It's not
-        #       uniquely identifying a team or a certain horse.
-        if self.selection_id:
-            return self.selection_id
-        elif self.metadata.get("runner_id"):
-            return int(self.metadata.get("runner_id"))
-        return None
+    def name(self):
+        return self.runner_name
 
 
 class Runner(BaseMessage, frozen=True):
@@ -270,7 +318,7 @@ class Runner(BaseMessage, frozen=True):
     ex: Optional[ExchangePrices] = None  # The Exchange prices available for this runner
     orders: Optional[list[Order]] = None  # List of orders in the market
     matches: Optional[list[Match]] = None  # List of matches (i.e., orders that have been fully or partially executed)
-    matches_by_strategy: Optional[dict[str, Match]] = None  # List of matches for each strategy, ordered by matched data
+    matches_by_strategy: Optional[dict[str, list[Match]]] = None  # All matches for each strategy, sort by matched data
 
 
 class MarketCatalogue(BaseMessage, frozen=True):
@@ -403,7 +451,10 @@ class CurrentOrderSummary(BaseMessage, frozen=True):
     persistence_type: PersistenceType  # What to do with the order at turn-in-play
     order_type: OrderType  # BSP Order type
     placed_date: Date  # The date the bet was placed
-    matched_date: Date  # The date of the last matched bet fragment
+
+    # The date of the last matched bet fragment.
+    # Mandatory according to documentation, but optional in reality
+    matched_date: Optional[Date] = None
     average_price_matched: Optional[Price] = None  # The average price matched at
     size_matched: Optional[Size] = None
     size_remaining: Optional[Size] = None
@@ -424,7 +475,7 @@ class CurrentOrderSummaryReport(BaseMessage, frozen=True):
     more_available: bool  # Indicates whether there are further result items beyond this page
 
 
-class LimitOrder(BaseMessage, frozen=True):
+class LimitOrder(BaseMessage, omit_defaults=True, frozen=True):
     """Place a new LIMIT order (simple exchange bet for immediate execution)"""
 
     size: Size
@@ -504,7 +555,7 @@ class CancelInstructionReport(BaseMessage, kw_only=True, frozen=True):
     error_code: Optional[InstructionReportErrorCode] = None  # Cause of failure, or null if command succeeds
     instruction: Optional[CancelInstruction] = None  # The instruction that was requested
     size_cancelled: Optional[float] = None  # The API states, that this is mandatory, but it's skipped in case of error
-    cancelled_date: Optional[Date] = None
+    cancelled_date: Optional[Date] = None  # The API states, that this is mandatory, but it's skipped in case of error
 
 
 class CancelExecutionReport(BaseMessage, kw_only=True, frozen=True):
@@ -561,7 +612,7 @@ class ExBestOffersOverrides(BaseMessage, frozen=True):
     rollup_liability_factor: Optional[int] = None  # Only applicable when rollupModel is MANAGED_LIABILITY
 
 
-class PriceProjection(BaseMessage, frozen=True):
+class PriceProjection(BaseMessage, omit_defaults=True, frozen=True):
     """Selection criteria of the returning price data"""
 
     price_data: Optional[set[PriceData]] = None  # The basic price data you want to receive in the response

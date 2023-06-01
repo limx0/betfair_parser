@@ -1,4 +1,4 @@
-import fsspec
+import fsspec  # type: ignore
 
 from betfair_parser.core import parse
 from betfair_parser.spec.streaming import MCM

@@ -18,21 +18,26 @@ from betfair_parser.spec.betting.type_definitions import (
     UpdateInstruction,
 )
 from betfair_parser.spec.common import (
-    BaseMessage,
     BetId,
     CustomerOrderRef,
     CustomerRef,
     CustomerStrategyRef,
+    EndpointType,
     EventId,
     EventTypeId,
     MarketId,
+    Params,
     Request,
     Response,
     TimeRange,
 )
 
 
-class _PlaceOrdersParams(BaseMessage, frozen=True):
+class OrderRequest(Request, frozen=True):
+    endpoint_type = EndpointType.BETTING
+
+
+class _PlaceOrdersParams(Params, frozen=True):
     market_id: str
     instructions: list[PlaceInstruction]
     customer_ref: Optional[CustomerRef] = None
@@ -41,7 +46,7 @@ class _PlaceOrdersParams(BaseMessage, frozen=True):
     async_: Optional[bool] = msgspec.field(name="async", default=False)
 
 
-class PlaceOrders(Request, kw_only=True, frozen=True):
+class PlaceOrders(OrderRequest, kw_only=True, frozen=True):
     """Place new orders into market.
 
     Please note that additional bet sizing rules apply to bets placed into the Italian Exchange.
@@ -57,13 +62,13 @@ class PlaceOrders(Request, kw_only=True, frozen=True):
     return_type = Response[PlaceExecutionReport]
 
 
-class _CancelOrdersParams(BaseMessage, frozen=True):
+class _CancelOrdersParams(Params, frozen=True):
     market_id: Optional[str] = None
     instructions: Optional[list[CancelInstruction]] = None
     customer_ref: Optional[CustomerRef] = None
 
 
-class CancelOrders(Request, kw_only=True, frozen=True):
+class CancelOrders(OrderRequest, kw_only=True, frozen=True):
     """
     Cancel all bets OR cancel all bets on a market OR fully or partially cancel particular
     orders on a market. Only LIMIT orders can be cancelled or partially cancelled once placed.
@@ -74,7 +79,7 @@ class CancelOrders(Request, kw_only=True, frozen=True):
     return_type = Response[CancelExecutionReport]
 
 
-class _ReplaceOrdersParams(BaseMessage, frozen=True):
+class _ReplaceOrdersParams(Params, frozen=True):
     market_id: str
     instructions: list[ReplaceInstruction]
     customer_ref: Optional[CustomerRef] = None
@@ -82,7 +87,7 @@ class _ReplaceOrdersParams(BaseMessage, frozen=True):
     async_: Optional[bool] = msgspec.field(name="async", default=False)
 
 
-class ReplaceOrders(Request, kw_only=True, frozen=True):
+class ReplaceOrders(OrderRequest, kw_only=True, frozen=True):
     """
     This operation is logically a bulk cancel followed by a bulk place. The cancel is completed
     first then the new orders are placed. The new orders will be placed atomically in that they
@@ -95,7 +100,7 @@ class ReplaceOrders(Request, kw_only=True, frozen=True):
     return_type = Response[ReplaceExecutionReport]
 
 
-class _ListClearedOrdersParams(BaseMessage, frozen=True):
+class _ListClearedOrdersParams(Params, frozen=True):
     bet_status: BetStatus  # Restricts the results to the specified status.
     event_type_ids: Optional[set[EventTypeId]] = None  # Restricts the results to the specified Event Type IDs.
     event_ids: Optional[set[EventId]] = None  # Restricts the results to the specified Event IDs.
@@ -122,7 +127,7 @@ class _ListClearedOrdersParams(BaseMessage, frozen=True):
     record_count: Optional[int] = None  # Number of records from the index position 'fromRecord', maximum 1000
 
 
-class ListClearedOrders(Request, kw_only=True, frozen=True):
+class ListClearedOrders(OrderRequest, kw_only=True, frozen=True):
     """
     Returns a list of settled bets based on the bet status, ordered by settled date. To retrieve
     more than 1000 records, you need to make use of the fromRecord and recordCount parameters.
@@ -141,7 +146,7 @@ class ListClearedOrders(Request, kw_only=True, frozen=True):
     return_type = Response[ClearedOrderSummaryReport]
 
 
-class _ListCurrentOrdersParams(BaseMessage, frozen=True):
+class _ListCurrentOrdersParams(Params, frozen=True):
     """
     Parameters for retrieving a list of current orders.
     """
@@ -159,7 +164,7 @@ class _ListCurrentOrdersParams(BaseMessage, frozen=True):
     include_item_description: Optional[bool] = None
 
 
-class ListCurrentOrders(Request, kw_only=True, frozen=True):
+class ListCurrentOrders(OrderRequest, kw_only=True, frozen=True):
     """
     Returns a list of your current orders. Optionally you can filter and sort your current orders
     using the various parameters, setting none of the parameters will return all of your current
@@ -179,13 +184,13 @@ class ListCurrentOrders(Request, kw_only=True, frozen=True):
     return_type = Response[CurrentOrderSummaryReport]
 
 
-class _UpdateOrdersParams(BaseMessage, frozen=True):
+class _UpdateOrdersParams(Params, frozen=True):
     market_id: str  # The market id these orders are to be placed on
     instructions: list[UpdateInstruction]  # The limit of update instructions per request is 60
     customer_ref: Optional[CustomerRef] = None
 
 
-class UpdateOrders(Request, kw_only=True, frozen=True):
+class UpdateOrders(OrderRequest, kw_only=True, frozen=True):
     """Update non-exposure changing fields."""
 
     method = "SportsAPING/v1.0/updateOrders"

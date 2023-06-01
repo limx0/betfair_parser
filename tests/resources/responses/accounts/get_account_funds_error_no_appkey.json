@@ -1,0 +1,16 @@
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32099,
+    "message": "AANGX-0011",
+    "data": {
+      "exceptionname": "AccountAPINGException",
+      "AccountAPINGException": {
+        "requestUUID": "ie1-aanbf05a-prd-05220828-0006beb74c",
+        "errorCode": "NO_APP_KEY",
+        "errorDetails": ""
+      }
+    }
+  },
+  "id": 1
+}

@@ -17,6 +17,13 @@ class StrEnum(str, Enum):
         return key
 
 
+class LowerStrEnum(StrEnum):
+    """Like StrEnum, but have lowered values."""
+
+    def _generate_next_value_(key, start, count, last_values):
+        return key.lower()
+
+
 class doc(auto):
     """Auto-generated enum field with docstring
 
@@ -67,7 +74,7 @@ class DocumentedEnum(Enum):
             member.__doc__ = val.__doc__
         else:
             # also handle ordinary or auto() values
-            member._value = val
+            member._value = val  # type: ignore
             member.__doc__ = None
         return member
 
@@ -76,5 +83,5 @@ class DocumentedEnum(Enum):
 
     def __str__(self):
         if self.__doc__:
-            return f"{super().__str__()}: {self.__doc__}"
-        return super().__str__()
+            return f"{self.name}: {self.__doc__}"
+        return self.name
