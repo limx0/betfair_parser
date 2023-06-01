@@ -74,7 +74,7 @@ class DocumentedEnum(Enum):
             member.__doc__ = val.__doc__
         else:
             # also handle ordinary or auto() values
-            member._value = val
+            member._value = val  # type: ignore
             member.__doc__ = None
         return member
 

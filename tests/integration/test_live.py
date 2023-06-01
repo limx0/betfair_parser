@@ -2,6 +2,7 @@ import functools
 import os
 
 import pytest
+from requests import Session
 
 from betfair_parser import client
 from betfair_parser.exceptions import AccountAPINGException
@@ -26,25 +27,15 @@ def appconfig():
 
 
 @pytest.fixture(scope="module")
-def session():
-    try:
-        import requests  # noqa
-
-        return requests.Session()
-    except ImportError:
-        try:
-            import httpx
-
-            return httpx.Client()
-        except ImportError:
-            pytest.skip("No suitable http library installed")
+def session() -> Session:
+    return Session()
 
 
 def skip_not_logged_in(test_func):
     __tracebackhide__ = True
 
     @functools.wraps(test_func)
-    def test_func_wrapped(session, *args):
+    def test_func_wrapped(session: Session, *args):
         if not session.headers.get("X-Authentication"):
             pytest.skip("session must be logged in")
         return test_func(session, *args)
@@ -52,19 +43,19 @@ def skip_not_logged_in(test_func):
     return test_func_wrapped
 
 
-def test_login(session, appconfig):
+def test_login(session: Session, appconfig):
     client.login(session, appconfig["username"], appconfig["password"], appconfig["app_key"])
     assert session.headers.get("X-Authentication")
     assert session.headers.get("X-Application")
 
 
 @skip_not_logged_in
-def test_keep_alive(session):
+def test_keep_alive(session: Session):
     client.keep_alive(session)
 
 
 @skip_not_logged_in
-def test_event_types(session):
+def test_event_types(session: Session):
     resp = client.request(session, bo.ListEventTypes.with_params(filter=btd.MarketFilter(text_query="Horse Racing")))
     assert len(resp) == 1
     assert resp[0].event_type.id == 7
@@ -72,21 +63,21 @@ def test_event_types(session):
 
 
 @skip_not_logged_in
-def test_events(session):
+def test_events(session: Session):
     resp = client.request(session, bo.ListEvents.with_params(filter=btd.MarketFilter(text_query="Horse Racing")))
     assert len(resp) > 10
     assert all(isinstance(item, btd.EventResult) for item in resp)
 
 
 @skip_not_logged_in
-def test_market_catalogue(session):
+def test_market_catalogue(session: Session):
     resp = client.request(
         session,
         bo.ListMarketCatalogue.with_params(
             filter=btd.MarketFilter(
-                event_type_ids=[be.EventTypeIdCode.HORSE_RACING],
-                market_type_codes=[be.MarketTypeCode.WIN],
-                market_betting_types=[be.MarketBettingType.ODDS],
+                event_type_ids={be.EventTypeIdCode.HORSE_RACING},
+                market_type_codes={be.MarketTypeCode.WIN},
+                market_betting_types={be.MarketBettingType.ODDS},
             ),
             market_projection=[
                 be.MarketProjection.EVENT,
@@ -107,14 +98,14 @@ def test_market_catalogue(session):
 
 
 @skip_not_logged_in
-def test_current_orders(session):
+def test_current_orders(session: Session):
     resp = client.request(session, bo.ListCurrentOrders.with_params())
     assert len(resp.current_orders) == 0
     assert not resp.more_available
 
 
 @skip_not_logged_in
-def test_account_funds(session):
+def test_account_funds(session: Session):
     resp = client.request(session, ao.GetAccountFunds.with_params())
     assert isinstance(resp, atd.AccountFundsResponse)
     assert resp.wallet.value == "UK"  # Only UK wallets left
@@ -122,7 +113,7 @@ def test_account_funds(session):
 
 
 @skip_not_logged_in
-def test_account_funds_fail(session):
+def test_account_funds_fail(session: Session):
     with pytest.raises(AccountAPINGException) as exc_info:
         client.request(session, ao.GetAccountFunds.with_params(wallet="AUS"))
 
@@ -133,14 +124,14 @@ def test_account_funds_fail(session):
 
 
 @skip_not_logged_in
-def test_navigation(session):
+def test_navigation(session: Session):
     menu = client.request(session, navigation.Menu())
     flattened = navigation.flatten_nav_tree(menu)
     assert len(flattened) > 5000
 
 
 @skip_not_logged_in
-def test_heartbeat(session):
+def test_heartbeat(session: Session):
     resp = client.request(session, heartbeat.Heartbeat.with_params(preferred_timeout_seconds=300))
     assert isinstance(resp, heartbeat.HeartbeatReport)
     assert resp.actual_timeout_seconds >= 0
@@ -148,8 +139,8 @@ def test_heartbeat(session):
 
 
 @skip_not_logged_in
-def test_race_status(session):
-    resp = client.request(session, bo.ListEvents.with_params(filter=btd.MarketFilter(event_type_ids=[7])))
+def test_race_status(session: Session):
+    resp = client.request(session, bo.ListEvents.with_params(filter=btd.MarketFilter(event_type_ids={7})))
     event_ids = [ev_res.event.id for ev_res in resp[::10]]  # every 10th event
     details = client.request(session, race_status.ListRaceDetail.with_params(meeting_ids=event_ids))
     assert len(details) >= len(event_ids)  # There are more than one details / race_ids per event_id
@@ -164,7 +155,7 @@ def test_race_status(session):
 
 
 @skip_not_logged_in
-def test_account_no_appkey(session):
+def test_account_no_appkey(session: Session):
     app_key = session.headers.pop("X-Application")
     with pytest.raises(AccountAPINGException) as exc_info:
         client.request(session, ao.GetAccountFunds.with_params())
@@ -177,7 +168,7 @@ def test_account_no_appkey(session):
 
 
 @skip_not_logged_in
-def test_logout(session):
+def test_logout(session: Session):
     client.logout(session)
     assert not session.headers.get("X-Authentication")
 

@@ -53,6 +53,7 @@ repos:
             --no-strict-optional,
             --ignore-missing-imports,
             --warn-no-return,
+            --check-untyped-defs,
         ]
         additional_dependencies: [msgspec, types-requests]
 

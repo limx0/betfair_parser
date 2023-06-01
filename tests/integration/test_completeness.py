@@ -63,7 +63,7 @@ def test_enum(spec, node):
         # Type is an enum of strings
         validvalues = validvalues[0]
         assert node.get("type") == "string"
-        for value in validvalues.iter("value"):
+        for value in validvalues.iter("value"):  # type: ignore
             valname = value.get("name")
             assert hasattr(datatype_cls, valname), f"Enum field {xml_typename}.{valname} not set"
 

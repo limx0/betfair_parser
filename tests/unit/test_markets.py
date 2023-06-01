@@ -26,12 +26,11 @@ from tests.resources import assert_json_equal, read_test_file
         },
     ],
 )
-def test_runner_name(data):
+def test_runner_name(data: dict):
     runner: RunnerCatalog = decode(encode(data), type=RunnerCatalog)
     assert runner.handicap == data["handicap"]
     assert runner.sort_priority == data["sortPriority"]
     assert runner.runner_name == data["runnerName"]
-    assert runner.runner_id == int(data["metadata"]["runnerId"])
 
 
 def test_market_catalogue():

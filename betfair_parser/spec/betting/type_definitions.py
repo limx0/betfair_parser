@@ -303,16 +303,6 @@ class RunnerCatalog(BaseMessage, frozen=True):
     def name(self):
         return self.runner_name
 
-    @property
-    def runner_id(self):
-        # TODO: Careful, selectionId is simply a number for a certain string. It's not
-        #       uniquely identifying a team or a certain horse.
-        if self.selection_id:
-            return self.selection_id
-        elif self.metadata.get("runner_id"):
-            return int(self.metadata.get("runner_id"))
-        return None
-
 
 class Runner(BaseMessage, frozen=True):
     """The dynamic data about runners in a market"""

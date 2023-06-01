@@ -3,8 +3,7 @@ import json
 import msgspec
 import pytest
 
-from betfair_parser.core import STREAM_DECODER, parse
-from betfair_parser.spec.streaming import MCM, OCM
+from betfair_parser.spec.streaming import MCM, OCM, stream_decode
 from betfair_parser.spec.streaming.mcm import RunnerStatus, StartingPriceLay
 from betfair_parser.spec.streaming.ocm import MatchedOrder
 from tests.resources import RESOURCES_DIR, id_from_path
@@ -16,11 +15,11 @@ def test_file(path):
     data = msgspec.json.decode(raw)
     if isinstance(data, list):
         for line in data:
-            data = STREAM_DECODER.decode(msgspec.json.encode(line))
+            data = stream_decode(msgspec.json.encode(line))
             assert data
     else:
         try:
-            data = STREAM_DECODER.decode(raw)
+            data = stream_decode(raw)
             assert data
         except (msgspec.DecodeError, msgspec.ValidationError) as e:
             print("ERR", e)
@@ -33,7 +32,7 @@ def test_ocm():
         b'{"op":"ocm","id":2,"clk":"AAAAAAAAAAAAAA==","pt":1669350204489,"oc":[{"id":"1.206818134","fullImage":true,'
         b'"orc":[{"id":49914337,"fullImage":true,"uo":[],"mb":[],"ml":[[2, 100]]}]}]}'
     )
-    ocm: OCM = STREAM_DECODER.decode(raw)
+    ocm: OCM = stream_decode(raw)
     assert isinstance(ocm, OCM)
     assert ocm.oc[0].orc[0].ml[0] == MatchedOrder(price=2.0, size=100)
 
@@ -52,7 +51,7 @@ def test_mcm():
         b'"discountAllowed":null,"timezone":"GMT","openDate":"2021-10-13T23:40:00.000Z","version":4099822530,'
         b'"priceLadderDefinition":"CLASSIC"}}]}'
     )
-    mcm: MCM = STREAM_DECODER.decode(raw)
+    mcm: MCM = stream_decode(raw)
     assert isinstance(mcm, MCM)
     assert mcm.mc[0].market_definition.runners[0].hc == 0.0
     assert mcm.mc[0].market_definition.runners[0].handicap == "0.0"
@@ -154,22 +153,22 @@ def test_mcm_no_missing_fields():
             }
         ],
     }
-    mcm: MCM = STREAM_DECODER.decode(msgspec.json.encode(raw))
+    mcm: MCM = stream_decode(msgspec.json.encode(raw))
     data = msgspec.json.decode(msgspec.json.encode(mcm))
     result = set(data["mc"][0]["marketDefinition"].keys())
-    expected = set(raw["mc"][0]["marketDefinition"].keys())
+    expected = set(raw["mc"][0]["marketDefinition"].keys())  # type: ignore
     assert expected - result == set()
 
 
 def test_mcm_no_clk():
     raw = b'{"op": "mcm", "clk": null, "pt": 1576840503572, "mc": []}'  # noqa
-    mcm: MCM = STREAM_DECODER.decode(raw)
+    mcm: MCM = stream_decode(raw)
     assert mcm.clk is None
 
 
 def test_mcm_market_definition_each_way():
     raw = RESOURCES_DIR.joinpath("streaming/market_definition_each_way.json").read_bytes()
-    mcm: MCM = STREAM_DECODER.decode(raw)
+    mcm: MCM = stream_decode(raw)
     assert mcm.mc[0].market_definition.market_type == "EACH_WAY"
     assert mcm.mc[0].market_definition.each_way_divisor == 4.0
 
@@ -183,7 +182,7 @@ def test_bsp_data():
     #     for rc in mc.rc:
     #         print(rc.spb, rc.spl, rc.spf, rc.spn)
 
-    mcm = parse(msgspec.json.encode(lines[0]))
+    mcm: MCM = stream_decode(msgspec.json.encode(lines[0]))
     rc = mcm.mc[0].rc[0]
     assert rc.spl == [StartingPriceLay(price=1.01, volume=2.8)]
     assert rc.spn == 4.5
@@ -191,7 +190,7 @@ def test_bsp_data():
 
 def test_bsp_result():
     raw = RESOURCES_DIR.joinpath("streaming/market_definition_bsp.json").read_bytes()
-    mcm = parse(raw)
+    mcm = stream_decode(raw)
     runners = mcm.mc[0].market_definition.runners
     assert runners[0].bsp == 2.0008034621107256
     assert runners[0].status == RunnerStatus.WINNER
