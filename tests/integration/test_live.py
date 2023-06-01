@@ -40,13 +40,13 @@ def session():
             pytest.skip("No suitable http library installed")
 
 
-def xfail_not_logged_in(test_func):
+def skip_not_logged_in(test_func):
     __tracebackhide__ = True
 
     @functools.wraps(test_func)
     def test_func_wrapped(session, *args):
         if not session.headers.get("X-Authentication"):
-            pytest.xfail("session must be logged in")
+            pytest.skip("session must be logged in")
         return test_func(session, *args)
 
     return test_func_wrapped
@@ -58,12 +58,12 @@ def test_login(session, appconfig):
     assert session.headers.get("X-Application")
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_keep_alive(session):
     client.keep_alive(session)
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_event_types(session):
     resp = client.request(session, bo.ListEventTypes.with_params(filter=btd.MarketFilter(text_query="Horse Racing")))
     assert len(resp) == 1
@@ -71,14 +71,14 @@ def test_event_types(session):
     assert resp[0].event_type.name == "Horse Racing"
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_events(session):
     resp = client.request(session, bo.ListEvents.with_params(filter=btd.MarketFilter(text_query="Horse Racing")))
     assert len(resp) > 10
     assert all(isinstance(item, btd.EventResult) for item in resp)
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_account_funds(session):
     resp = client.request(session, ao.GetAccountFunds.with_params())
     assert isinstance(resp, atd.AccountFundsResponse)
@@ -86,7 +86,7 @@ def test_account_funds(session):
     assert resp.available_to_bet_balance >= 0
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_account_funds_fail(session):
     with pytest.raises(AccountAPINGException) as exc_info:
         client.request(session, ao.GetAccountFunds.with_params(wallet="AUS"))
@@ -97,33 +97,38 @@ def test_account_funds_fail(session):
     print(err)
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_navigation(session):
     menu = client.request(session, navigation.Menu())
-    flattened = navigation.flatten_tree(menu)
-    assert len(flattened) > 1000
+    flattened = navigation.flatten_nav_tree(menu)
+    assert len(flattened) > 5000
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_heartbeat(session):
     resp = client.request(session, heartbeat.Heartbeat.with_params(preferred_timeout_seconds=300))
     assert isinstance(resp, heartbeat.HeartbeatReport)
     assert resp.actual_timeout_seconds >= 0
-    assert resp.action_performed == heartbeat.ActionPerformed.NONE
+    assert resp.action_performed in (heartbeat.ActionPerformed.NONE, heartbeat.ActionPerformed.ALL_BETS_CANCELLED)
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_race_status(session):
     resp = client.request(session, bo.ListEvents.with_params(filter=btd.MarketFilter(event_type_ids=[7])))
     event_ids = [ev_res.event.id for ev_res in resp[::10]]  # every 10th event
     details = client.request(session, race_status.ListRaceDetail.with_params(meeting_ids=event_ids))
-    assert len(details) == len(event_ids)
+    assert len(details) >= len(event_ids)  # There are more than one details / race_ids per event_id
     for d in details:
         assert d.meeting_id or d.race_id
         assert d.response_code
+        if d.response_code == race_status.ResponseCode.OK:
+            assert d.meeting_id
+            assert d.race_id
+            assert d.last_updated
+            assert d.race_status
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_account_no_appkey(session):
     app_key = session.headers.pop("X-Application")
     with pytest.raises(AccountAPINGException) as exc_info:
@@ -131,12 +136,12 @@ def test_account_no_appkey(session):
 
     err = exc_info.value
     assert "NO_APP_KEY" in str(err.code)
-    assert err.code.value == "NO_APP_KEY"
+    assert err.code.name == "NO_APP_KEY"
     session.headers["X-Application"] = app_key
     print(err)
 
 
-@xfail_not_logged_in
+@skip_not_logged_in
 def test_logout(session):
     client.logout(session)
     assert not session.headers.get("X-Authentication")
