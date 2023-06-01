@@ -1,18 +1,19 @@
+---
 name: build
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest]
-        python-version: [ "3.9", "3.10", "3.11" ]
+        os: [ubuntu-latest]
+        python-version: ['3.9', '3.10', '3.11']
     name: build - Python ${{ matrix.python-version }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
 

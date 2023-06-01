@@ -51,7 +51,7 @@ class _GetAccountStatementParams(Params, frozen=True):
 
 
 class GetAccountStatement(AccountRequest, kw_only=True, frozen=True):
-    """Return the account statement. Essentially a large ist of your last profits and losses."""
+    """Return the account statement. Essentially a large list of your last profits and losses."""
 
     method = "AccountAPING/v1.0/getAccountStatement"
     params: _GetAccountStatementParams

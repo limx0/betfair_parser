@@ -94,8 +94,8 @@ class LoginExceptionCode(DocumentedEnum):
     # of two string classes for unambiguous parsing with msgspec. And also unfortunately, python
     # enums can't be subclassed in a straight forward way. So let's add the successful status
     # codes here as well.
-    NO_ERROR = doc(value="", docstring="No error occured")  # for login
-    SUCCESS = doc(value="SUCCESS", docstring="No error occured, operation successful")  # for certlogin
+    NO_ERROR = doc(value="", docstring="No error occurred")  # for login
+    SUCCESS = doc(value="SUCCESS", docstring="No error occurred, operation successful")  # for certlogin
 
 
 LoginStatusCode = Annotated[LoginExceptionCode, msgspec.Meta(title="LoginStatusCode")]

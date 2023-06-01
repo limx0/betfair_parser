@@ -1,38 +1,13 @@
 repos:
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: [
-            --combine-as,
-            --line-length=120,
-            --ensure-newline-before-comments,
-            --single-line-exclusions=typing,
-            --trailing-comma,
-            --multi-line=3,
-            --lines-after-imports=2,
-            --use-parentheses,
-        ]
-
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
-    hooks:
-      - id: black
-        args: [
-            --line-length=120,
-        ]
-
-  - repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: 'https://github.com/pre-commit/pre-commit-hooks'
     rev: v4.4.0
     hooks:
       - id: forbid-new-submodules
       - id: fix-encoding-pragma
         args: [--remove]
       - id: end-of-file-fixer
-        types_or: [python]
       - id: trailing-whitespace
-        types_or: [python]
       - id: debug-statements
       - id: detect-private-key
       - id: check-builtin-literals
@@ -44,9 +19,49 @@ repos:
       - id: check-toml
       - id: check-xml
       - id: check-yaml
+        exclude: (.pre-commit-config\.yaml)
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.2.0
+  - repo: 'https://github.com/codespell-project/codespell'
+    rev: v2.2.4
+    hooks:
+      - id: codespell
+        description: Checks for common misspellings.
+        additional_dependencies:
+          - tomli
+        args:
+          - '--skip=poetry.lock,tests/resources/*,betfair_parser/spec/streaming/ocm.py'
+          - '--'
+
+  - repo: 'https://github.com/hadialqattan/pycln'
+    rev: v2.1.3
+    hooks:
+      - id: pycln
+        language_version: python3.11
+        name: pycln (Python unused imports)
+
+  - repo: 'https://github.com/psf/black'
+    rev: 23.3.0
+    hooks:
+      - id: black
+        args:
+          - '--line-length=120'
+
+  - repo: 'https://github.com/PyCQA/isort'
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args:
+          - '--combine-as'
+          - '--line-length=120'
+          - '--ensure-newline-before-comments'
+          - '--single-line-exclusions=typing'
+          - '--trailing-comma'
+          - '--multi-line=3'
+          - '--lines-after-imports=2'
+          - '--use-parentheses'
+
+  - repo: 'https://github.com/pre-commit/mirrors-mypy'
+    rev: v1.1.1
     hooks:
       - id: mypy
         args: [
@@ -57,25 +72,25 @@ repos:
         ]
         additional_dependencies: [msgspec, types-requests]
 
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+  - repo: 'https://github.com/charliermarsh/ruff-pre-commit'
+    rev: v0.0.260
     hooks:
-      - id: flake8
-        name: flake8 (python)
-        additional_dependencies:
-          - flake8-bandit
-          - flake8-bugbear
-          - flake8-coding
-          - flake8-debugger
-          - flake8-deprecated
-          - flake8-pep3101
-          - flake8-string-format
-          - flake8-typing-imports
-        types: [python]
-        args: [
-            --max-complexity=10,
-            --max-line-length=150,
-            --statistics,
-            --ignore=C101 E203 E252 E402 D100 D101 D102 S101 S403 W503,
-            --min-python-version=3.9.0,
-        ]
+      - id: ruff
+        args:
+          - '--fix'
+          - '--exit-non-zero-on-fix'
+          - '--exclude=tests/test_main.py'
+          - '--line-length=120'
+          - '--'
+
+  - repo: 'https://github.com/asottile/pyupgrade'
+    rev: v3.3.1
+    hooks:
+      - id: pyupgrade
+
+  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+    rev: 0.2.3
+    hooks:
+        - id: yamlfmt
+          exclude: ".pre-commit-config.yaml"
+          args: [ --mapping, '2', --sequence, '4', --offset, '2']
