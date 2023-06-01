@@ -183,7 +183,7 @@ def test_operations(spec, node):
         params_cls = None
     else:
         params_cls_name = compat_type_name(params_cls)
-        assert params_cls_name.endswith("Params") or params_cls_name == "Struct"  # Struct: no arguments
+        assert params_cls_name.endswith("Params") or params_cls_name == "ParamsType"  # ParamsType: no arguments
     params = node.findall("parameters/request/parameter")
     for param in params:
         check_typedef_param(param, params_cls, operation_name)
