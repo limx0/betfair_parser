@@ -9,6 +9,7 @@ from betfair_parser.exceptions import AccountAPINGException
 from betfair_parser.spec import heartbeat, navigation, race_status
 from betfair_parser.spec.accounts import operations as ao, type_definitions as atd
 from betfair_parser.spec.betting import enums as be, operations as bo, type_definitions as btd
+from betfair_parser.spec.common import EventTypeIdCode
 
 
 @pytest.fixture(scope="module")
@@ -140,7 +141,9 @@ def test_heartbeat(session: Session):
 
 @skip_not_logged_in
 def test_race_status(session: Session):
-    resp = client.request(session, bo.ListEvents.with_params(filter=btd.MarketFilter(event_type_ids={7})))
+    resp = client.request(
+        session, bo.ListEvents.with_params(filter=btd.MarketFilter(event_type_ids={EventTypeIdCode.HORSE_RACING}))
+    )
     event_ids = [ev_res.event.id for ev_res in resp[::10]]  # every 10th event
     details = client.request(session, race_status.ListRaceDetail.with_params(meeting_ids=event_ids))
     assert len(details) >= len(event_ids)  # There are more than one details / race_ids per event_id

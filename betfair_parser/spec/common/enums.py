@@ -1,5 +1,6 @@
-from enum import IntEnum
+from enum import Enum
 
+from betfair_parser.spec.common import IntStr
 from betfair_parser.strenums import DocumentedEnum, LowerStrEnum, StrEnum, auto, doc
 
 
@@ -132,7 +133,7 @@ class AccountAPINGExceptionCode(DocumentedEnum):
     CUSTOMER_ACCOUNT_CLOSED = doc("A token could not be created because the customer's account is CLOSED.")
 
 
-class EventTypeIdCode(IntEnum):
+class EventTypeIdCode(IntStr, Enum):
     """Unique identifier for event types
 
     This is not a complete list and only serves for ease of use. For a full list, use the ListEventTypes API call.

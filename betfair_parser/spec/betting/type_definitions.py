@@ -30,6 +30,7 @@ from betfair_parser.spec.common import (
     Date,
     EventId,
     EventTypeId,
+    EventTypeIdCode,
     ExchangeId,
     FloatStr,
     Handicap,
@@ -109,7 +110,7 @@ class TimeRangeResult(BaseMessage, frozen=True):
 class MarketFilter(BaseMessage, omit_defaults=True, frozen=True):
     text_query: Optional[str] = None  # Restrict markets by any text associated with the Event name
     exchange_ids: Optional[set[ExchangeId]] = None  # DEPRECATED
-    event_type_ids: Optional[set[EventTypeId]] = None  # Restrict markets by event type associated with the market
+    event_type_ids: Optional[set[EventTypeIdCode]] = None  # Restrict markets by event type associated with the market
     event_ids: Optional[set[EventId]] = None  # Restrict markets by the event id associated with the market
     competition_ids: Optional[set[CompetitionId]] = None  # Restrict markets by the competitions
     market_ids: Optional[set[MarketId]] = None  # Restrict markets by the market id associated with the market
