@@ -2,9 +2,9 @@
 
 import pytest
 
-from betfair_parser.core import STREAM_DECODER, read_file
 from betfair_parser.spec import accounts, betting
 from betfair_parser.spec.common import Request, decode
+from betfair_parser.util import iter_file, stream_decode
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -36,7 +36,7 @@ def test_read_requests(path):
 def test_read_responses(path):
     raw = path.read_bytes()
     if "streaming" in str(path):
-        resp = STREAM_DECODER.decode(raw)
+        resp = stream_decode(raw)
     else:
         parse_type = op_cls_from_path(path).return_type
         resp = decode(raw, type=parse_type)
@@ -57,5 +57,5 @@ def test_read_responses(path):
 )
 def test_archive(filename, n_items):
     path = RESOURCES_DIR / "data" / filename
-    results = list(read_file(path))
+    results = list(iter_file(path))
     assert len(results) == n_items

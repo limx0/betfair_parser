@@ -1,6 +1,6 @@
 from enum import Enum
 
-from betfair_parser.spec.common import IntStr
+from betfair_parser.spec.common.types import IntStr
 from betfair_parser.strenums import DocumentedEnum, LowerStrEnum, StrEnum, auto, doc
 
 
