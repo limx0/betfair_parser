@@ -1,7 +1,7 @@
 import bz2
 import tarfile
 
-import fsspec
+import fsspec  # type: ignore
 import msgspec
 
 from betfair_parser.spec.streaming import STREAM_DECODER, STREAM_MESSAGE
@@ -32,5 +32,5 @@ def read_tar_file(tar_file: str, file_path: str):
     assert file_path in tf.getnames(), f"Can't find `{file_path}` in {tf.getnames()[:5]}... "
     f = tf.extractfile(file_path)
     if file_path.endswith("bz2"):
-        f = bz2.open(f)
+        f = bz2.open(f)  # type: ignore
     yield from iter_parse(f)
