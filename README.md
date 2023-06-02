@@ -3,13 +3,49 @@
 
 # betfair_parser
 
-A simple and fast betfair parser, built with [msgspec](https://github.com/jcrist/msgspec).
+A simple and fast betfair parser. Why you might like this library:
 
-### Releasing
+- Complete: All betfair (non-vendor) client API included
+- Conventions: The API strictly follows pythonic naming conventions
+- Consistency: All data is type checked, API requests as well as responses
+- Comfort: All betfair enums and type definitions are included, to support IDE syntax completion
+- Clear errors: API errors don't just throw cryptic codes, but contain documentation about that error
+- Compatible: Use it with any HTTP library you like, including async libraries
+- Cheetah fast: Thanks to the magic of [msgspec](https://github.com/jcrist/msgspec), megabytes of input parse in milliseconds
+
+
+## Usage
+
+The `client` module contains a sample, minimalistic client implementation:
+
+```python
+import requests
+from betfair_parser import client
+from betfair_parser.spec import accounts, betting
+
+session = requests.Session()  # or anything similar like httpx.Client()
+client.login(session, "username", "password", "app_key")
+client.request(session, accounts.operations.GetAccountFunds.with_params())
+# AccountFundsResponse(available_to_bet_balance=10000.0, exposure=0.0, retained_commission=0.0,
+# exposure_limit=-10000.0, discount_rate=0.0, points_balance=10, wallet=<Wallet.UK: 'UK'>)
+
+# Request with an invalid wallet parameter:
+client.request(session, accounts.operations.GetAccountFunds.with_params(wallet="AUS"))
+# >>> AccountAPINGException: INVALID_PARAMETERS: Problem parsing the parameters, or a mandatory
+#     parameter was not found
+
+client.request(session, betting.operations.ListCurrentOrders.with_params())
+# CurrentOrderSummaryReport(current_orders=[], more_available=False)
+```
+
+See `test_live.py` for more API call examples.
+
+
+## Releasing
 
 Releases are published automatically when a tag is pushed to GitHub.
 
-```
+```bash
 # Set next version number
 export RELEASE=x.x.x
 
