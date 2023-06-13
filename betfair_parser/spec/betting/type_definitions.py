@@ -31,9 +31,7 @@ from betfair_parser.spec.common import (
     EventId,
     EventTypeId,
     ExchangeId,
-    FloatStr,
     Handicap,
-    IntStr,
     MarketId,
     MatchId,
     OrderStatus,
@@ -249,36 +247,36 @@ class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, rename="upper
     """
 
     weight_units: Optional[str] = None  # The unit of weight used.
-    adjusted_rating: Optional[IntStr] = None  # Race-specific ratings that reflect weights allocated in the race
-    dam_year_born: Optional[IntStr] = None  # The year the horse’s mother's birth
-    days_since_last_run: Optional[IntStr] = None  # The number of days since the horse last ran
+    adjusted_rating: Optional[int] = None  # Race-specific ratings that reflect weights allocated in the race
+    dam_year_born: Optional[int] = None  # The year the horse’s mother's birth
+    days_since_last_run: Optional[int] = None  # The number of days since the horse last ran
     wearing: Optional[str] = None  # Any extra equipment the horse is wearing
-    damsire_year_born: Optional[IntStr] = None  # Year in which the horse's grandfather was born on its mother's side
+    damsire_year_born: Optional[int] = None  # Year in which the horse's grandfather was born on its mother's side
     sire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's father was bred
     trainer_name: Optional[str] = None  # The name of the horse's trainer
-    stall_draw: Optional[IntStr] = None  # The stall number the horse is starting from
+    stall_draw: Optional[int] = None  # The stall number the horse is starting from
     sex_type: Optional[str] = None  # The sex of the horse
     owner_name: Optional[str] = None  # The owner of the horse
     sire_name: Optional[str] = None  # The name of the horse's father
-    forecastprice_numerator: Optional[IntStr] = None  # The forecast price numerator
-    forecastprice_denominator: Optional[IntStr] = None  # The forecast price denominator
-    jockey_claim: Optional[IntStr] = None  # Reduction in the weight that the horse carries for a particular jockey
-    weight_value: Optional[FloatStr] = None  # The weight of the horse
+    forecastprice_numerator: Optional[int] = None  # The forecast price numerator
+    forecastprice_denominator: Optional[int] = None  # The forecast price denominator
+    jockey_claim: Optional[int] = None  # Reduction in the weight that the horse carries for a particular jockey
+    weight_value: Optional[float] = None  # The weight of the horse
     dam_name: Optional[str] = None  # The name of the horse's mother
-    age: Optional[IntStr] = None  # The age of the horse
+    age: Optional[int] = None  # The age of the horse
     colour_type: Optional[str] = None  # The colour of the horse
     damsire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's grandfather was born
     damsire_name: Optional[str] = None  # The name of the horse's grandfather
-    sire_year_born: Optional[IntStr] = None  # The year the horse's father was born
-    official_rating: Optional[IntStr] = None  # The horses official rating
+    sire_year_born: Optional[int] = None  # The year the horse's father was born
+    official_rating: Optional[int] = None  # The horses official rating
     form: Optional[str] = None  # The horses recent form
     bred: Optional[_MetaCountryCode] = None  # The country in which the horse was born
-    runner_id: Optional[IntStr] = msgspec.field(name="runnerId", default=None)  # The runnerId for the horse
+    runner_id: Optional[int] = msgspec.field(name="runnerId", default=None)  # The runnerId for the horse
     jockey_name: Optional[str] = None  # Name of the jockey. This field will contain 'Reserve' if its a reserve runner
     dam_bred: Optional[_MetaCountryCode] = None  # The country where the horse's mother was born
     colours_description: Optional[str] = None  # The textual description of the jockey silk
     colours_filename: Optional[str] = None  # Image representing the jockey silk
-    cloth_number: Optional[IntStr] = None  # The number on the saddle-cloth
+    cloth_number: Optional[int] = None  # The number on the saddle-cloth
     cloth_number_alpha: Optional[str] = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
 
     @property

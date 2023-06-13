@@ -259,8 +259,6 @@ def py_type_format(type_def):
 
 
 PY_TYPE_NAME_REPLACEMENTS = {
-    "IntStr": "int",
-    "FloatStr": "float",
     "SubscriptionStatus": "str",
     "MarketStatus": "str",
     "MarketId": "str",

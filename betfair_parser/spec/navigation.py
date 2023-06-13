@@ -1,7 +1,7 @@
 import re
 from typing import Literal, Optional, Union
 
-from betfair_parser.spec.common import BaseMessage, BaseResponse, Date, EndpointType, IntStr, Request
+from betfair_parser.spec.common import BaseMessage, BaseResponse, Date, EndpointType, Request
 
 
 def tag_func(s: str):
@@ -26,7 +26,7 @@ class Market(BaseMessage, tag=tag_func, frozen=True):
 
 class Event(BaseMessage, tag=tag_func, frozen=True):
     name: str
-    id: IntStr
+    id: int
     country_code: str
     children: list[Union["Group", "Event", Market]]
 
@@ -49,7 +49,7 @@ class Group(BaseMessage, tag=tag_func, frozen=True):
 
 class EventType(BaseMessage, tag=tag_func, frozen=True):
     name: str
-    id: IntStr
+    id: int
     children: list[Union[Group, Event, Race]]
 
 
@@ -81,7 +81,7 @@ class Menu(Request, kw_only=True, frozen=True):
 
 class FlattenedMarket(BaseMessage, kw_only=True, frozen=True, rename=None):
     event_type_name: str
-    event_type_id: IntStr
+    event_type_id: int
     event_name: Optional[str] = None
     event_id: Optional[str] = None
     event_country_code: Optional[str] = None
