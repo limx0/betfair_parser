@@ -3,23 +3,23 @@ from typing import Annotated, Optional, Union
 
 import msgspec
 
-from betfair_parser.spec.common.messages import BaseMessage, FloatStr, IntStr
+from betfair_parser.spec.common.messages import BaseMessage
 
 
 # Type aliases with minimalistic validation. More would be great.
 
 Date = Annotated[datetime.datetime, msgspec.Meta(title="Date", tz=True)]
-SelectionId = Annotated[IntStr, msgspec.Meta(title="SelectionId")]
+SelectionId = Annotated[int, msgspec.Meta(title="SelectionId")]
 Venue = Annotated[str, msgspec.Meta(title="Venue")]
 MarketId = Annotated[str, msgspec.Meta(title="MarketId")]
-Handicap = Annotated[FloatStr, msgspec.Meta(title="Handicap")]
+Handicap = Annotated[float, msgspec.Meta(title="Handicap")]
 EventId = Annotated[str, msgspec.Meta(title="EventId")]
-EventTypeId = Annotated[IntStr, msgspec.Meta(title="EventTypeId")]
+EventTypeId = Annotated[int, msgspec.Meta(title="EventTypeId")]
 CountryCode = Annotated[str, msgspec.Meta(title="CountryCode", min_length=2, max_length=3)]
 ExchangeId = Annotated[str, msgspec.Meta(title="ExchangeId")]
 CompetitionId = Annotated[str, msgspec.Meta(title="CompetitionId")]
-Price = Annotated[FloatStr, msgspec.Meta(title="Price")]
-Size = Annotated[FloatStr, msgspec.Meta(title="Size")]
+Price = Annotated[float, msgspec.Meta(title="Price")]
+Size = Annotated[float, msgspec.Meta(title="Size")]
 BetId = Annotated[Union[str, int], msgspec.Meta(title="BetId")]
 MatchId = Annotated[Union[str, int], msgspec.Meta(title="MatchId")]
 CustomerRef = Annotated[Union[str, int], msgspec.Meta(title="CustomerRef")]

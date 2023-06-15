@@ -1,4 +1,4 @@
-from typing import Generic, Literal, Optional, TypeVar
+from typing import Any, Generic, Literal, Optional, TypeVar
 
 import msgspec
 
@@ -9,56 +9,18 @@ from betfair_parser.spec.common.enums import (
     EndpointType,
     JSONExceptionCode,
 )
-from betfair_parser.spec.common.types import FloatStr, IntStr
 
 
-def encode_quoted(obj):
-    """Encode int and float subtypes as ordinary ints and floats."""
-    if isinstance(obj, int):
-        return int(obj)
-    if isinstance(obj, float):
-        return float(obj)
-    raise TypeError(f"Unencodable type: {type(obj).__name__}: {obj}")
-
-
-def decode_quoted(type_, obj):
-    """
-    Betfair uses JSON formatting inconsistently. For requests to their API they
-    format int and float values in all of their examples as '"123"' and '"5.5"',
-    even if those quotation marks aren't necessary and violate JSON
-    specification. It also occasionally returns "'null'" instead of a null value.
-
-    This decoding hook gets rid of any quotation marks and restores the original
-    data type. Unfortunately we can't use plain int and float, but need to define
-    a subclass of them, so that the dec_hook can do its job.
-    """
-    if type_ is IntStr:
-        if isinstance(obj, int):
-            return IntStr(obj)
-        if obj == "null":
-            return IntStr(0)
-        return IntStr(obj.strip("'\" "))
-    if type_ is FloatStr:
-        if isinstance(obj, (float, int)):
-            return FloatStr(obj)
-        if obj == "null":
-            return FloatStr("nan")
-        return FloatStr(obj.strip("'\" "))
-    raise TypeError(f"Undecodable type: {type(obj).__name__}: {obj}. Expected type: {type_.__name__}")
-
-
-def decode(raw, type=None):
+def decode(raw: bytes, type: Any = Any) -> Any:
     try:
-        if type is None:
-            return msgspec.json.decode(raw, dec_hook=decode_quoted)
-        return msgspec.json.decode(raw, type=type, dec_hook=decode_quoted)
+        return msgspec.json.decode(raw, strict=False, type=type)  # type: ignore
     except msgspec.DecodeError as e:
         raise JSONError(str(e)) from e
 
 
-def encode(data):
+def encode(data: Any) -> bytes:
     try:
-        return msgspec.json.encode(data, enc_hook=encode_quoted)
+        return msgspec.json.encode(data)
     except msgspec.EncodeError as e:
         raise JSONError(str(e)) from e
 
