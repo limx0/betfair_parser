@@ -18,8 +18,8 @@ def request(session, req: Request, endpoints=ENDPOINTS):
 
     url = endpoints.url_for_request(req)
     raw_resp = session.post(url, headers=req.headers(), data=req.body())
-    resp = req.parse_response(raw_resp.content, raise_errors=True)
-    return resp
+    raw_resp.raise_for_status()
+    return req.parse_response(raw_resp.content, raise_errors=True)
 
 
 def login(session, username, password, app_key, two_factor_code="", endpoints=ENDPOINTS):

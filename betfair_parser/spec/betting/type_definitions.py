@@ -284,6 +284,12 @@ class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, rename="upper
         if self.colours_filename:
             return SILKS + self.colours_filename
 
+    @property
+    def forecastprice_decimal(self):
+        if not self.forecastprice_numerator or not self.forecastprice_denominator:
+            return
+        return self.forecastprice_numerator / self.forecastprice_denominator + 1
+
 
 class RunnerCatalog(BaseMessage, frozen=True):
     """Information about the Runners (selections) in a market"""

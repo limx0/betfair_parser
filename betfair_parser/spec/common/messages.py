@@ -2,7 +2,7 @@ from typing import Any, Generic, Literal, Optional, TypeVar
 
 import msgspec
 
-from betfair_parser.exceptions import APINGException, JSONError
+from betfair_parser.exceptions import APIError, APINGException, JSONError
 from betfair_parser.spec.common.enums import (
     AccountAPINGExceptionCode,
     APINGExceptionCode,
@@ -140,7 +140,7 @@ class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
     def parse_response(self, response, raise_errors=True):
         resp = decode(response, type=self.return_type)
         if resp.id != self.id:
-            raise ValueError(f"Response ID ({resp.id}) does not match Request ID ({self.id})")
+            raise APIError(f"Response ID ({resp.id}) does not match Request ID ({self.id})")
         if resp.is_error:
             if raise_errors:
                 exception = self.throws(

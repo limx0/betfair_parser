@@ -6,12 +6,12 @@ class BetfairError(Exception):
         self.__dict__.update(kwargs)
 
 
-class APIError(BetfairError):
-    """Most general API error."""
-
-
 class JSONError(BetfairError):
     """Issue with the data serialization."""
+
+
+class APIError(BetfairError):
+    """Most general API error."""
 
 
 class APINGException(APIError):
