@@ -56,11 +56,11 @@ def test_keep_alive(session: Session):
 
 
 @skip_not_logged_in
-def test_get_account_details(session: Session):
+def test_account_details(session: Session):
     resp = client.request(session, ao.GetAccountDetails.with_params())
     assert 0 <= resp.discount_rate < 0.3
     assert resp.region
-    assert resp.timezone  # Should we chceck for UTC here?
+    assert resp.timezone  # Should we check for UTC here?
 
 
 @skip_not_logged_in
