@@ -56,6 +56,14 @@ def test_keep_alive(session: Session):
 
 
 @skip_not_logged_in
+def test_get_account_details(session: Session):
+    resp = client.request(session, ao.GetAccountDetails.with_params())
+    assert 0 <= resp.discount_rate < 0.3
+    assert resp.region
+    assert resp.timezone  # Should we chceck for UTC here?
+
+
+@skip_not_logged_in
 def test_event_types(session: Session):
     resp = client.request(session, bo.ListEventTypes.with_params(filter=btd.MarketFilter(text_query="Horse Racing")))
     assert len(resp) == 1
