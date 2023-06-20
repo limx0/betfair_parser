@@ -36,6 +36,9 @@ class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, froz
     def to_dict(self):
         return msgspec.structs.asdict(self)
 
+    def replace(self, **kwargs):
+        return msgspec.structs.replace(self, **kwargs)
+
 
 class Params(BaseMessage, omit_defaults=True, frozen=True):
     """By default, don't send None and other default values in operation parameters."""
