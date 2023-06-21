@@ -20,6 +20,10 @@ class _GetAccountFundsParams(Params, frozen=True):
     wallet: Optional[Wallet] = None  # Name of the wallet in question. Global wallet is returned by default
 
 
+class _GetAccountDetailsParams(Params, frozen=True):
+    pass
+
+
 class GetAccountFunds(AccountRequest, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
@@ -32,6 +36,7 @@ class GetAccountDetails(AccountRequest, kw_only=True, frozen=True):
     """Returns the details relating your account, including your discount rate and Betfair point balance."""
 
     method = "AccountAPING/v1.0/getAccountDetails"
+    params: _GetAccountDetailsParams
     return_type = Response[AccountDetailsResponse]
 
 

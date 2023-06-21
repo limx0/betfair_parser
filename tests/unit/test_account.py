@@ -1,7 +1,7 @@
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.accounts.operations import GetAccountDetails, GetAccountFunds
+from betfair_parser.spec.accounts.operations import GetAccountDetails, GetAccountFunds, _GetAccountDetailsParams
 from tests.resources import id_from_path, read_test_file
 
 
@@ -39,3 +39,9 @@ def test_account_funds_response(path):
     raw = read_test_file(path)
     funds = msgspec.json.decode(raw, type=GetAccountFunds.return_type)
     assert funds.validate()
+
+
+def test_account_with_params():
+    request = GetAccountDetails.with_params()
+    assert isinstance(request, GetAccountDetails)
+    assert isinstance(request.params, _GetAccountDetailsParams)

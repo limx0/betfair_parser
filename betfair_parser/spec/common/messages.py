@@ -1,4 +1,4 @@
-from typing import Any, Generic, Literal, Optional, TypeVar
+from typing import Any, Generic, Literal, Optional, TypeVar, get_type_hints
 
 import msgspec
 
@@ -118,7 +118,7 @@ class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
 
     @classmethod
     def with_params(cls, request_id=1, **kwargs):
-        params_cls = cls.__annotations__.get("params", dict)
+        params_cls = get_type_hints(cls)["params"]
         return cls(
             params=params_cls(**kwargs),
             method=cls.method,
