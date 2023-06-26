@@ -59,5 +59,7 @@ def cert_login(session, username, password, app_key, endpoints=ENDPOINTS):
 
 
 def logout(session, endpoints=ENDPOINTS):
-    request(session, Logout(), endpoints=endpoints)
-    del session.headers["X-Authentication"]
+    try:
+        request(session, Logout(), endpoints=endpoints)
+    finally:
+        session.headers.pop("X-Authentication", None)
