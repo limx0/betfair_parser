@@ -2,7 +2,7 @@ import functools
 import os
 
 import pytest
-from requests import Session
+from requests import Session  # alternatively use httpx.Client
 
 from betfair_parser import client
 from betfair_parser.exceptions import AccountAPINGException
@@ -189,19 +189,10 @@ def cert_session(appconfig):
     cert_config = appconfig.get("cert_path"), appconfig.get("key_path")
     if not all(cert_config):
         pytest.skip("No certificate was provided")
-    try:
-        import requests  # noqa
-
-        session = requests.Session()
-        session.cert = cert_config
-        return session
-    except ImportError:
-        try:
-            import httpx
-
-            return httpx.Client(transport=httpx.HTTPTransport(cert=cert_config))
-        except ImportError:
-            pytest.skip("No suitable http library installed")
+    session = Session()
+    session.cert = cert_config
+    # alternatively: session = httpx.Client(transport=httpx.HTTPTransport(cert=cert_config))
+    return session
 
 
 def test_cert_login(cert_session, appconfig):
