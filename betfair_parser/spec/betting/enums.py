@@ -169,7 +169,7 @@ class ExecutionReportStatus(DocumentedEnum):
 
 class ExecutionReportErrorCode(DocumentedEnum):
     ERROR_IN_MATCHER = doc(
-        "The matcher is not healthy. Please note: The error will also be returned is you attempt concurrent "
+        "The matcher is not healthy. Please note: The error will also be returned if you attempt concurrent "
         "'cancel all' bets requests using cancelOrders which isn't permitted."
     )
     PROCESSED_WITH_ERRORS = doc(
