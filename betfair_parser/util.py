@@ -2,15 +2,9 @@ import bz2
 import tarfile
 import typing
 
-import fsspec
 import msgspec
 
 from betfair_parser.spec.streaming import stream_decode
-
-
-def iter_file(fsspec_url: str):
-    with fsspec.open(fsspec_url, compression="infer") as f:
-        yield from iter_stream(f)
 
 
 def iter_tar_file(tar_file: str, file_path: str):
