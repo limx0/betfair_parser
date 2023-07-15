@@ -1,10 +1,11 @@
 """Check a broad selection of common API requests and responses for correct parsing."""
+import bz2
 
 import pytest
 
 from betfair_parser.spec import accounts, betting
 from betfair_parser.spec.common import Request, decode
-from betfair_parser.util import iter_file, stream_decode
+from betfair_parser.util import iter_stream, stream_decode
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -57,5 +58,5 @@ def test_read_responses(path):
 )
 def test_archive(filename, n_items):
     path = RESOURCES_DIR / "data" / filename
-    results = list(iter_file(path))
+    results = list(iter_stream(bz2.open(path)))  # type: ignore
     assert len(results) == n_items
