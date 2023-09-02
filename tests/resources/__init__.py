@@ -25,12 +25,12 @@ def parse_json_date(datetime_str):
 
 def assert_json_equal(x, y):
     assert type(x) == type(y)
-    if type(x) == dict:
+    if isinstance(x, dict):
         assert len(x) == len(y)
         for key_x in x:
             assert key_x in y
             assert_json_equal(x[key_x], y[key_x])
-    elif type(x) == list:
+    elif isinstance(x, list):
         assert len(x) == len(y)
         for item_x, item_y in zip(x, y):
             assert_json_equal(item_x, item_y)
