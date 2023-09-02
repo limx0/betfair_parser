@@ -54,6 +54,7 @@ def test_replace_order(path):
         "responses/betting/place_orders_lapse.json",
         "responses/betting/place_orders_success.json",
         "responses/betting/place_orders_failure.json",
+        "responses/betting/place_orders_no_persistence.json",
     ],
     ids=id_from_path,
 )

@@ -484,7 +484,7 @@ class LimitOrder(BaseMessage, omit_defaults=True, frozen=True):
 
     size: Size
     price: Price
-    persistence_type: PersistenceType
+    persistence_type: Optional[PersistenceType] = None
     time_in_force: Optional[TimeInForce] = None
     min_fill_size: Optional[Size] = None
     bet_target_type: Optional[BetTargetType] = None

@@ -1,0 +1,31 @@
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "customerRef": "bbc2eed41eba42b1ab2c0c3b1f12aed4",
+    "status": "SUCCESS",
+    "marketId": "1.217828068",
+    "instructionReports": [
+      {
+        "status": "SUCCESS",
+        "instruction": {
+          "selectionId": 53501303,
+          "handicap": 0.0,
+          "limitOrder": {
+            "size": 2.0,
+            "price": 2.9,
+            "timeInForce": "FILL_OR_KILL"
+          },
+          "customerOrderRef": "O-20230902-0847-001",
+          "orderType": "LIMIT",
+          "side": "BACK"
+        },
+        "betId": "319319394941",
+        "placedDate": "2023-09-02T08:47:51.000Z",
+        "averagePriceMatched": 2.92,
+        "sizeMatched": 2.0,
+        "orderStatus": "EXECUTION_COMPLETE"
+      }
+    ]
+  },
+  "id": 1
+}

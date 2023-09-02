@@ -22,7 +22,7 @@ repos:
         exclude: (.pre-commit-config\.yaml)
 
   - repo: 'https://github.com/codespell-project/codespell'
-    rev: v2.2.4
+    rev: v2.2.5
     hooks:
       - id: codespell
         description: Checks for common misspellings.
@@ -33,13 +33,13 @@ repos:
           - '--'
 
   - repo: 'https://github.com/hadialqattan/pycln'
-    rev: v2.1.4
+    rev: v2.2.2
     hooks:
       - id: pycln
         name: pycln (Python unused imports)
 
   - repo: 'https://github.com/psf/black'
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
         args:
@@ -60,7 +60,7 @@ repos:
           - '--use-parentheses'
 
   - repo: 'https://github.com/pre-commit/mirrors-mypy'
-    rev: v1.3.0
+    rev: v1.5.1
     hooks:
       - id: mypy
         args: [
@@ -72,7 +72,7 @@ repos:
         additional_dependencies: [msgspec, types-requests]
 
   - repo: 'https://github.com/charliermarsh/ruff-pre-commit'
-    rev: v0.0.270
+    rev: v0.0.287
     hooks:
       - id: ruff
         args:
@@ -82,7 +82,7 @@ repos:
           - '--'
 
   - repo: 'https://github.com/asottile/pyupgrade'
-    rev: v3.4.0
+    rev: v3.10.1
     hooks:
       - id: pyupgrade
 
