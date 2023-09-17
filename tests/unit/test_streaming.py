@@ -1,30 +1,9 @@
-import json
-
 import msgspec
-import pytest
 
 from betfair_parser.spec.streaming import MCM, OCM, stream_decode
 from betfair_parser.spec.streaming.mcm import RunnerStatus, StartingPriceLay
 from betfair_parser.spec.streaming.ocm import MatchedOrder
-from tests.resources import RESOURCES_DIR, id_from_path
-
-
-@pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "streaming").glob("*.json")), ids=id_from_path)
-def test_file(path):
-    raw = path.read_bytes()
-    data = msgspec.json.decode(raw)
-    if isinstance(data, list):
-        for line in data:
-            data = stream_decode(msgspec.json.encode(line))
-            assert data
-    else:
-        try:
-            data = stream_decode(raw)
-            assert data
-        except (msgspec.DecodeError, msgspec.ValidationError) as e:
-            print("ERR", e)
-            print(msgspec.json.decode(raw))
-            raise e
+from tests.resources import RESOURCES_DIR
 
 
 def test_ocm():
@@ -167,30 +146,23 @@ def test_mcm_no_clk():
 
 
 def test_mcm_market_definition_each_way():
-    raw = RESOURCES_DIR.joinpath("streaming/market_definition_each_way.json").read_bytes()
+    raw = (RESOURCES_DIR / "responses/streaming/mcm_market_definition_each_way.json").read_bytes()
     mcm: MCM = stream_decode(raw)
     assert mcm.mc[0].market_definition.market_type == "EACH_WAY"
     assert mcm.mc[0].market_definition.each_way_divisor == 4.0
 
 
 def test_bsp_data():
-    lines = json.loads((RESOURCES_DIR / "streaming/bsp_data.json").read_text())
-    # for line in lines:
-    #     raw = msgspec.json.encode(line)
-    #     mcm: MCM = parse(raw)
-    # for mc in mcm.mc:
-    #     for rc in mc.rc:
-    #         print(rc.spb, rc.spl, rc.spf, rc.spn)
-
-    mcm: MCM = stream_decode(msgspec.json.encode(lines[0]))
+    raw = (RESOURCES_DIR / "responses/streaming/mcm_bsp_data.json").read_bytes()
+    mcm: MCM = stream_decode(raw)[0]
     rc = mcm.mc[0].rc[0]
     assert rc.spl == [StartingPriceLay(price=1.01, volume=2.8)]
     assert rc.spn == 4.5
 
 
 def test_bsp_result():
-    raw = RESOURCES_DIR.joinpath("streaming/market_definition_bsp.json").read_bytes()
-    mcm = stream_decode(raw)
+    raw = (RESOURCES_DIR / "responses/streaming/mcm_market_definition_bsp.json").read_bytes()
+    mcm: MCM = stream_decode(raw)
     runners = mcm.mc[0].market_definition.runners
     assert runners[0].bsp == 2.0008034621107256
     assert runners[0].status == RunnerStatus.WINNER

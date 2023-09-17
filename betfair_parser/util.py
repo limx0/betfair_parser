@@ -22,7 +22,6 @@ def iter_stream(file_like: typing.BinaryIO):
         try:
             data = stream_decode(line)
         except (msgspec.DecodeError, msgspec.ValidationError) as e:
-            print("ERR", e)
-            print(msgspec.json.decode(line))
+            print(f"{type(e).__name__}: {e}\n{msgspec.json.decode(line)}")
             raise e
         yield data

@@ -7,8 +7,9 @@ from betfair_parser.spec.streaming.ocm import OCM
 from betfair_parser.spec.streaming.status import Connection, Status
 
 
-_STREAM_MESSAGE = Union[Connection, Status, MCM, OCM]
-_STREAM_DECODER = Decoder(_STREAM_MESSAGE)
+STREAM_MESSAGE = Union[Connection, Status, MCM, OCM]
+_STREAM_MESSAGES = Union[STREAM_MESSAGE, list[STREAM_MESSAGE]]
+_STREAM_DECODER = Decoder(_STREAM_MESSAGES)
 
 
 def stream_decode(raw: bytes):
