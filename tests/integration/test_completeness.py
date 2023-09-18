@@ -192,8 +192,8 @@ def test_operations(spec, node):
 # Little helper functions
 
 
-def capitalize(val):
-    return f"{val[0].upper()}{val[1:]}"
+def capitalize(val: str) -> str:
+    return val[:1].upper() + val[1:]
 
 
 def snake_case(val):

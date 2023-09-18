@@ -1,8 +1,7 @@
 import msgspec
 
 from betfair_parser.spec.streaming import MCM, OCM, stream_decode
-from betfair_parser.spec.streaming.mcm import RunnerStatus, StartingPriceLay
-from betfair_parser.spec.streaming.ocm import MatchedOrder
+from betfair_parser.spec.streaming.type_definitions import MatchedOrder, RunnerStatus, StartingPriceLay
 from tests.resources import RESOURCES_DIR
 
 
@@ -35,7 +34,6 @@ def test_mcm():
     assert mcm.mc[0].market_definition.runners[0].hc == 0.0
     assert mcm.mc[0].market_definition.runners[0].handicap == "0.0"
     assert mcm.mc[0].market_definition.runners[0].id == 237474
-    assert mcm.mc[0].market_definition.runners[0].selection_id is None
     assert mcm.mc[0].market_definition.runners[0].runner_id == 237474
 
 

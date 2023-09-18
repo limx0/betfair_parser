@@ -1,0 +1,27 @@
+{
+  "op": "marketSubscription",
+  "id": 2,
+  "marketFilter": {
+    "marketIds": [
+      "1.120684740"
+    ],
+    "bspMarket": true,
+    "bettingTypes": [
+      "ODDS"
+    ],
+    "eventTypeIds": [
+      "1"
+    ],
+    "eventIds": [
+      "27540841"
+    ],
+    "turnInPlayEnabled": true,
+    "marketTypes": [
+      "MATCH_ODDS"
+    ],
+    "countryCodes": [
+      "ES"
+    ]
+  },
+  "marketDataFilter": {}
+}

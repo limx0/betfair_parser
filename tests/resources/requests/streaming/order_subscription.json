@@ -1,0 +1,11 @@
+{
+  "op": "orderSubscription",
+  "orderFilter": {
+    "includeOverallPosition": false,
+    "customerStrategyRefs": [
+      "betstrategy1"
+    ],
+    "partitionMatchedByStrategyRef": true
+  },
+  "segmentationEnabled": true
+}
