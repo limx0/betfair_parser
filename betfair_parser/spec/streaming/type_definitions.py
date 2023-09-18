@@ -10,8 +10,10 @@ from betfair_parser.spec.common import (
     EventTypeIdCode,
     Handicap,
     MarketId,
+    Price,
     RegulatorCode,
     SelectionId,
+    Size,
 )
 from betfair_parser.spec.streaming.enums import (
     BettingType,
@@ -146,14 +148,14 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
 
 
 class _PriceVolume(BaseMessage, array_like=True, frozen=True):
-    price: float
-    volume: float
+    price: Price
+    volume: Size
 
 
 class _LevelPriceVolume(BaseMessage, array_like=True, frozen=True):
     level: int
-    price: float
-    volume: float
+    price: Price
+    volume: Size
 
 
 AvailableToBack = Annotated[_PriceVolume, msgspec.Meta(title="AvailableToBack")]
@@ -162,36 +164,36 @@ BestAvailableToBack = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestAvail
 BestAvailableToLay = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestAvailableToLay")]
 BestDisplayAvailableToBack = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestDisplayAvailableToBack")]
 BestDisplayAvailableToLay = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestDisplayAvailableToLay")]
-Trade = Annotated[_PriceVolume, msgspec.Meta(title="Trade")]
 StartingPriceBack = Annotated[_PriceVolume, msgspec.Meta(title="StartingPriceBack")]
 StartingPriceLay = Annotated[_PriceVolume, msgspec.Meta(title="StartingPriceLay")]
+Trade = Annotated[_PriceVolume, msgspec.Meta(title="Trade")]
 
 
 class RunnerChange(BaseMessage, frozen=True):
     id: SelectionId
-    atb: Optional[list[AvailableToBack]] = []
-    atl: Optional[list[AvailableToLay]] = []
-    batb: Optional[list[BestAvailableToBack]] = []
-    batl: Optional[list[BestAvailableToLay]] = []
-    bdatb: Optional[list[BestDisplayAvailableToBack]] = []
-    bdatl: Optional[list[BestDisplayAvailableToLay]] = []
-    spb: Optional[list[StartingPriceBack]] = []  # Starting Price (Available To) Back
-    spl: Optional[list[StartingPriceLay]] = []  # Starting Price (Available To) Lay
+    atb: Optional[list[AvailableToBack]] = None
+    atl: Optional[list[AvailableToLay]] = None
+    batb: Optional[list[BestAvailableToBack]] = None
+    batl: Optional[list[BestAvailableToLay]] = None
+    bdatb: Optional[list[BestDisplayAvailableToBack]] = None
+    bdatl: Optional[list[BestDisplayAvailableToLay]] = None
+    spb: Optional[list[StartingPriceBack]] = None  # Starting Price (Available To) Back
+    spl: Optional[list[StartingPriceLay]] = None  # Starting Price (Available To) Lay
     spn: Optional[float] = None  # Starting Price Near
     spf: Optional[float] = None  # Starting Price Far
-    trd: Optional[list[Trade]] = []
+    trd: Optional[list[Trade]] = None
     ltp: Optional[float] = None
     tv: Optional[float] = None  # The total amount matched. This value is truncated at 2dp.
     hc: Optional[Handicap] = None
 
 
-class MarketChange(BaseMessage, frozen=True):
-    id: str  # the id of the market
-    market_definition: Optional[MarketDefinition] = None
-    rc: list[RunnerChange] = []
-    img: bool = False  # Image - replace existing prices / data with the data supplied: it is not a delta
-    tv: Optional[float] = None  # Total amount matched across the market. Null if un-changed
+class MarketChange(BaseMessage, kw_only=True, frozen=True):
+    id: MarketId
+    rc: Optional[list[RunnerChange]] = None  # not presend if market_definition is sent
     con: Optional[bool] = None  # Conflated - have more than a single change been combined (or null if not conflated)
+    img: bool = False  # Image - replace existing prices / data with the data supplied: it is not a delta
+    market_definition: Optional[MarketDefinition] = None
+    tv: Optional[float] = None  # Total amount matched across the market. Null if un-changed
 
 
 class Order(BaseMessage, frozen=True):
@@ -238,28 +240,28 @@ class Order(BaseMessage, frozen=True):
 
 
 class MatchedOrder(BaseMessage, array_like=True, frozen=True):
-    price: float
-    size: float
+    price: Price
+    size: Size
 
 
 class StrategyMatchChange(BaseMessage, frozen=True):
-    mb: Optional[list[MatchedOrder]] = []
-    ml: Optional[list[MatchedOrder]] = []
+    mb: Optional[list[MatchedOrder]] = None
+    ml: Optional[list[MatchedOrder]] = None
 
 
 class OrderRunnerChange(BaseMessage, frozen=True):
     id: SelectionId
     full_image: Optional[bool] = False
     hc: Optional[Handicap] = None
-    mb: Optional[list[MatchedOrder]] = []
-    ml: Optional[list[MatchedOrder]] = []
+    mb: Optional[list[MatchedOrder]] = None
+    ml: Optional[list[MatchedOrder]] = None
     smc: Optional[dict[str, StrategyMatchChange]] = None
-    uo: Optional[list[Order]] = []
+    uo: Optional[list[Order]] = None
 
 
-class OrderMarketChange(BaseMessage, frozen=True):
+class OrderMarketChange(BaseMessage, kw_only=True, frozen=True):
     id: MarketId
     account_id: Optional[int] = None
     closed: Optional[bool] = None
     full_image: Optional[bool] = False
-    orc: list[OrderRunnerChange] = []
+    orc: Optional[list[OrderRunnerChange]] = None

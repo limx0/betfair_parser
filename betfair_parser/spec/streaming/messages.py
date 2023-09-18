@@ -37,6 +37,8 @@ class Authentication(StreamRequest, kw_only=True, frozen=True):
 
 
 class _Subscription(StreamRequest, kw_only=True, frozen=True):
+    """Common parent class for any Subscription request."""
+
     clk: Optional[str] = None  # Token value delta (received in MarketChangeMessage) for resuming a subscription
     conflate_ms: Optional[int] = None  # the conflation rate (looped back on initial image: bounds are 0 to 120000)
     heartbeat_ms: Optional[int] = None  # the heartbeat rate (looped back on initial image: bounds are 500 to 5000)
@@ -75,8 +77,10 @@ class Status(StreamResponse, kw_only=True, frozen=True):
 
 
 class _ChangeMessage(StreamResponse, kw_only=True, frozen=True):
+    """Common parent class for any ChangeMessage."""
+
     clk: Optional[str] = None  # Token value (non-null) should be stored for resuming in case of a disconnect
-    con: Optional[bool] = None  # Undocumented in swagger
+    con: Optional[bool] = None  # TODO: Undocumented in swagger, mb misplaced in the tests?
     conflate_ms: Optional[int] = None  # the conflation rate (may differ from that requested if subscription is delayed)
     ct: Optional[ChangeType] = None
     heartbeat_ms: Optional[int] = None  # heartbeat rate (may differ from requested: bounds are 500 to 30000)
@@ -87,7 +91,7 @@ class _ChangeMessage(StreamResponse, kw_only=True, frozen=True):
 
     @property
     def is_heartbeat(self):
-        return self.ct == "HEARTBEAT"
+        return self.ct == ChangeType.HEARTBEAT
 
     @property
     def stream_unreliable(self):
@@ -96,8 +100,8 @@ class _ChangeMessage(StreamResponse, kw_only=True, frozen=True):
 
 class MCM(_ChangeMessage, kw_only=True, frozen=True):
     market_definition: Optional[MarketDefinition] = None  # Undocumented in swagger
-    mc: List[MarketChange] = []
+    mc: Optional[List[MarketChange]] = None  # empty for heartbeats
 
 
 class OCM(_ChangeMessage, kw_only=True, frozen=True):
-    oc: List[OrderMarketChange] = []
+    oc: Optional[List[OrderMarketChange]] = None  # empty for heartbeats
