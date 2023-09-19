@@ -75,6 +75,7 @@ def test_read_responses(path):
 @pytest.mark.parametrize(
     ["filename", "n_items"],
     [
+        ("1.164917629.bz2", 298),
         ("1.185781277.bz2", 7600),
         ("1.205822330.bz2", 5654),
         ("27312315.bz2", 50854),
