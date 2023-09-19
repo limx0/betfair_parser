@@ -2,11 +2,11 @@ import msgspec.json
 import pytest
 
 from betfair_parser.spec.accounts.operations import GetAccountDetails, GetAccountFunds, _GetAccountDetailsParams
-from tests.resources import id_from_path, read_test_file
+from tests.resources import RESOURCES_DIR, id_from_path
 
 
 def test_account_details_request():
-    raw = read_test_file("requests/accounts/get_account_details.json")
+    raw = RESOURCES_DIR.joinpath("requests/accounts/get_account_details.json").read_bytes()
     details = msgspec.json.decode(raw, type=GetAccountDetails)
     assert details.validate()
     enc_details = msgspec.json.encode(details)
@@ -14,7 +14,7 @@ def test_account_details_request():
 
 
 def test_account_funds_request():
-    raw = read_test_file("requests/accounts/get_account_funds.json")
+    raw = RESOURCES_DIR.joinpath("requests/accounts/get_account_funds.json").read_bytes()
     funds = msgspec.json.decode(raw, type=GetAccountFunds)
     assert funds.validate()
     enc_funds = msgspec.json.encode(funds)
@@ -22,7 +22,7 @@ def test_account_funds_request():
 
 
 def test_account_details_response():
-    raw = read_test_file("responses/accounts/get_account_details.json")
+    raw = RESOURCES_DIR.joinpath("responses/accounts/get_account_details.json").read_bytes()
     details = msgspec.json.decode(raw, type=GetAccountDetails.return_type)
     assert details.validate()
 
@@ -36,7 +36,7 @@ def test_account_details_response():
     ids=id_from_path,
 )
 def test_account_funds_response(path):
-    raw = read_test_file(path)
+    raw = RESOURCES_DIR.joinpath(path).read_bytes()
     funds = msgspec.json.decode(raw, type=GetAccountFunds.return_type)
     assert funds.validate()
 

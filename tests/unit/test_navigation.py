@@ -5,7 +5,7 @@ import pytest
 from betfair_parser.endpoints import endpoint
 from betfair_parser.spec.common import decode
 from betfair_parser.spec.navigation import Menu, Navigation, flatten_nav_tree
-from tests.resources import read_test_file
+from tests.resources import RESOURCES_DIR
 
 
 def test_navigation_request():
@@ -15,7 +15,7 @@ def test_navigation_request():
 
 @pytest.fixture(scope="module")  # Frozen anyways, no need to recreate
 def navigation_root() -> Navigation:
-    raw = read_test_file("responses/navigation_menu.json")
+    raw = RESOURCES_DIR.joinpath("responses/navigation_menu.json").read_bytes()
     return decode(raw, type=Navigation)
 
 

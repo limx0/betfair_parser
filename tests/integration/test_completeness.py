@@ -26,7 +26,7 @@ def xml_nodes(path, xml_type):
 def id_check_item(item):
     if hasattr(item, "get"):
         return item.get("name")
-    return item.__name__.split(".spec.")[1]
+    return item.__name__.split(".spec.")[1].split(".", 1)[0]
 
 
 @pytest.mark.parametrize(

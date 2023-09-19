@@ -37,7 +37,7 @@ def op_cls_from_path(path):
 
 
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "requests").glob("*/*.json")), ids=id_from_path)
-def test_read_requests(path):
+def test_requests(path):
     raw = path.read_bytes()
     if "streaming" in str(path):
         data = stream_decode(raw)
@@ -49,7 +49,7 @@ def test_read_requests(path):
 
 
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "responses").glob("*/*.json")), ids=id_from_path)
-def test_read_responses(path):
+def test_responses(path):
     raw = path.read_bytes()
     if "streaming" in str(path):
         data = stream_decode(raw)
@@ -79,7 +79,7 @@ LINE_COUNT = {
 }
 
 
-@pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "data").glob("*.bz2")), ids=lambda x: x.name)
+@pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "data").glob("*.bz2")), ids=id_from_path)
 def test_archive(path):
     for i, line in enumerate(bz2.open(path), start=1):
         res = stream_decode(line)
@@ -88,3 +88,6 @@ def test_archive(path):
     required_count = LINE_COUNT.get(path.name)
     if required_count:
         assert i == required_count
+    else:
+        # for any other archive file with not explicitly listed line count
+        assert i > 100
