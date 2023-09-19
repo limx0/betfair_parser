@@ -56,7 +56,6 @@ class EndpointConfig:
     accounts = ACCOUNTS
     betting = BETTING
     scores = SCORES
-    stream = STREAM
 
     def for_request(self, req):
         return getattr(self, req.endpoint_type.value)
