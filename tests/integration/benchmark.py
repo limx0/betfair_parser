@@ -5,7 +5,7 @@ pytest tests/integration/benchmark.py
 
 import bz2
 
-from betfair_parser.spec.streaming import MCM, STREAM_RESPONSE, stream_decode
+from betfair_parser.spec.streaming import MCM, OCM, STREAM_RESPONSE, stream_decode
 from tests.resources import RESOURCES_DIR
 
 
@@ -19,7 +19,8 @@ def test_performance(benchmark):
     result = benchmark.pedantic(decode_all, args=(lines,))
     assert len(result) == 50854
     for msg in result:
-        assert isinstance(msg, STREAM_RESPONSE)  # type: ignore
+        # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+        assert isinstance(msg, (MCM, OCM))
 
 
 def test_market_update_performance(benchmark):

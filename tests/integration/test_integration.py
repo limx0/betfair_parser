@@ -5,7 +5,16 @@ import pytest
 
 from betfair_parser.spec import accounts, betting
 from betfair_parser.spec.common import Request, decode
-from betfair_parser.spec.streaming import STREAM_REQUEST, STREAM_RESPONSE, stream_decode
+from betfair_parser.spec.streaming import (
+    MCM,
+    OCM,
+    Authentication,
+    Connection,
+    MarketSubscription,
+    OrderSubscription,
+    Status,
+    stream_decode,
+)
 from betfair_parser.util import iter_stream
 from tests.resources import RESOURCES_DIR, id_from_path
 
@@ -33,7 +42,8 @@ def test_read_requests(path):
     raw = path.read_bytes()
     if "streaming" in str(path):
         data = stream_decode(raw)
-        assert isinstance(data, STREAM_REQUEST)  # type:ignore
+        # TODO: use isinstance(msg, STREAM_REQUEST) for py3.10+
+        assert isinstance(data, (Authentication, MarketSubscription, OrderSubscription))
         return
 
     assert decode(raw, type=Request)
@@ -46,9 +56,11 @@ def test_read_responses(path):
         data = stream_decode(raw)
         if isinstance(data, list):
             for msg in data:
-                assert isinstance(msg, STREAM_RESPONSE)  # type: ignore
+                # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+                assert isinstance(msg, (MCM, OCM, Status, Connection))
         else:
-            assert isinstance(data, STREAM_RESPONSE)  # type:ignore
+            # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+            assert isinstance(data, (MCM, OCM, Status, Connection))
         return
 
     parse_type = op_cls_from_path(path).return_type
@@ -71,5 +83,6 @@ def test_read_responses(path):
 def test_archive(filename, n_items):
     path = RESOURCES_DIR / "data" / filename
     for i, res in enumerate(iter_stream(bz2.open(path)), start=1):  # type: ignore
-        assert isinstance(res, STREAM_RESPONSE)  # type: ignore
+        # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+        assert isinstance(res, (MCM, OCM))
     assert i == n_items
