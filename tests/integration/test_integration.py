@@ -15,7 +15,6 @@ from betfair_parser.spec.streaming import (
     Status,
     stream_decode,
 )
-from betfair_parser.util import iter_stream
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -72,18 +71,20 @@ def test_read_responses(path):
         assert resp.result
 
 
-@pytest.mark.parametrize(
-    ["filename", "n_items"],
-    [
-        ("1.164917629.bz2", 298),
-        ("1.185781277.bz2", 7600),
-        ("1.205822330.bz2", 5654),
-        ("27312315.bz2", 50854),
-    ],
-)
-def test_archive(filename, n_items):
-    path = RESOURCES_DIR / "data" / filename
-    for i, res in enumerate(iter_stream(bz2.open(path)), start=1):  # type: ignore
+LINE_COUNT = {
+    "1.164917629.bz2": 298,
+    "1.185781277.bz2": 7600,
+    "1.205822330.bz2": 5654,
+    "27312315.bz2": 50854,
+}
+
+
+@pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "data").glob("*.bz2")), ids=lambda x: x.name)
+def test_archive(path):
+    for i, line in enumerate(bz2.open(path), start=1):
+        res = stream_decode(line)
         # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
         assert isinstance(res, (MCM, OCM))
-    assert i == n_items
+    required_count = LINE_COUNT.get(path.name)
+    if required_count:
+        assert i == required_count
