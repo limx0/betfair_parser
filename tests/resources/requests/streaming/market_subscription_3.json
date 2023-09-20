@@ -1,0 +1,16 @@
+{
+  "op": "marketSubscription",
+  "id": 1,
+  "marketFilter": {
+    "marketIds": [
+      "1.134085859"
+    ]
+  },
+  "marketDataFilter": {
+    "ladderLevels": 2,
+    "fields": [
+      "EX_MARKET_DEF",
+      "EX_BEST_OFFERS"
+    ]
+  }
+}

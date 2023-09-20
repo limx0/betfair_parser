@@ -29,7 +29,6 @@ repos:
         additional_dependencies:
           - tomli
         args:
-          - '--skip=poetry.lock,tests/resources/*,betfair_parser/spec/streaming/ocm.py'
           - '--'
 
   - repo: 'https://github.com/hadialqattan/pycln'

@@ -5,7 +5,16 @@ import pytest
 
 from betfair_parser.spec import accounts, betting
 from betfair_parser.spec.common import Request, decode
-from betfair_parser.util import iter_stream, stream_decode
+from betfair_parser.spec.streaming import (
+    MCM,
+    OCM,
+    Authentication,
+    Connection,
+    MarketSubscription,
+    OrderSubscription,
+    Status,
+    stream_decode,
+)
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -28,19 +37,33 @@ def op_cls_from_path(path):
 
 
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "requests").glob("*/*.json")), ids=id_from_path)
-def test_read_requests(path):
+def test_requests(path):
     raw = path.read_bytes()
+    if "streaming" in str(path):
+        data = stream_decode(raw)
+        # TODO: use isinstance(msg, STREAM_REQUEST) for py3.10+
+        assert isinstance(data, (Authentication, MarketSubscription, OrderSubscription))
+        return
+
     assert decode(raw, type=Request)
 
 
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "responses").glob("*/*.json")), ids=id_from_path)
-def test_read_responses(path):
+def test_responses(path):
     raw = path.read_bytes()
     if "streaming" in str(path):
-        resp = stream_decode(raw)
-    else:
-        parse_type = op_cls_from_path(path).return_type
-        resp = decode(raw, type=parse_type)
+        data = stream_decode(raw)
+        if isinstance(data, list):
+            for msg in data:
+                # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+                assert isinstance(msg, (MCM, OCM, Status, Connection))
+        else:
+            # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+            assert isinstance(data, (MCM, OCM, Status, Connection))
+        return
+
+    parse_type = op_cls_from_path(path).return_type
+    resp = decode(raw, type=parse_type)
     assert resp
     if "error" in str(path):
         assert resp.error
@@ -48,15 +71,23 @@ def test_read_responses(path):
         assert resp.result
 
 
-@pytest.mark.parametrize(
-    ["filename", "n_items"],
-    [
-        ("1.185781277.bz2", 7600),
-        ("1.205822330.bz2", 5654),
-        ("27312315.bz2", 50854),
-    ],
-)
-def test_archive(filename, n_items):
-    path = RESOURCES_DIR / "data" / filename
-    results = list(iter_stream(bz2.open(path)))  # type: ignore
-    assert len(results) == n_items
+LINE_COUNT = {
+    "1.164917629.bz2": 298,
+    "1.185781277.bz2": 7600,
+    "1.205822330.bz2": 5654,
+    "27312315.bz2": 50854,
+}
+
+
+@pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "data").glob("*.bz2")), ids=id_from_path)
+def test_archive(path):
+    for i, line in enumerate(bz2.open(path), start=1):
+        res = stream_decode(line)
+        # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+        assert isinstance(res, (MCM, OCM))
+    required_count = LINE_COUNT.get(path.name)
+    if required_count:
+        assert i == required_count
+    else:
+        # for any other archive file with not explicitly listed line count
+        assert i > 100

@@ -2,7 +2,7 @@ import pytest
 
 from betfair_parser.spec.betting.type_definitions import MarketCatalogue, RunnerCatalog
 from betfair_parser.spec.common import decode, encode
-from tests.resources import assert_json_equal, read_test_file
+from tests.resources import RESOURCES_DIR, assert_json_equal
 
 
 @pytest.mark.parametrize(
@@ -34,7 +34,7 @@ def test_runner_name(data: dict):
 
 
 def test_market_catalogue():
-    raw = read_test_file("responses/market_catalogue_trimmed.json")
+    raw = RESOURCES_DIR.joinpath("responses/market_catalogue_trimmed.json").read_bytes()
     catalog = decode(raw, type=list[MarketCatalogue])
     assert len(catalog) == 12035
     expected = {

@@ -26,7 +26,7 @@ def xml_nodes(path, xml_type):
 def id_check_item(item):
     if hasattr(item, "get"):
         return item.get("name")
-    return item.__name__.split(".spec.")[1]
+    return item.__name__.split(".spec.")[1].split(".", 1)[0]
 
 
 @pytest.mark.parametrize(
@@ -192,8 +192,8 @@ def test_operations(spec, node):
 # Little helper functions
 
 
-def capitalize(val):
-    return f"{val[0].upper()}{val[1:]}"
+def capitalize(val: str) -> str:
+    return val[:1].upper() + val[1:]
 
 
 def snake_case(val):

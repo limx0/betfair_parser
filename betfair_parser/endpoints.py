@@ -5,6 +5,8 @@ from dataclasses import dataclass
 ACCOUNTS = "https://api.betfair.com/exchange/account/json-rpc/v1/"
 BETTING = "https://api.betfair.com/exchange/betting/json-rpc/v1/"
 SCORES = "https://api.betfair.com/exchange/scores/json-rpc/v1/"
+STREAM = "https://stream-api.betfair.com/"
+STREAM_INTEGRATION = "https://stream-api-integration.betfair.com/"
 SILKS = "https://content-cache.cdnppb.net/feeds_images/Horses/SilkColours/"
 
 _IDENTITY = "https://identitysso.betfair{tld}/api/"
@@ -50,6 +52,7 @@ class EndpointConfig:
     identity_cert: str
     navigation: str
     heartbeat: str
+    stream: str
     accounts = ACCOUNTS
     betting = BETTING
     scores = SCORES
@@ -61,12 +64,13 @@ class EndpointConfig:
         return f"{self.for_request(req)}{req.method}"
 
 
-def endpoint(country_code="GBR"):
+def endpoint(country_code="GBR", integration=False):
     return EndpointConfig(
         identity=IDENTITY[country_code],
         identity_cert=IDENTITY_CERT[country_code],
         navigation=NAVIGATION[country_code],
         heartbeat=HEARTBEAT[country_code],
+        stream=STREAM_INTEGRATION if integration else STREAM,
     )
 
 

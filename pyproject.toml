@@ -70,3 +70,7 @@ lines_after_imports = 2
 use_parentheses = true
 include_trailing_comma = true
 combine_as_imports = true
+
+[tool.codespell]
+skip = "poetry.lock,tests/resources/*"
+ignore-regex = ".*codespell-ignore$"

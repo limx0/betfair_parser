@@ -1,8 +1,0 @@
-{
-  "op": "status",
-  "statusCode": "FAILURE",
-  "errorCode": "TIMEOUT",
-  "errorMessage": "Connection is not subscribed and is idle: 15000 ms",
-  "connectionClosed": true,
-  "connectionId": "12345"
-}
