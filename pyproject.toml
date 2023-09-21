@@ -62,15 +62,15 @@ twine = "^4.0.2"
 line-length = 120
 
 [tool.isort]
+profile = "black"
 line_length = 120
-ensure_newline_before_comments = true
-single_line_exclusions = "typing"
-multi_line_output = 3
 lines_after_imports = 2
-use_parentheses = true
-include_trailing_comma = true
 combine_as_imports = true
 
 [tool.codespell]
 skip = "poetry.lock,tests/resources/*"
 ignore-regex = ".*codespell-ignore$"
+
+[tool.ruff]
+fix = false
+line-length = 120

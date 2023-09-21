@@ -36,10 +36,10 @@ def skip_not_logged_in(test_func):
     __tracebackhide__ = True
 
     @functools.wraps(test_func)
-    def test_func_wrapped(session: Session, *args):
+    def test_func_wrapped(session: Session, *args, **kwargs):
         if not session.headers.get("X-Authentication"):
             pytest.skip("session must be logged in")
-        return test_func(session, *args)
+        return test_func(session, *args, **kwargs)
 
     return test_func_wrapped
 
@@ -127,9 +127,8 @@ def test_account_funds_fail(session: Session):
         client.request(session, ao.GetAccountFunds.with_params(wallet="AUS"))
 
     err = exc_info.value
-    assert "INVALID_PARAMETERS" in str(err)
+    assert str(err) == "INVALID_PARAMETERS: Problem parsing the parameters, or a mandatory parameter was not found"
     assert err.code.name == "INVALID_PARAMETERS"
-    print(err)
 
 
 @skip_not_logged_in

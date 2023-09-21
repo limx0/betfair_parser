@@ -13,14 +13,6 @@ class SegmentType(StrEnum):
     SEG_END = auto()
 
 
-class BettingType(StrEnum):
-    ODDS = auto()
-    LINE = auto()
-    RANGE = auto()
-    ASIAN_HANDICAP_DOUBLE_LINE = auto()
-    ASIAN_HANDICAP_SINGLE_LINE = auto()
-
-
 class PriceLadderDefinitionType(StrEnum):
     CLASSIC = auto()
     FINES = auto()
@@ -93,11 +85,9 @@ class MarketDataFilterFields(DocumentedEnum):
     )
     EX_BEST_OFFERS = doc("Best prices not including Virtual Bets - depth is controlled by ladderLevels (1 to 10).")
     EX_ALL_OFFERS = doc("Full available to BACK/LAY ladder.")
-    EX_TRADED = doc("Full traded ladder.  This is the amount traded at any price on any selection in the market")
+    EX_TRADED = doc("Full traded ladder. This is the amount traded at any price on any selection in the market")
     EX_TRADED_VOL = doc("Market and runner level traded volume.")
     EX_LTP = doc("The 'Last Price Matched' on a selection.")
-    EX_MARKET_DEF = doc(
-        "Send market definitions. To receive updates to any of the following fields - MarketDefinitionFields"
-    )
+    EX_MARKET_DEF = doc("Send market definitions. To receive updates to any of the following fields")
     SP_TRADED = doc("Starting price ladder.")
     SP_PROJECTED = doc("Starting price projection prices. To receive any update to the Betfair SP Near and Far price.")
