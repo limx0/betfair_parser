@@ -74,3 +74,9 @@ ignore-regex = ".*codespell-ignore$"
 [tool.ruff]
 fix = false
 line-length = 120
+
+[tool.mypy]
+strict_optional = false
+ignore_missing_imports = true
+warn_no_return = true
+check_untyped_defs = true

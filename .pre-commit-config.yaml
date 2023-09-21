@@ -1,6 +1,7 @@
+---
 repos:
 
-  - repo: 'https://github.com/pre-commit/pre-commit-hooks'
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
       - id: forbid-new-submodules
@@ -21,59 +22,48 @@ repos:
       - id: check-yaml
         exclude: (.pre-commit-config\.yaml)
 
-  - repo: 'https://github.com/codespell-project/codespell'
+  - repo: https://github.com/codespell-project/codespell
     rev: v2.2.5
     hooks:
       - id: codespell
         description: Checks for common misspellings.
         additional_dependencies:
           - tomli
-        args:
-          - '--'
 
-  - repo: 'https://github.com/hadialqattan/pycln'
+  - repo: https://github.com/hadialqattan/pycln
     rev: v2.2.2
     hooks:
       - id: pycln
         name: pycln (Python unused imports)
 
-  - repo: 'https://github.com/psf/black'
-    rev: 23.7.0
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
     hooks:
       - id: black
 
-  - repo: 'https://github.com/PyCQA/isort'
+  - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
       - id: isort
 
-  - repo: 'https://github.com/pre-commit/mirrors-mypy'
+  - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.5.1
     hooks:
       - id: mypy
-        args: [
-            --no-strict-optional,
-            --ignore-missing-imports,
-            --warn-no-return,
-            --check-untyped-defs,
-        ]
         additional_dependencies: [msgspec, types-requests]
 
-  - repo: 'https://github.com/charliermarsh/ruff-pre-commit'
-    rev: v0.0.287
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.290
     hooks:
       - id: ruff
-        args:
-          - '--'
 
-  - repo: 'https://github.com/asottile/pyupgrade'
-    rev: v3.10.1
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.11.2
     hooks:
       - id: pyupgrade
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
     rev: 0.2.3
     hooks:
-        - id: yamlfmt
-          exclude: ".pre-commit-config.yaml"
-          args: [ --mapping, '2', --sequence, '4', --offset, '2']
+      - id: yamlfmt
+        args: [--mapping, '2', --sequence, '4', --offset, '2']
