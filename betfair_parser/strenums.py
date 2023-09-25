@@ -16,6 +16,9 @@ class StrEnum(str, Enum):
     def _generate_next_value_(key, start, count, last_values):
         return key
 
+    def __repr__(self):
+        return f"<{type(self).__name__}.{self.name}>"
+
 
 class LowerStrEnum(StrEnum):
     """Like StrEnum, but have lowered values."""
@@ -85,3 +88,6 @@ class DocumentedEnum(Enum):
         if self.__doc__:
             return f"{self.name}: {self.__doc__}"
         return self.name
+
+    def __repr__(self):
+        return f"<{type(self).__name__}.{self.name}>"
