@@ -80,7 +80,7 @@ def test_events(session: Session):
 
 @skip_not_logged_in
 def test_market_catalogue(session: Session):
-    resp = client.request(
+    resp: list[btd.MarketCatalogue] = client.request(
         session,
         bo.ListMarketCatalogue.with_params(
             filter=btd.MarketFilter(
@@ -103,7 +103,9 @@ def test_market_catalogue(session: Session):
     for runner in resp[0].runners:
         assert runner.name
         assert runner.metadata
-        assert runner.metadata.age
+        assert runner.metadata
+        assert runner.metadata.cloth_number
+        assert runner.metadata.forecastprice_decimal
 
 
 @skip_not_logged_in
@@ -172,9 +174,11 @@ def test_account_no_appkey(session: Session):
 
     err = exc_info.value
     assert "NO_APP_KEY" in str(err.code)
+    assert str(err) == "NO_APP_KEY: An application key header ('X-Application') has not been provided in the request."
     assert err.code.name == "NO_APP_KEY"
+
+    # restore the app key for further tests
     session.headers["X-Application"] = app_key
-    print(err)
 
 
 @skip_not_logged_in
