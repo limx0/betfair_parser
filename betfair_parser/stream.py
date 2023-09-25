@@ -1,3 +1,4 @@
+import asyncio
 import itertools
 import socket
 import ssl
@@ -27,14 +28,24 @@ def create_ssl_socket(hostname, timeout: int = 15) -> ssl.SSLSocket:
     return secure_sock
 
 
-class Stream:
-    _sock: Optional[ssl.SSLSocket]
-    _io: Optional[socket.SocketIO]
-    _connection_id: Optional[str]
+class _BaseStream:
+    _connection_id: Optional[str] = None
 
     def __init__(self, endpoint) -> None:
         self._endpoint = endpoint
         self._id_generator = itertools.count()
+
+    @property
+    def connection_id(self) -> str:
+        return self._connection_id
+
+    def unique_id(self) -> int:
+        return next(self._id_generator)
+
+
+class Stream(_BaseStream):
+    _sock: Optional[ssl.SSLSocket] = None
+    _io: Optional[socket.SocketIO] = None
 
     def connect(self) -> None:
         url = urllib.parse.urlparse(self._endpoint)
@@ -43,9 +54,6 @@ class Stream:
         self._io = socket.SocketIO(self._sock, "rwb")
         msg: Connection = self.receive()  # type: ignore
         self._connection_id = msg.connection_id
-
-    def unique_id(self) -> int:
-        return next(self._id_generator)
 
     def send(self, request: STREAM_REQUEST) -> None:
         if not self._io:
@@ -72,10 +80,6 @@ class Stream:
             self._sock.close()
             self._sock = None
 
-    @property
-    def connection_id(self) -> str:
-        return self._connection_id
-
     def authenticate(self, app_key: str, token: str) -> None:
         self.send(Authentication(id=self.unique_id(), app_key=app_key, session=token))
         msg: Status = self.receive()  # type: ignore
@@ -93,3 +97,63 @@ class Stream:
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.close()
+
+
+class AsyncStream(_BaseStream):
+    _reader: Optional[asyncio.StreamReader] = None
+    _writer: Optional[asyncio.StreamWriter] = None
+
+    async def connect(self) -> None:
+        url = urllib.parse.urlparse(self._endpoint)
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.load_default_certs()
+        self._reader, self._writer = await asyncio.open_connection(
+            host=url.hostname,
+            port=url.port,
+            ssl=context,
+            server_hostname=url.hostname,
+            limit=1_000_000,
+        )
+        msg: Connection = await self.receive()  # type: ignore
+        self._connection_id = msg.connection_id
+
+    async def send(self, request: STREAM_REQUEST) -> None:
+        if not self._writer:
+            raise StreamError("Stream is not connected")
+        msg = encode(request) + b"\r\n"
+        self._writer.write(msg)
+        await self._writer.drain()
+
+    async def receive(self) -> STREAM_RESPONSE:
+        if not self._reader:
+            raise StreamError("Stream is not connected")
+        data = await self._reader.readline()
+        return stream_decode(data)
+
+    async def close(self):
+        if self._writer:
+            try:
+                await self._writer.drain()
+            finally:
+                self._writer.close()
+                await self._writer.wait_closed()
+        self._writer = None
+        self._reader = None
+
+    async def authenticate(self, app_key: str, token: str) -> None:
+        await self.send(Authentication(id=self.unique_id(), app_key=app_key, session=token))
+        msg: Status = await self.receive()  # type: ignore
+        if msg.is_error:
+            raise StreamAuthenticationError(f"{msg.error_code.name}: {msg.error_message}")
+        if msg.connection_closed:
+            raise StreamAuthenticationError("Connection was closed by the server unexpectedly")
+
+    async def heartbeat(self) -> None:
+        await self.send(Heartbeat(id=self.unique_id()))
+
+    async def __aenter__(self):
+        await self.connect()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        await self.close()
