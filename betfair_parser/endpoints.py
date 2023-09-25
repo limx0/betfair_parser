@@ -5,8 +5,8 @@ from dataclasses import dataclass
 ACCOUNTS = "https://api.betfair.com/exchange/account/json-rpc/v1/"
 BETTING = "https://api.betfair.com/exchange/betting/json-rpc/v1/"
 SCORES = "https://api.betfair.com/exchange/scores/json-rpc/v1/"
-STREAM = "https://stream-api.betfair.com/"
-STREAM_INTEGRATION = "https://stream-api-integration.betfair.com/"
+STREAM = "ndjson://stream-api.betfair.com:443"
+STREAM_INTEGRATION = "ndjson://stream-api-integration.betfair.com:443"
 SILKS = "https://content-cache.cdnppb.net/feeds_images/Horses/SilkColours/"
 
 _IDENTITY = "https://identitysso.betfair{tld}/api/"

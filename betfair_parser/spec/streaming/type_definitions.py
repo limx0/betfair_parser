@@ -2,11 +2,12 @@ from typing import Annotated, Literal, Optional, Union
 
 import msgspec
 
-from betfair_parser.spec.betting.enums import MarketStatus, RunnerStatus
+from betfair_parser.spec.betting.enums import MarketBettingType, MarketStatus, MarketTypeCode, RunnerStatus
 from betfair_parser.spec.common import (
     BaseMessage,
     BetId,
     Date,
+    EventId,
     EventTypeIdCode,
     Handicap,
     MarketId,
@@ -14,29 +15,25 @@ from betfair_parser.spec.common import (
     RegulatorCode,
     SelectionId,
     Size,
+    Venue,
 )
-from betfair_parser.spec.streaming.enums import (
-    BettingType,
-    LapseStatusReasonCode,
-    MarketDataFilterFields,
-    PriceLadderDefinitionType,
-)
+from betfair_parser.spec.streaming.enums import LapseStatusReasonCode, MarketDataFilterFields, PriceLadderDefinitionType
 
 
 # Request objects
 
 
 class MarketFilter(BaseMessage, frozen=True):
-    betting_types: Optional[list[BettingType]] = None
-    bsp_market: Optional[bool] = None
-    country_codes: Optional[list[str]] = None
-    event_ids: Optional[list[str]] = None
-    event_type_ids: Optional[list[str]] = None
-    market_ids: Optional[list[str]] = None
-    market_types: Optional[list[str]] = None
-    race_types: Optional[list[str]] = None
-    turn_in_play_enabled: Optional[bool] = None
-    venues: Optional[list[str]] = None
+    betting_types: Optional[list[MarketBettingType]] = None  # Match the betting type of the market
+    bsp_market: Optional[bool] = None  # If set, restrict to BSP or non-BSP markets only. If unset, return both
+    country_codes: Optional[list[str]] = None  # Restrict to specified country or countries. Defaults to 'GB' on error
+    event_ids: Optional[list[EventId]] = None  # Restrict markets by the event id associated with the market
+    event_type_ids: Optional[list[EventTypeIdCode]] = None  # Restrict markets by event type associated with the market
+    market_ids: Optional[list[MarketId]] = None  # If no marketIds passed user will be subscribed to all markets
+    market_types: Optional[list[MarketTypeCode]] = None  # Restrict to markets that match the type of the market
+    race_types: Optional[list[str]] = None  # Harness, Flat, Hurdle, Chase, Bumper, NH Flat, Steeple or NO_VALUE
+    turn_in_play_enabled: Optional[bool] = None  # If set, restrict to turn-inplay or non-inplay markets. Both if unset
+    venues: Optional[list[Venue]] = None  # Restrict by the venue associated with the market. Only for horse racing
 
 
 class MarketDataFilter(BaseMessage, frozen=True):
@@ -94,7 +91,7 @@ class PriceLadderDefinition(BaseMessage, frozen=True):
 
 class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     bet_delay: int
-    betting_type: BettingType
+    betting_type: MarketBettingType
     bsp_market: bool
     bsp_reconciled: bool
     competition_id: Optional[str] = ""

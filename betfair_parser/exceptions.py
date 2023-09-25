@@ -28,3 +28,11 @@ class IdentityError(APIError):
 
 class LoginImpossible(IdentityError):
     """This probably needs manual resolution."""
+
+
+class StreamError(APIError):
+    """Issues related with the streaming API."""
+
+
+class StreamAuthenticationError(StreamError):
+    """Authentication for the stream API is not possible."""
