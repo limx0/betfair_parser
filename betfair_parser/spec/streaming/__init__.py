@@ -6,6 +6,8 @@ from betfair_parser.spec.betting.enums import MarketBettingType  # noqa: F401
 from betfair_parser.spec.betting.enums import MarketStatus  # noqa: F401
 from betfair_parser.spec.betting.enums import MarketTypeCode  # noqa: F401
 from betfair_parser.spec.betting.enums import RunnerStatus  # noqa: F401
+from betfair_parser.spec.streaming.enums import ChangeType  # noqa: F401
+from betfair_parser.spec.streaming.enums import SegmentType  # noqa: F401
 from betfair_parser.spec.streaming.messages import (
     MCM,
     OCM,
@@ -18,8 +20,10 @@ from betfair_parser.spec.streaming.messages import (
 )
 from betfair_parser.spec.streaming.type_definitions import MarketDataFilter  # noqa: F401
 from betfair_parser.spec.streaming.type_definitions import MarketDataFilterFields  # noqa: F401
+from betfair_parser.spec.streaming.type_definitions import MarketDefinition  # noqa: F401
 from betfair_parser.spec.streaming.type_definitions import MarketFilter  # noqa: F401
 from betfair_parser.spec.streaming.type_definitions import OrderFilter  # noqa: F401
+from betfair_parser.spec.streaming.type_definitions import RunnerChange  # noqa: F401
 
 
 STREAM_REQUEST = Union[Authentication, MarketSubscription, OrderSubscription, Heartbeat]
@@ -30,3 +34,7 @@ _STREAM_DECODER = Decoder(_STREAM_MESSAGES, strict=False)
 
 def stream_decode(raw: bytes):
     return _STREAM_DECODER.decode(raw)
+
+
+def stream_decode_lines(raw: bytes):
+    return _STREAM_DECODER.decode_lines(raw)

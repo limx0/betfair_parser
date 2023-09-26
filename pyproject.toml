@@ -22,7 +22,7 @@ classifiers = [
 ]
 keywords = ["parser", "betfair", "api", "json", "streaming"]
 dependencies = [
-    "msgspec>=0.16.0",
+    "msgspec>=0.18.0",
 ]
 optional-dependencies.dev = [
     "pytest>=7.1",
@@ -46,7 +46,7 @@ authors = ["Bradley McElroy <bradley.mcelroy@live.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-msgspec = ">=0.16"
+msgspec = ">=0.18"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1"
@@ -67,7 +67,7 @@ lines_after_imports = 2
 combine_as_imports = true
 
 [tool.codespell]
-skip = "poetry.lock,tests/resources/*"
+skip = "poetry.lock,./tests/resources/*"
 ignore-regex = ".*codespell-ignore$"
 
 [tool.ruff]
