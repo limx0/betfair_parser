@@ -6,7 +6,7 @@
         "sizeReduction": 0.5
       }
     ],
-    "customerRef": 345,
+    "customerRef": "345",
     "marketId": "1.118298866"
   },
   "jsonrpc": "2.0",

@@ -49,10 +49,6 @@ def test_basetype(spec, node):
         # ID types are integer values encoded as strings
         assert xml_type == "str"
         assert py_type_str == "int"
-    elif xml_typename.endswith("Ref"):
-        # CustomerRef can be str or int as input
-        assert xml_type == "str"
-        assert py_type_str == "Union[str,int]"
     else:
         assert xml_type == py_type_str
 
@@ -78,8 +74,8 @@ def test_enum(spec, node):
     min_values = 1 if xml_typename in ("Status", "ItemClass", "TokenType", "TimeInForce") else 2
     assert len(valid_values) >= min_values
     assert node.get("type") == "string"
-    for value in valid_values.iter("value"):  # type: ignore
-        value_name = value.get("name")
+    for value_node in valid_values.iter("value"):  # type: ignore
+        value_name = value_node.get("name")
         assert hasattr(datatype_cls, value_name), f"Enum field {xml_typename}.{value_name} not set"
 
 

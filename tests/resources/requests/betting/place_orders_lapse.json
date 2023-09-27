@@ -1,7 +1,7 @@
 {
   "params": {
     "marketId": "1.118298866",
-    "customerRef": 344,
+    "customerRef": "344",
     "instructions": [
       {
         "orderType": "LIMIT",

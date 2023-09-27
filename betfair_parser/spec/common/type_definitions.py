@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional
 
 import msgspec
 
@@ -9,7 +9,6 @@ from betfair_parser.spec.common.messages import BaseMessage
 IDType = Annotated[
     int, msgspec.Meta(title="IDType", description="integer data, but defined and encoded as string", ge=0)
 ]
-StrInt = Annotated[Union[str, int], msgspec.Meta(title="StrInt", description="str or int input, encoded as string")]
 
 # Type aliases with minimalistic validation.
 
@@ -28,9 +27,9 @@ Price = Annotated[float, msgspec.Meta(title="Price", ge=0, le=1001)]
 Size = Annotated[float, msgspec.Meta(title="Size", ge=0)]
 BetId = Annotated[IDType, msgspec.Meta(title="BetId")]
 MatchId = Annotated[IDType, msgspec.Meta(title="MatchId")]
-CustomerRef = Annotated[StrInt, msgspec.Meta(title="CustomerRef")]
-CustomerOrderRef = Annotated[StrInt, msgspec.Meta(title="CustomerOrderRef")]
-CustomerStrategyRef = Annotated[StrInt, msgspec.Meta(title="CustomerStrategyRef")]
+CustomerRef = Annotated[str, msgspec.Meta(title="CustomerRef")]
+CustomerOrderRef = Annotated[str, msgspec.Meta(title="CustomerOrderRef")]
+CustomerStrategyRef = Annotated[str, msgspec.Meta(title="CustomerStrategyRef")]
 
 
 class TimeRange(BaseMessage, frozen=True):
