@@ -35,6 +35,35 @@ def id_check_item(item):
         (spec, node)
         for xml_file, spec in zip(XML_FILES, (accounts.enums, betting.enums, heartbeat))
         for node in xml_nodes(xml_file, "simpleType")
+        if not list(node.iter("validValues"))  # exclude enums
+    ],
+    ids=id_check_item,
+)
+def test_basetype(spec, node):
+    xml_typename = node.get("name")
+    py_type = get_definition(spec, xml_typename)
+    xml_type = xml_type_compat(node.get("type"))
+    py_type_str = py_type_format(py_type_unpack(py_type))
+
+    if xml_typename.endswith("Id") and xml_typename not in ("SelectionId", "MarketId"):
+        # ID types are integer values encoded as strings
+        assert xml_type == "str"
+        assert py_type_str == "int"
+    elif xml_typename.endswith("Ref"):
+        # CustomerRef can be str or int as input
+        assert xml_type == "str"
+        assert py_type_str == "Union[str,int]"
+    else:
+        assert xml_type == py_type_str
+
+
+@pytest.mark.parametrize(
+    ["spec", "node"],
+    [
+        (spec, node)
+        for xml_file, spec in zip(XML_FILES, (accounts.enums, betting.enums, heartbeat))
+        for node in xml_nodes(xml_file, "simpleType")
+        if list(node.iter("validValues"))  # enums only
     ],
     ids=id_check_item,
 )
@@ -43,29 +72,15 @@ def test_enum(spec, node):
     if xml_typename in ("MarketGroupType", "LimitBreachActionType"):
         # Defined only in XML, but not in documentation
         pytest.skip("Not defined in documentation")
-    if xml_typename == "MarketType":
-        pytest.skip("Misplaced in XML, belongs to accounts")
-    if xml_typename == "EventTypeId":
-        pytest.skip("It's stated as str in the API, but actually an int")
 
     datatype_cls = get_definition(spec, xml_typename)
-    validvalues = list(node.iter("validValues"))
-    if not validvalues:
-        # Type is a simple subclass
-        xml_type = xml_type_format(node.get("type"))
-        datatype_str = py_type_format(py_type_unpack(datatype_cls))
-        if datatype_str == "Union[str,int]":
-            # Some custom defined hybrid types for fields, that accept both, even if not stated in the XML
-            assert xml_type == "str"
-        else:
-            assert py_type_format(py_type_unpack(datatype_cls)) == xml_type
-    else:
-        # Type is an enum of strings
-        validvalues = validvalues[0]
-        assert node.get("type") == "string"
-        for value in validvalues.iter("value"):  # type: ignore
-            valname = value.get("name")
-            assert hasattr(datatype_cls, valname), f"Enum field {xml_typename}.{valname} not set"
+    valid_values = list(node.iter("validValues"))[0]
+    min_values = 1 if xml_typename in ("Status", "ItemClass", "TokenType", "TimeInForce") else 2
+    assert len(valid_values) >= min_values
+    assert node.get("type") == "string"
+    for value in valid_values.iter("value"):  # type: ignore
+        value_name = value.get("name")
+        assert hasattr(datatype_cls, value_name), f"Enum field {xml_typename}.{value_name} not set"
 
 
 @pytest.mark.parametrize(
@@ -111,29 +126,30 @@ DOCUMENTATION_ERRORS = {
         "persistence_type": "Marked as optional in the XML, but mandatory according to the documentation",
     },
     "CurrentOrderSummary": {"matched_date": "Marked as mandatory, but is occasionally missing in real data"},
+    "ClearedOrderSummary": {"profit": "Profit is not a size, it's just a float"},
 }
 
 
 def check_typedef_param(param, py_cls, typedef_name):
     xml_param_name = param_name(param)
-    if param_deprecated(param):
+    if is_param_deprecated(param):
         return
     if DOCUMENTATION_ERRORS.get(typedef_name, {}).get(xml_param_name):
         # Documented exception for this parameter found, skip checks
         return
 
     assert py_cls is not None, f"{typedef_name} does not define parameters, but XML defines '{xml_param_name}'"
-    assert param_defined(param, py_cls), f"{typedef_name}.{xml_param_name} not defined"
+    assert is_param_defined(param, py_cls), f"{typedef_name}.{xml_param_name} not defined"
     param_cls = py_cls.__annotations__[xml_param_name]
-    if param_mandatory(param):
-        assert not param_optional(param, py_cls), f"{typedef_name} fails to require {xml_param_name}"
+    if is_param_mandatory(param):
+        assert not is_param_optional(param, py_cls), f"{typedef_name} fails to require {xml_param_name}"
     else:
-        assert param_optional(param, py_cls), f"{typedef_name} erroneously requires {xml_param_name}"
+        assert is_param_optional(param, py_cls), f"{typedef_name} erroneously requires {xml_param_name}"
         param_cls = py_type_unpack(param_cls)  # unpack Optional[...]
 
-    xml_type = xml_type_format(param.get("type"))
+    xml_type = xml_type_compat(param.get("type"), param_name=xml_param_name)
     param_cls_name = py_type_format(param_cls)
-    assert param_cls_name == xml_type, f"{typedef_name}.{xml_param_name}:{xml_type}: Invalid type: {param_cls_name}"
+    assert xml_type == param_cls_name, f"{typedef_name}.{xml_param_name}:{xml_type}: Invalid type: {param_cls_name}"
 
 
 @pytest.mark.parametrize(
@@ -174,9 +190,9 @@ def test_operations(spec, node):
     assert isinstance(operation_cls.endpoint_type.value, str), "EndpointType was not defined correctly"
     assert operation_cls.__doc__, "No documentation was provided"
     xml_return_type = node.findall("parameters/simpleResponse")[0].get("type")
-    assert xml_type_format(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
+    assert xml_type_compat(xml_return_type) == py_type_format(py_type_unpack(operation_cls.return_type))
     xml_error_type = node.findall("parameters/exceptions/exception")[0].get("type")
-    assert xml_type_format(xml_error_type) == operation_cls.throws.__name__
+    assert xml_type_compat(xml_error_type) == operation_cls.throws.__name__
     try:
         params_cls = operation_cls.__annotations__["params"]
     except KeyError:
@@ -210,30 +226,31 @@ def get_definition(spec, definition):
     raise AssertionError(f"{definition} not defined")
 
 
-def param_name(xml_param):
-    paramname = snake_case(xml_param.get("name"))
-    if paramname in keyword.kwlist:
-        return f"{paramname}_"
-    return paramname
+def param_name(xml_param) -> str:
+    """Translate the XML camel case names to snake case, escaping python keywords."""
+    p_name = snake_case(xml_param.get("name"))
+    if p_name in keyword.kwlist:
+        return f"{p_name}_"
+    return p_name
 
 
-def param_deprecated(xml_param):
+def is_param_deprecated(xml_param) -> bool:
     desc = (xml_param.findall("description")[0].text or "").strip()
     return desc.startswith("@Deprecated")
 
 
-def param_defined(xml_param, api_cls):
-    paramname = param_name(xml_param)
-    return paramname in api_cls.__dict__
+def is_param_defined(xml_param, api_cls) -> bool:
+    p_name = param_name(xml_param)
+    return p_name in api_cls.__dict__
 
 
-def param_mandatory(xml_param):
+def is_param_mandatory(xml_param) -> bool:
     return xml_param.get("mandatory") == "true"
 
 
-def param_optional(xml_param, api_cls):
-    paramname = param_name(xml_param)
-    type_spec_str = str(api_cls.__annotations__[paramname]).replace("typing.", "")
+def is_param_optional(xml_param, api_cls) -> bool:
+    p_name = param_name(xml_param)
+    type_spec_str = str(api_cls.__annotations__[p_name]).replace("typing.", "")
     return type_spec_str.startswith("Optional")
 
 
@@ -250,7 +267,7 @@ def py_type_unpack_annotated(type_def):
 def py_type_format(type_def):
     type_def_name = compat_type_name(type_def)
     if hasattr(type_def, "__metadata__"):
-        return py_type_replace(type_def.__metadata__[0].title)
+        return py_type_replace(type_def.__metadata__[-1].title)
     if not hasattr(type_def, "__args__"):
         return py_type_replace(type_def_name)
     args = type_def.__args__ if type_def_name != "Optional" else type_def.__args__[:-1]
@@ -262,8 +279,6 @@ PY_TYPE_NAME_REPLACEMENTS = {
     "SubscriptionStatus": "str",
     "MarketStatus": "str",
     "MarketId": "str",
-    "BetId": "str",
-    "SelectionId": "int",
     "RunnerStatus": "str",
     "CustomerRef": "str",
     "Wallet": "str",
@@ -282,6 +297,14 @@ PY_TYPE_NAME_REPLACEMENTS = {
     "CustomerStrategyRef": "str",
     "MarketBettingType": "str",
     "RunnerMetaData": "dict[str,str]",
+    "BetId": "int",
+    "CompetitionId": "int",
+    "ExchangeId": "int",
+    "SelectionId": "int",
+    "EventId": "int",
+    "MatchId": "int",
+    "IDType": "int",
+    "EventTypeId": "int",
 }
 
 XML_TYPE_NAME_REPLACEMENTS = {
@@ -291,11 +314,9 @@ XML_TYPE_NAME_REPLACEMENTS = {
     "double": "float",
     "dateTime": "datetime",
     "map": "dict",
-    "SelectionId": "int",
     "MarketId": "str",
     "Date": "datetime",
     "Handicap": "float",
-    "BetId": "str",
     "PersistenceType": "str",  # inconsistently used
     "CustomerOrderRef": "str",  # inconsistently used
     "CustomerStrategyRef": "str",  # inconsistently used
@@ -308,6 +329,13 @@ XML_TYPE_NAME_REPLACEMENTS = {
     "(": "[",
     ")": "]",
     ", ": ",",  # inconsistently used
+    "SelectionId": "int",
+    "CompetitionId": "int",
+    "BetId": "int",
+    "ExchangeId": "int",
+    "MatchId": "int",
+    "EventId": "int",
+    "EventTypeId": "int",
 }
 
 
@@ -316,7 +344,11 @@ def py_type_replace(name):
     return PY_TYPE_NAME_REPLACEMENTS.get(name, name)
 
 
-def xml_type_format(xml_type_def):
+def xml_type_compat(xml_type_def, param_name=None):
+    """API definition switches from using base type definitions to specialized types."""
+    if param_name == "bet_id" and xml_type_def == "string":
+        xml_type_def = "BetId"
+
     for xml_type, py_type in XML_TYPE_NAME_REPLACEMENTS.items():
         xml_type_def = xml_type_def.replace(xml_type, py_type)
 

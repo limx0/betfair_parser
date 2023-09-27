@@ -72,6 +72,18 @@ def test_event_types(session: Session):
 
 
 @skip_not_logged_in
+def test_competitions(session: Session):
+    resp = client.request(session, bo.ListCompetitions.with_params(filter=btd.MarketFilter(text_query="Football")))
+    assert len(resp), "No football competitions found"
+    for cr in resp:
+        assert isinstance(cr, btd.CompetitionResult)
+        assert cr.market_count
+        assert isinstance(cr.competition, btd.Competition)
+        assert cr.competition.id
+        assert cr.competition.name
+
+
+@skip_not_logged_in
 def test_events(session: Session):
     resp = client.request(session, bo.ListEvents.with_params(filter=btd.MarketFilter(text_query="Horse Racing")))
     assert len(resp) > 10
@@ -105,7 +117,7 @@ def test_market_catalogue(session: Session):
         assert runner.metadata
         assert runner.metadata
         assert runner.metadata.cloth_number
-        assert runner.metadata.forecastprice_decimal
+        assert runner.metadata.colours_description
 
 
 @skip_not_logged_in
