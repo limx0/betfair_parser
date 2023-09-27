@@ -67,7 +67,7 @@ lines_after_imports = 2
 combine_as_imports = true
 
 [tool.codespell]
-skip = "poetry.lock,./tests/resources/*"
+skip = "*.bz2,*.json,*.xml,poetry.lock"
 ignore-regex = ".*codespell-ignore$"
 
 [tool.ruff]
