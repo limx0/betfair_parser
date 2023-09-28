@@ -13,7 +13,7 @@ from betfair_parser.spec.common.enums import (
 
 def decode(raw: bytes, type: Any = Any) -> Any:
     try:
-        return msgspec.json.decode(raw, strict=False, type=type)  # type: ignore
+        return msgspec.json.decode(raw, strict=False, type=type)
     except msgspec.DecodeError as e:
         raise JSONError(str(e)) from e
 

@@ -1,8 +1,6 @@
-from enum import auto
-
 import msgspec
 
-from betfair_parser.strenums import DocumentedEnum, StrEnum, doc
+from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
 def test_strenum():

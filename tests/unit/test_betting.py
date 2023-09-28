@@ -1,6 +1,6 @@
 import pytest
 
-from betfair_parser.spec.betting.orders import CancelOrders, PlaceOrders, ReplaceOrders
+from betfair_parser.spec.betting import CancelOrders, PlaceOrders, ReplaceOrders
 from betfair_parser.spec.common import decode
 from tests.resources import RESOURCES_DIR, id_from_path
 

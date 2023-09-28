@@ -74,7 +74,7 @@ def test_enum(spec, node):
     min_values = 1 if xml_typename in ("Status", "ItemClass", "TokenType", "TimeInForce") else 2
     assert len(valid_values) >= min_values
     assert node.get("type") == "string"
-    for value_node in valid_values.iter("value"):  # type: ignore
+    for value_node in valid_values.iter("value"):
         value_name = value_node.get("name")
         assert hasattr(datatype_cls, value_name), f"Enum field {xml_typename}.{value_name} not set"
 

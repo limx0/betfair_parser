@@ -6,13 +6,13 @@ import msgspec
 from betfair_parser.spec.common.messages import BaseMessage
 
 
+Date = Annotated[datetime.datetime, msgspec.Meta(title="Date", tz=True)]
 IDType = Annotated[
     int, msgspec.Meta(title="IDType", description="integer data, but defined and encoded as string", ge=0)
 ]
 
-# Type aliases with minimalistic validation.
+# Type aliases as defined within the XML specification with minimalistic validation added.
 
-Date = Annotated[datetime.datetime, msgspec.Meta(title="Date", tz=True)]
 MarketType = Annotated[str, msgspec.Meta(title="MarketType")]
 Venue = Annotated[str, msgspec.Meta(title="Venue")]
 MarketId = Annotated[str, msgspec.Meta(title="MarketId")]  # The only ID, that actually needs to be a string

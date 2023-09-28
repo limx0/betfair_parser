@@ -1,6 +1,6 @@
 import pytest
 
-from betfair_parser.spec.betting.type_definitions import MarketCatalogue, RunnerCatalog
+from betfair_parser.spec.betting import MarketCatalogue, RunnerCatalog
 from betfair_parser.spec.common import decode, encode
 from tests.resources import RESOURCES_DIR, assert_json_equal
 

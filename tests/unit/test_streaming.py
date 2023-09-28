@@ -1,7 +1,6 @@
 import msgspec
 
-from betfair_parser.spec.streaming import MCM, OCM, stream_decode
-from betfair_parser.spec.streaming.type_definitions import MatchedOrder, RunnerStatus, StartingPriceLay
+from betfair_parser.spec.streaming import MCM, OCM, MatchedOrder, RunnerStatus, StartingPriceLay, stream_decode
 from tests.resources import RESOURCES_DIR
 
 
