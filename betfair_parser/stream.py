@@ -131,14 +131,19 @@ class AsyncStream(_BaseStream):
         return stream_decode(data)
 
     async def close(self):
+        self._reader = None  # does not need to be closed explicitly
         if self._writer:
-            try:
-                await self._writer.drain()
-            finally:
-                self._writer.close()
-                await self._writer.wait_closed()
+            await self._writer.drain()
+
+            # Abort the underlying transport (equivalent to socket.shutdown())
+            transport = self._writer.transport
+            if transport:
+                transport.abort()
+
+            # Close the writer (which should in turn close the underlying transport)
+            self._writer.close()
+            await self._writer.wait_closed()
         self._writer = None
-        self._reader = None
 
     async def authenticate(self, app_key: str, token: str) -> None:
         await self.send(Authentication(id=self.unique_id(), app_key=app_key, session=token))

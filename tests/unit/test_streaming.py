@@ -1,7 +1,6 @@
 import msgspec
 
-from betfair_parser.spec.streaming import MCM, OCM, stream_decode
-from betfair_parser.spec.streaming.type_definitions import MatchedOrder, RunnerStatus, StartingPriceLay
+from betfair_parser.spec.streaming import MCM, OCM, MatchedOrder, RunnerStatus, StartingPriceLay, stream_decode
 from tests.resources import RESOURCES_DIR
 
 
@@ -31,10 +30,12 @@ def test_mcm():
     )
     mcm: MCM = stream_decode(raw)
     assert isinstance(mcm, MCM)
-    assert mcm.mc[0].market_definition.runners[0].hc == 0.0
-    assert mcm.mc[0].market_definition.runners[0].handicap == "0.0"
-    assert mcm.mc[0].market_definition.runners[0].id == 237474
-    assert mcm.mc[0].market_definition.runners[0].runner_id == 237474
+    runner = mcm.mc[0].market_definition.runners[0]
+    assert runner.hc == 0.0
+    assert runner.id == 237474
+    assert runner.name == "Detroit Pistons"
+    assert runner.sort_priority == 1
+    assert runner.status.value == "LOSER"
 
 
 def test_mcm_no_missing_fields():

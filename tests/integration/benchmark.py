@@ -5,18 +5,14 @@ pytest tests/integration/benchmark.py
 
 import bz2
 
-from betfair_parser.spec.streaming import MCM, OCM, STREAM_RESPONSE, stream_decode
+from betfair_parser.spec.streaming import MCM, OCM, stream_decode, stream_decode_lines
 from tests.resources import RESOURCES_DIR
 
 
 def test_performance(benchmark):
     path = RESOURCES_DIR / "data/27312315.bz2"
-    lines = bz2.open(path).readlines()
-
-    def decode_all(lst: list[bytes]) -> list[STREAM_RESPONSE]:
-        return [stream_decode(line) for line in lst]
-
-    result = benchmark.pedantic(decode_all, args=(lines,))
+    data = bz2.open(path).read()
+    result = benchmark.pedantic(stream_decode_lines, args=(data,))
     assert len(result) == 50854
     for msg in result:
         # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+

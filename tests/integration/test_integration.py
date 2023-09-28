@@ -79,7 +79,7 @@ LINE_COUNT = {
 }
 
 
-@pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "data").glob("*.bz2")), ids=id_from_path)
+@pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "data").glob("**/*.bz2")), ids=id_from_path)
 def test_archive(path):
     for i, line in enumerate(bz2.open(path), start=1):
         res = stream_decode(line)

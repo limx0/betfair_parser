@@ -1,6 +1,6 @@
 import pytest
 
-from betfair_parser.spec.betting.type_definitions import MarketCatalogue, RunnerCatalog
+from betfair_parser.spec.betting import MarketCatalogue, RunnerCatalog
 from betfair_parser.spec.common import decode, encode
 from tests.resources import RESOURCES_DIR, assert_json_equal
 
@@ -81,14 +81,14 @@ def test_market_catalogue():
         ],
         "eventType": {"id": 1, "name": "Soccer"},
         "event": {
-            "id": "30359506",
+            "id": 30359506,
             "name": "Almere City v Den Bosch",
             "timezone": "GMT",
             "openDate": "2021-03-19T19:00:00.000Z",
             "countryCode": "NL",
             "venue": None,
         },
-        "competition": {"id": "11", "name": "Dutch Eerste Divisie"},
+        "competition": {"id": 11, "name": "Dutch Eerste Divisie"},
     }
     result = decode(encode(catalog[5000]))
     del result["description"]["rules"]  # too lengthy

@@ -68,12 +68,9 @@ class RunnerDefinition(BaseMessage, frozen=True):
     removal_date: Optional[Date] = None
 
     @property
-    def handicap(self) -> str:
-        return str(self.hc or 0.0)
-
-    @property
-    def runner_id(self) -> int:
-        return self.id
+    def handicap(self):
+        """The handicap of the runner (selection) (None if not applicable)"""
+        return self.hc
 
 
 class KeyLineSelection(BaseMessage, frozen=True):
@@ -144,26 +141,30 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
         return EventTypeIdCode(int(self.event_type_id)).name
 
 
-class _PriceVolume(BaseMessage, array_like=True, frozen=True):
+class _PV(BaseMessage, array_like=True, frozen=True):
+    """Price-Volume pair"""
+
     price: Price
     volume: Size
 
 
-class _LevelPriceVolume(BaseMessage, array_like=True, frozen=True):
+class _LPV(BaseMessage, array_like=True, frozen=True):
+    """Level-Price-Volume triple"""
+
     level: int
     price: Price
     volume: Size
 
 
-AvailableToBack = Annotated[_PriceVolume, msgspec.Meta(title="AvailableToBack")]
-AvailableToLay = Annotated[_PriceVolume, msgspec.Meta(title="AvailableToLay")]
-BestAvailableToBack = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestAvailableToBack")]
-BestAvailableToLay = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestAvailableToLay")]
-BestDisplayAvailableToBack = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestDisplayAvailableToBack")]
-BestDisplayAvailableToLay = Annotated[_LevelPriceVolume, msgspec.Meta(title="BestDisplayAvailableToLay")]
-StartingPriceBack = Annotated[_PriceVolume, msgspec.Meta(title="StartingPriceBack")]
-StartingPriceLay = Annotated[_PriceVolume, msgspec.Meta(title="StartingPriceLay")]
-Trade = Annotated[_PriceVolume, msgspec.Meta(title="Trade")]
+AvailableToBack = Annotated[_PV, msgspec.Meta(title="AvailableToBack")]
+AvailableToLay = Annotated[_PV, msgspec.Meta(title="AvailableToLay")]
+BestAvailableToBack = Annotated[_LPV, msgspec.Meta(title="BestAvailableToBack")]
+BestAvailableToLay = Annotated[_LPV, msgspec.Meta(title="BestAvailableToLay")]
+BestDisplayAvailableToBack = Annotated[_LPV, msgspec.Meta(title="BestDisplayAvailableToBack")]
+BestDisplayAvailableToLay = Annotated[_LPV, msgspec.Meta(title="BestDisplayAvailableToLay")]
+StartingPriceBack = Annotated[_PV, msgspec.Meta(title="StartingPriceBack")]
+StartingPriceLay = Annotated[_PV, msgspec.Meta(title="StartingPriceLay")]
+Trade = Annotated[_PV, msgspec.Meta(title="Trade")]
 
 
 class RunnerChange(BaseMessage, frozen=True):
@@ -178,62 +179,245 @@ class RunnerChange(BaseMessage, frozen=True):
     spl: Optional[list[StartingPriceLay]] = None  # Starting Price (Available To) Lay
     spn: Optional[float] = None  # Starting Price Near
     spf: Optional[float] = None  # Starting Price Far
-    trd: Optional[list[Trade]] = None
-    ltp: Optional[float] = None
-    tv: Optional[float] = None  # The total amount matched. This value is truncated at 2dp.
+    trd: Optional[list[Trade]] = None  # Traded
+    ltp: Optional[float] = None  # Last Traded Price
+    tv: Optional[float] = None  # Total Volume
     hc: Optional[Handicap] = None
+
+    @property
+    def available_to_back(self):
+        """PriceVol tuple delta of price changes (0 vol is remove)"""
+        return self.atb
+
+    @property
+    def available_to_lay(self):
+        """PriceVol tuple delta of price changes (0 vol is remove)"""
+        return self.atl
+
+    @property
+    def best_available_to_back(self):
+        """LevelPriceVol triple delta of price changes, keyed by level (0 vol is remove)"""
+        return self.batb
+
+    @property
+    def best_available_to_lay(self):
+        """LevelPriceVol triple delta of price changes, keyed by level (0 vol is remove)"""
+        return self.batl
+
+    @property
+    def best_display_available_to_back(self):
+        """LevelPriceVol triple delta of price changes, keyed by level (0 vol is remove) (includes virtual prices)"""
+        return self.bdatb
+
+    @property
+    def best_display_available_to_lay(self):
+        """LevelPriceVol triple delta of price changes, keyed by level (0 vol is remove) (includes virtual prices)"""
+        return self.bdatl
+
+    @property
+    def starting_price_back(self):
+        """PriceVol tuple delta of price changes (0 vol is remove)"""
+        return self.spb
+
+    @property
+    def starting_price_lay(self):
+        """PriceVol tuple delta of price changes (0 vol is remove)"""
+        return self.spl
+
+    @property
+    def starting_price_near(self):
+        """The near starting price (or None if un-changed)"""
+        return self.spn
+
+    @property
+    def starting_price_far(self):
+        """The far starting price (or None if un-changed)"""
+        return self.spf
+
+    @property
+    def traded(self):
+        """PriceVol tuple delta of price changes (0 vol is remove)"""
+        return self.trd
+
+    @property
+    def last_traded_price(self):
+        """The last traded price (or None if un-changed)"""
+        return self.ltp
+
+    @property
+    def total_volume(self):
+        """The total amount matched. This value is truncated at 2dp."""
+        return self.tv
+
+    @property
+    def handicap(self):
+        """The handicap of the runner (selection) (None if not applicable)"""
+        return self.hc
 
 
 class MarketChange(BaseMessage, kw_only=True, frozen=True):
     id: MarketId
-    rc: Optional[list[RunnerChange]] = None  # not presend if market_definition is sent
-    con: Optional[bool] = None  # Conflated - have more than a single change been combined (or null if not conflated)
-    img: bool = False  # Image - replace existing prices / data with the data supplied: it is not a delta
+    rc: Optional[list[RunnerChange]] = None  # Runner Changes
+    con: Optional[bool] = None  # Conflated
+    img: bool = False  # Image
     market_definition: Optional[MarketDefinition] = None
-    tv: Optional[float] = None  # Total amount matched across the market. Null if un-changed
+    tv: Optional[float] = None  # Traded Volume
+
+    @property
+    def runner_changes(self):
+        """Not present if market_definition is sent"""
+        return self.rc
+
+    @property
+    def conflated(self):
+        """Have more than a single change been combined (or None if not conflated)"""
+        return self.con
+
+    @property
+    def image(self):
+        """Replace existing prices / data with the data supplied: it is not a delta"""
+        return self.img
+
+    @property
+    def traded_volume(self):
+        """Total amount matched across the market. None if un-changed"""
+        return self.tv
 
 
 class Order(BaseMessage, frozen=True):
     id: BetId
-    # Price - the original placed price of the order. Line markets operate at even-money odds of 2.0.
-    # However, price for these markets refers to the line positions available as defined by the markets
-    # min-max range and interval steps
-    p: float
-    # Size - the original placed size of the order
-    s: float
+    p: float  # Price
+    s: float  # Size
     # Side of the order. For Line markets a 'B' bet refers to a SELL line and an 'L' bet refers to a BUY line.
     side: Literal["B", "L"]
-    # Status of the order (E = EXECUTABLE, EC = EXECUTION_COMPLETE)
-    status: Literal["E", "EC"]
-    # Persistence Type - if the order will persist at in play or not (L=LAPSE, P=PERSIST, MOC=Market On Close)
-    pt: Literal["L", "P", "MOC"]
-    # Order Type - the type of the order (L = LIMIT, MOC = MARKET_ON_CLOSE, LOC = LIMIT_ON_CLOSE)
-    ot: Literal["L", "MOC", "LOC"]  # codespell-ignore
-    # Placed Date - the date the order was placed (in millis since epoch) that the changes were generated
-    pd: int
-    # BSP Liability - the BSP liability of the order (null if the order is not a BSP order)
-    bsp: Optional[float] = None
-    # Order Reference - the customer's order reference for this order (empty string if one was not set)
-    rfo: Optional[str] = None
-    # Strategy Reference - the customer's strategy reference for this order (empty string if one was not set)
-    rfs: Optional[str] = None
-    rc: Optional[str] = None  # Regulator Code - the regulator of the order
-    rac: Optional[str] = None  # Regulator Auth Code - the auth code returned by the regulator
-    # TODO: format int for dates??
-    md: Optional[int] = None  # Matched Date - the date the order was matched (null if the order is not matched)
-    cd: Optional[int] = None  # Cancelled Date - the date the order was cancelled (null if the order is not cancelled)
-    ld: Optional[int] = None  # Lapsed Date - the date the order was lapsed (null if the order is not lapsed)
-
-    # Average Price Matched - the average price the order was matched at (null if the order is not matched).
-    # This value is not meaningful for activity on Line markets and is not guaranteed to be returned or
-    # maintained for these markets.
-    avp: Optional[float] = None
-    sm: Optional[float] = None  # Size Matched - the amount of the order that has been matched
-    sr: Optional[float] = None  # Size Remaining - the amount of the order that is remaining unmatched
-    sl: Optional[float] = None  # Size Lapsed - the amount of the order that has been lapsed
-    sc: Optional[float] = None  # Size Cancelled - the amount of the order that has been cancelled
-    sv: Optional[float] = None  # Size Voided - the amount of the order that has been voided
+    status: Literal["E", "EC"]  # Status of the order (E = EXECUTABLE, EC = EXECUTION_COMPLETE)
+    pt: Literal["L", "P", "MOC"]  # Persistence Type
+    ot: Literal["L", "MOC", "LOC"]  # Order Type - codespell-ignore
+    pd: int  # Placed Date
+    bsp: Optional[float] = None  # BSP Liability
+    rfo: Optional[str] = None  # Order Reference
+    rfs: Optional[str] = None  # Strategy Reference
+    rc: Optional[str] = None  # Regulator Code
+    rac: Optional[str] = None  # Regulator Auth Code
+    # TODO: convert int(ms) into datetime for dates??
+    md: Optional[int] = None  # Matched Date
+    cd: Optional[int] = None  # Cancelled Date
+    ld: Optional[int] = None  # Lapsed Date
+    avp: Optional[float] = None  # Average Price Matched
+    sm: Optional[float] = None  # Size Matched
+    sr: Optional[float] = None  # Size Remaining
+    sl: Optional[float] = None  # Size Lapsed
+    sc: Optional[float] = None  # Size Cancelled
+    sv: Optional[float] = None  # Size Voided
     lsrc: Optional[LapseStatusReasonCode] = None
+
+    @property
+    def price(self):
+        """
+        The original placed price of the order. Line markets operate at even-money odds of 2.0.
+        However, price for these markets refers to the line positions available as defined by the markets
+        min-max range and interval steps
+        """
+        return self.p
+
+    @property
+    def size(self):
+        """The original placed size of the order"""
+        return self.s
+
+    @property
+    def persistence_type(self):
+        """If the order will persist at in play or not (L=LAPSE, P=PERSIST, MOC=Market On Close)"""
+        return self.pt
+
+    @property
+    def order_type(self):
+        """The type of the order (L = LIMIT, MOC = MARKET_ON_CLOSE, LOC = LIMIT_ON_CLOSE)"""
+        return self.ot  # codespell-ignore
+
+    @property
+    def placed_date(self):
+        """The date the order was placed (in millis since epoch) that the changes were generated"""
+        return self.pd
+
+    @property
+    def bsp_liability(self):
+        """The BSP liability of the order (None if the order is not a BSP order)"""
+        return self.bsp
+
+    @property
+    def order_reference(self):
+        """The customer's order reference for this order (None if one was not set)"""
+        return self.rfo
+
+    @property
+    def strategy_reference(self):
+        """The customer's strategy reference for this order (empty string if one was not set)"""
+        return self.rfs
+
+    @property
+    def regulator_code(self):
+        """The regulator of the order"""
+        return self.rc
+
+    @property
+    def regulator_auth_code(self):
+        """The auth code returned by the regulator"""
+        return self.rac
+
+    @property
+    def matched_date(self):
+        """The date the order was matched (None if the order is not matched)"""
+        return self.md
+
+    @property
+    def cancelled_date(self):
+        """The date the order was cancelled (None if the order is not cancelled)"""
+        return self.cd
+
+    @property
+    def lapsed_date(self):
+        """The date the order was lapsed (None if the order is not lapsed)"""
+        return self.ld
+
+    @property
+    def average_price_matched(self):
+        """
+        The average price the order was matched at (None if the order is not matched). This value
+        is not meaningful for activity on Line markets and is not guaranteed to be returned or
+        maintained for these markets.
+        """
+        return self.avp
+
+    @property
+    def size_matched(self):
+        """The amount of the order that has been matched"""
+        return self.sm
+
+    @property
+    def size_remaining(self):
+        """The amount of the order that is remaining unmatched"""
+        return self.sr
+
+    @property
+    def size_lapsed(self):
+        """The amount of the order that has been lapsed"""
+        return self.sl
+
+    @property
+    def size_cancelled(self):
+        """The amount of the order that has been cancelled"""
+        return self.sc
+
+    @property
+    def size_voided(self):
+        """The amount of the order that has been voided"""
+        return self.sv
+
+    @property
+    def lapse_status_reason_code(self):
+        """The reason that some or all of this order has been lapsed (None if no portion of the order is lapsed"""
+        return self.lsrc
 
 
 class MatchedOrder(BaseMessage, array_like=True, frozen=True):
@@ -242,18 +426,53 @@ class MatchedOrder(BaseMessage, array_like=True, frozen=True):
 
 
 class StrategyMatchChange(BaseMessage, frozen=True):
-    mb: Optional[list[MatchedOrder]] = None
-    ml: Optional[list[MatchedOrder]] = None
+    mb: Optional[list[MatchedOrder]] = None  # Matched Backs
+    ml: Optional[list[MatchedOrder]] = None  # Matched Lays
+
+    @property
+    def matched_backs(self):
+        """Matched amounts by distinct matched price on the Back side for this strategy"""
+        return self.mb
+
+    @property
+    def matched_lays(self):
+        """Matched amounts by distinct matched price on the Lay side for this strategy"""
+        return self.ml
 
 
 class OrderRunnerChange(BaseMessage, frozen=True):
     id: SelectionId
     full_image: Optional[bool] = False
     hc: Optional[Handicap] = None
-    mb: Optional[list[MatchedOrder]] = None
-    ml: Optional[list[MatchedOrder]] = None
-    smc: Optional[dict[str, StrategyMatchChange]] = None
-    uo: Optional[list[Order]] = None
+    mb: Optional[list[MatchedOrder]] = None  # Matched Backs
+    ml: Optional[list[MatchedOrder]] = None  # Matched Lays
+    smc: Optional[dict[str, StrategyMatchChange]] = None  # Strategy Matches
+    uo: Optional[list[Order]] = None  # Unmatched Orders
+
+    @property
+    def handicap(self):
+        """The handicap of the runner (selection) (None if not applicable)"""
+        return self.hc
+
+    @property
+    def matched_backs(self):
+        """Matched amounts by distinct matched price on the Back side for this runner (selection)"""
+        return self.mb
+
+    @property
+    def matched_lays(self):
+        """Matched amounts by distinct matched price on the Lay side for this runner (selection)"""
+        return self.ml
+
+    @property
+    def strategy_matches(self):
+        """Matched Backs and Matched Lays grouped by strategy reference"""
+        return self.smc
+
+    @property
+    def unmatched_orders(self):
+        """Orders on this runner (selection) that are not fully matched"""
+        return self.uo
 
 
 class OrderMarketChange(BaseMessage, kw_only=True, frozen=True):
@@ -262,3 +481,8 @@ class OrderMarketChange(BaseMessage, kw_only=True, frozen=True):
     closed: Optional[bool] = None
     full_image: Optional[bool] = False
     orc: Optional[list[OrderRunnerChange]] = None
+
+    @property
+    def order_runner_changes(self):
+        """A list of changes to orders on a selection"""
+        return self.orc

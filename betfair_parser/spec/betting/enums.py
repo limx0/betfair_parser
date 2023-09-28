@@ -1,4 +1,3 @@
-from betfair_parser.spec.common import EventTypeIdCode  # noqa for reimport
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
