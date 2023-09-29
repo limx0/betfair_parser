@@ -1,3 +1,5 @@
+![betfair_parser logo](https://github.com/limx0/betfair_parser/assets/2386612/10d602a6-627c-48f1-8145-2f14232a8320)
+
 [![GitHub Build Status](https://img.shields.io/github/actions/workflow/status/limx0/betfair_parser/build.yml?branch=main&logo=github)](https://github.com/limx0/betfair_parser/actions)
 [![PyPI](https://img.shields.io/pypi/v/betfair_parser.svg?style=flat)](https://pypi.org/project/betfair_parser/)
 ![Python Version](https://img.shields.io/pypi/pyversions/betfair_parser)
