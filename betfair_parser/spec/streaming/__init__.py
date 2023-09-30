@@ -23,6 +23,8 @@ from betfair_parser.spec.streaming.messages import (
     Status,
 )
 from betfair_parser.spec.streaming.type_definitions import (
+    LPV,
+    PV,
     AvailableToBack,
     AvailableToLay,
     BestAvailableToBack,
@@ -52,13 +54,14 @@ from betfair_parser.spec.streaming.type_definitions import (
 
 STREAM_REQUEST = Union[Authentication, MarketSubscription, OrderSubscription, Heartbeat]
 STREAM_RESPONSE = Union[Connection, Status, MCM, OCM]
+CHANGE_MESSAGE = Union[MCM, OCM]
 _STREAM_MESSAGES = Union[STREAM_RESPONSE, list[STREAM_RESPONSE], STREAM_REQUEST]
 _STREAM_DECODER = Decoder(_STREAM_MESSAGES, strict=False)
 
 
-def stream_decode(raw: bytes):
+def stream_decode(raw: Union[str, bytes]):
     return _STREAM_DECODER.decode(raw)
 
 
-def stream_decode_lines(raw: bytes):
+def stream_decode_lines(raw: Union[str, bytes]):
     return _STREAM_DECODER.decode_lines(raw)

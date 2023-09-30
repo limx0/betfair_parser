@@ -141,14 +141,14 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
         return EventTypeIdCode(int(self.event_type_id)).name
 
 
-class _PV(BaseMessage, array_like=True, frozen=True):
+class PV(BaseMessage, array_like=True, frozen=True):
     """Price-Volume pair"""
 
     price: Price
     volume: Size
 
 
-class _LPV(BaseMessage, array_like=True, frozen=True):
+class LPV(BaseMessage, array_like=True, frozen=True):
     """Level-Price-Volume triple"""
 
     level: int
@@ -156,15 +156,15 @@ class _LPV(BaseMessage, array_like=True, frozen=True):
     volume: Size
 
 
-AvailableToBack = Annotated[_PV, msgspec.Meta(title="AvailableToBack")]
-AvailableToLay = Annotated[_PV, msgspec.Meta(title="AvailableToLay")]
-BestAvailableToBack = Annotated[_LPV, msgspec.Meta(title="BestAvailableToBack")]
-BestAvailableToLay = Annotated[_LPV, msgspec.Meta(title="BestAvailableToLay")]
-BestDisplayAvailableToBack = Annotated[_LPV, msgspec.Meta(title="BestDisplayAvailableToBack")]
-BestDisplayAvailableToLay = Annotated[_LPV, msgspec.Meta(title="BestDisplayAvailableToLay")]
-StartingPriceBack = Annotated[_PV, msgspec.Meta(title="StartingPriceBack")]
-StartingPriceLay = Annotated[_PV, msgspec.Meta(title="StartingPriceLay")]
-Trade = Annotated[_PV, msgspec.Meta(title="Trade")]
+AvailableToBack = Annotated[PV, msgspec.Meta(title="AvailableToBack")]
+AvailableToLay = Annotated[PV, msgspec.Meta(title="AvailableToLay")]
+BestAvailableToBack = Annotated[LPV, msgspec.Meta(title="BestAvailableToBack")]
+BestAvailableToLay = Annotated[LPV, msgspec.Meta(title="BestAvailableToLay")]
+BestDisplayAvailableToBack = Annotated[LPV, msgspec.Meta(title="BestDisplayAvailableToBack")]
+BestDisplayAvailableToLay = Annotated[LPV, msgspec.Meta(title="BestDisplayAvailableToLay")]
+StartingPriceBack = Annotated[PV, msgspec.Meta(title="StartingPriceBack")]
+StartingPriceLay = Annotated[PV, msgspec.Meta(title="StartingPriceLay")]
+Trade = Annotated[PV, msgspec.Meta(title="Trade")]
 
 
 class RunnerChange(BaseMessage, frozen=True):
@@ -310,6 +310,10 @@ class Order(BaseMessage, frozen=True):
     sc: Optional[float] = None  # Size Cancelled
     sv: Optional[float] = None  # Size Voided
     lsrc: Optional[LapseStatusReasonCode] = None
+
+    @property
+    def execution_complete(self) -> bool:
+        return self.status == "EC"
 
     @property
     def price(self):

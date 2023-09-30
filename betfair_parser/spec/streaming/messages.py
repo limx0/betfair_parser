@@ -127,7 +127,10 @@ class _ChangeMessage(StreamResponse, kw_only=True, frozen=True):
 
 
 class MCM(_ChangeMessage, kw_only=True, frozen=True):
-    """This is the ChangeMessage stream of data Betfair sends back after subscribing to the market stream."""
+    """
+    This is the ChangeMessage stream of data Betfair sends back after subscribing to the market stream.
+    Market subscriptions are always in the underlying exchange currency - GBP.
+    """
 
     mc: Optional[List[MarketChange]] = None
 
@@ -138,7 +141,10 @@ class MCM(_ChangeMessage, kw_only=True, frozen=True):
 
 
 class OCM(_ChangeMessage, kw_only=True, frozen=True):
-    """This is the ChangeMessage stream of data Betfair sends back after subscribing to the order stream."""
+    """
+    This is the ChangeMessage stream of data Betfair sends back after subscribing to the order stream.
+    Order subscriptions are provided in the currency of the account that the orders are placed in.
+    """
 
     oc: Optional[List[OrderMarketChange]] = None
 
