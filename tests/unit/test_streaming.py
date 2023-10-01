@@ -145,14 +145,14 @@ def test_mcm_no_clk():
 
 
 def test_mcm_market_definition_each_way():
-    raw = (RESOURCES_DIR / "responses/streaming/mcm_market_definition_each_way.json").read_bytes()
+    raw = (RESOURCES_DIR / "responses" / "streaming" / "mcm_market_definition_each_way.json").read_bytes()
     mcm: MCM = stream_decode(raw)
     assert mcm.mc[0].market_definition.market_type == "EACH_WAY"
     assert mcm.mc[0].market_definition.each_way_divisor == 4.0
 
 
 def test_bsp_data():
-    raw = (RESOURCES_DIR / "responses/streaming/mcm_bsp_data.json").read_bytes()
+    raw = (RESOURCES_DIR / "responses" / "streaming" / "mcm_bsp_data.json").read_bytes()
     mcm: MCM = stream_decode(raw)[0]
     rc = mcm.mc[0].rc[0]
     assert rc.spl == [StartingPriceLay(price=1.01, volume=2.8)]
@@ -160,7 +160,7 @@ def test_bsp_data():
 
 
 def test_bsp_result():
-    raw = (RESOURCES_DIR / "responses/streaming/mcm_market_definition_bsp.json").read_bytes()
+    raw = (RESOURCES_DIR / "responses" / "streaming" / "mcm_market_definition_bsp.json").read_bytes()
     mcm: MCM = stream_decode(raw)
     runners = mcm.mc[0].market_definition.runners
     assert runners[0].bsp == 2.0008034621107256

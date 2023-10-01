@@ -26,7 +26,7 @@ from betfair_parser.spec.streaming import (
 )
 
 
-def depth_ladder_update_lpv(ladder: dict[int, LPV], lpvs: list[LPV]) -> None:
+def ladder_update_lpv(ladder: dict[int, LPV], lpvs: list[LPV]) -> None:
     for lpv in lpvs:
         if not lpv.volume:
             ladder.pop(lpv.level, None)
@@ -34,12 +34,20 @@ def depth_ladder_update_lpv(ladder: dict[int, LPV], lpvs: list[LPV]) -> None:
             ladder[lpv.level] = lpv
 
 
-def depth_ladder_update_pv(ladder: dict[float, float], pvs: list[PV]) -> None:
+def ladder_update_pv(ladder: dict[float, float], pvs: list[PV]) -> None:
     for pv in pvs:
         if not pv.volume:
             ladder.pop(pv.price, None)
         else:
             ladder[pv.price] = pv.volume
+
+
+def ladder_update_mo(ladder: dict[float, float], mos: list[MatchedOrder]) -> None:
+    for mo in mos:
+        if not mo.size:
+            ladder.pop(mo.price, None)
+        else:
+            ladder[mo.price] = mo.size
 
 
 class RunnerOrderBook:
@@ -78,17 +86,17 @@ class RunnerOrderBook:
         if rc.spn:
             self.starting_price_near = rc.spn
         if rc.atb:
-            depth_ladder_update_pv(self.available_to_back, rc.atb)
+            ladder_update_pv(self.available_to_back, rc.atb)
         if rc.atl:
-            depth_ladder_update_pv(self.available_to_lay, rc.atl)
+            ladder_update_pv(self.available_to_lay, rc.atl)
         if rc.batb:
-            depth_ladder_update_lpv(self.best_available_to_back, rc.batb)
+            ladder_update_lpv(self.best_available_to_back, rc.batb)
         if rc.batl:
-            depth_ladder_update_lpv(self.best_available_to_lay, rc.batl)
+            ladder_update_lpv(self.best_available_to_lay, rc.batl)
         if rc.bdatb:
-            depth_ladder_update_lpv(self.best_display_available_to_back, rc.bdatb)
+            ladder_update_lpv(self.best_display_available_to_back, rc.bdatb)
         if rc.bdatl:
-            depth_ladder_update_lpv(self.best_display_available_to_lay, rc.bdatl)
+            ladder_update_lpv(self.best_display_available_to_lay, rc.bdatl)
 
     def __repr__(self) -> str:
         data = {}
@@ -97,10 +105,10 @@ class RunnerOrderBook:
             if not val:
                 continue
             if isinstance(val, dict):
-                if key in ("atb", "atl"):
-                    val = "[" + ", ".join(f"{price:.2f}:{volume:.2f}" for price, volume in sorted(val.items())) + "]"
+                if key in ("available_to_back", "available_to_lay"):
+                    val = "[" + ", ".join(f"{price:.4g}:{volume:.2f}" for price, volume in sorted(val.items())) + "]"
                 else:
-                    val = "[" + ", ".join(f"{lpv.price:.2f}:{lpv.volume:.2f}" for _, lpv in sorted(val.items())) + "]"
+                    val = "[" + ", ".join(f"{lpv.price:.4g}:{lpv.volume:.2f}" for _, lpv in sorted(val.items())) + "]"
             elif isinstance(val, float):
                 val = f"{val:.2f}"
             else:
@@ -117,14 +125,6 @@ class ChangeCache:
     stream_unreliable: Optional[bool] = False
     conflate_ms: Optional[int] = None
 
-    def update(self, msg: Union[MCM, OCM]) -> None:
-        self.update_meta(msg)
-        if msg.is_heartbeat:
-            return
-        if msg.ct == ChangeType.SUB_IMAGE and not msg.segment_type or msg.segment_type == SegmentType.SEG_START:
-            self.clear()
-        self.update_data(msg)
-
     def update_meta(self, msg: Union[MCM, OCM]) -> None:
         if msg.initial_clk:
             self.initial_clk = msg.initial_clk
@@ -134,12 +134,11 @@ class ChangeCache:
             self.conflate_ms = msg.conflate_ms
         self.publish_time = msg.pt
         self.stream_unreliable = msg.stream_unreliable
+        if msg.ct == ChangeType.SUB_IMAGE and not msg.segment_type or msg.segment_type == SegmentType.SEG_START:
+            self.clear()
 
     def clear(self) -> None:
         return
-
-    def update_data(self, msg: Union[MCM, OCM]) -> None:
-        raise NotImplementedError
 
 
 class MarketCache(ChangeCache):
@@ -158,25 +157,19 @@ class MarketCache(ChangeCache):
         self.order_book.clear()
         self.market_definitions.clear()
 
-    # TODO: fix typing
-    def update_data(self, mcm: MCM) -> None:  # type: ignore
+    def update(self, mcm: MCM) -> None:
+        self.update_meta(mcm)
+        if mcm.is_heartbeat:
+            return
         for mc in mcm.mc:
             if mc.img:
-                self.order_book[mc.id].clear()
+                self.order_book.pop(mc.id, None)
             if mc.market_definition:
                 self.market_definitions[mc.id] = mc.market_definition
             if not mc.rc:
                 continue
             for rc in mc.rc:
                 self.order_book[mc.id][rc.id].update(rc)
-
-
-def depth_ladder_update_mo(ladder: dict[float, float], mos: list[MatchedOrder]) -> None:
-    for mo in mos:
-        if not mo.size:
-            ladder.pop(mo.price, None)
-        else:
-            ladder[mo.price] = mo.size
 
 
 class RunnerOrders:
@@ -216,9 +209,9 @@ class RunnerOrders:
                 else:
                     self.unmatched_orders[uo.id] = uo
         if orc.mb:
-            depth_ladder_update_mo(self.matched_backs, orc.mb)
+            ladder_update_mo(self.matched_backs, orc.mb)
         if orc.ml:
-            depth_ladder_update_mo(self.matched_backs, orc.ml)
+            ladder_update_mo(self.matched_backs, orc.ml)
 
     # TODO: Some aggregation functions would make sense here like exposure etc.
 
@@ -234,8 +227,11 @@ class OrderCache(ChangeCache):
     def clear(self) -> None:
         self.orders.clear()
 
-    # TODO: fix typing
-    def update_data(self, ocm: OCM) -> None:  # type: ignore
+    def update(self, ocm: OCM) -> None:
+        self.update_meta(ocm)
+        if ocm.is_heartbeat:
+            return
+
         for oc in ocm.oc:
             if oc.full_image:
                 self.orders.pop(oc.id, None)

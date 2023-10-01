@@ -15,7 +15,7 @@ def test_navigation_request():
 
 @pytest.fixture(scope="module")  # Frozen anyways, no need to recreate
 def navigation_root() -> Navigation:
-    raw = RESOURCES_DIR.joinpath("responses/navigation_menu.json").read_bytes()
+    raw = (RESOURCES_DIR / "responses" / "navigation_menu.json").read_bytes()
     return decode(raw, type=Navigation)
 
 

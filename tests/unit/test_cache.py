@@ -1,11 +1,11 @@
-from betfair_parser.cache import LPV, MarketCache, OrderCache, depth_ladder_update_lpv
+from betfair_parser.cache import LPV, MarketCache, OrderCache, ladder_update_lpv
 from betfair_parser.spec.common import decode, encode
 from betfair_parser.spec.streaming import stream_decode
 from tests.resources import RESOURCES_DIR
 
 
 def test_runner_order_book_repr():
-    mcm = stream_decode((RESOURCES_DIR / "responses/streaming/mcm_sub_image_no_market_def.json").read_bytes())
+    mcm = stream_decode((RESOURCES_DIR / "responses" / "streaming" / "mcm_sub_image_no_market_def.json").read_bytes())
     cache = MarketCache()
     cache.update(mcm)
     rc = cache.order_book["1.180737193"][25327214]
@@ -33,19 +33,19 @@ def test_batb_cache():
         [8, 0, 0],
         [9, 0, 0],
     ]
-    depth_ladder_update_lpv(ladder, decode(encode(upd0), type=list[LPV]))
+    ladder_update_lpv(ladder, decode(encode(upd0), type=list[LPV]))
     assert ladder[0] == LPV(level=0, price=1.4, volume=2)
     assert len(ladder) == 1
 
     # Placed a second bet that didn't disturb the first bet's position
     upd1 = [[1, 1.5, 2]]
-    depth_ladder_update_lpv(ladder, decode(encode(upd1), type=list[LPV]))
+    ladder_update_lpv(ladder, decode(encode(upd1), type=list[LPV]))
     assert ladder[1] == LPV(level=1, price=1.5, volume=2)
     assert len(ladder) == 2
 
     # Placed a third bet that bumped the previous two down the ladder
     upd2 = [[2, 1.5, 2], [1, 1.4, 2], [0, 1.3, 2]]
-    depth_ladder_update_lpv(ladder, decode(encode(upd2), type=list[LPV]))
+    ladder_update_lpv(ladder, decode(encode(upd2), type=list[LPV]))
     assert ladder[2] == LPV(level=2, price=1.5, volume=2)
     assert ladder[1] == LPV(level=1, price=1.4, volume=2)
     assert ladder[0] == LPV(level=0, price=1.3, volume=2)
@@ -53,7 +53,7 @@ def test_batb_cache():
 
     # Cancelled the top position causing the other positions to move up (and the bottom position to become empty)
     upd3 = [[2, 0, 0], [1, 1.5, 2], [0, 1.4, 2]]
-    depth_ladder_update_lpv(ladder, decode(encode(upd3), type=list[LPV]))
+    ladder_update_lpv(ladder, decode(encode(upd3), type=list[LPV]))
     assert 2 not in ladder
     assert ladder[1] == LPV(level=1, price=1.5, volume=2)
     assert ladder[0] == LPV(level=0, price=1.4, volume=2)
@@ -61,7 +61,7 @@ def test_batb_cache():
 
     # Cancelled by market to remove the remaining 2 positions in one go
     upd4 = [[1, 0, 0], [0, 0, 0]]
-    depth_ladder_update_lpv(ladder, decode(encode(upd4), type=list[LPV]))
+    ladder_update_lpv(ladder, decode(encode(upd4), type=list[LPV]))
     assert not ladder
 
 

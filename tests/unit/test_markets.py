@@ -34,7 +34,7 @@ def test_runner_name(data: dict):
 
 
 def test_market_catalogue():
-    raw = RESOURCES_DIR.joinpath("responses/market_catalogue_trimmed.json").read_bytes()
+    raw = (RESOURCES_DIR / "responses" / "market_catalogue_trimmed.json").read_bytes()
     catalog = decode(raw, type=list[MarketCatalogue])
     assert len(catalog) == 12035
     expected = {
