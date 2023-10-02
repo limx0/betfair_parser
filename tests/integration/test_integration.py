@@ -3,6 +3,7 @@ import bz2
 
 import pytest
 
+from betfair_parser.cache import MarketCache, RunnerOrderBook
 from betfair_parser.spec import accounts, betting
 from betfair_parser.spec.common import Request, decode
 from betfair_parser.spec.streaming import (
@@ -81,13 +82,21 @@ LINE_COUNT = {
 
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "data").glob("**/*.bz2")), ids=id_from_path)
 def test_archive(path):
+    mc = MarketCache()
     for i, line in enumerate(bz2.open(path), start=1):
-        res = stream_decode(line)
-        # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
-        assert isinstance(res, (MCM, OCM))
+        msg = stream_decode(line)
+        assert isinstance(msg, MCM)
+        mc.update(msg)
+
     required_count = LINE_COUNT.get(path.name)
     if required_count:
         assert i == required_count
     else:
         # for any other archive file with not explicitly listed line count
         assert i > 100
+
+    assert len(mc.order_book)
+    for mkt_order_book in mc.order_book.values():
+        assert len(mkt_order_book)
+        for runner_order_book in mkt_order_book.values():
+            assert isinstance(runner_order_book, RunnerOrderBook)
