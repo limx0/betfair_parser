@@ -54,37 +54,37 @@ class RunnerOrderBook:
     __slots__ = (
         "available_to_back",
         "available_to_lay",
-        "traded_volume",
-        "last_traded_price",
-        "starting_price_near",
-        "starting_price_far",
         "best_available_to_back",
         "best_available_to_lay",
         "best_display_available_to_back",
         "best_display_available_to_lay",
+        "starting_price_back",
+        "starting_price_lay",
+        "starting_price_near",
+        "starting_price_far",
+        "traded",
+        "last_traded_price",
+        "total_volume",
+        "handicap",
     )
 
     def __init__(self) -> None:
-        self.traded_volume: Optional[float] = None
-        self.last_traded_price: Optional[float] = None
-        self.starting_price_near: Optional[float] = None
-        self.starting_price_far: Optional[float] = None
         self.available_to_back: dict[float, float] = {}
         self.available_to_lay: dict[float, float] = {}
         self.best_available_to_back: dict[int, LPV] = {}
         self.best_available_to_lay: dict[int, LPV] = {}
         self.best_display_available_to_back: dict[int, LPV] = {}
         self.best_display_available_to_lay: dict[int, LPV] = {}
+        self.starting_price_back: dict[float, float] = {}
+        self.starting_price_lay: dict[float, float] = {}
+        self.starting_price_near: Optional[float] = None
+        self.starting_price_far: Optional[float] = None
+        self.traded: dict[float, float] = {}
+        self.last_traded_price: Optional[float] = None
+        self.total_volume: Optional[float] = None
+        self.handicap: Optional[float] = None
 
     def update(self, rc: RunnerChange) -> None:
-        if rc.tv:
-            self.traded_volume = rc.tv
-        if rc.ltp:
-            self.last_traded_price = rc.ltp
-        if rc.spf:
-            self.starting_price_far = rc.spf
-        if rc.spn:
-            self.starting_price_near = rc.spn
         if rc.atb:
             ladder_update_pv(self.available_to_back, rc.atb)
         if rc.atl:
@@ -97,6 +97,22 @@ class RunnerOrderBook:
             ladder_update_lpv(self.best_display_available_to_back, rc.bdatb)
         if rc.bdatl:
             ladder_update_lpv(self.best_display_available_to_lay, rc.bdatl)
+        if rc.spb:
+            ladder_update_pv(self.starting_price_back, rc.spb)
+        if rc.spl:
+            ladder_update_pv(self.starting_price_lay, rc.spl)
+        if rc.spn:
+            self.starting_price_near = rc.spn
+        if rc.spf:
+            self.starting_price_far = rc.spf
+        if rc.trd:
+            ladder_update_pv(self.traded, rc.trd)
+        if rc.ltp:
+            self.last_traded_price = rc.ltp
+        if rc.tv:
+            self.total_volume = rc.tv
+        if rc.hc:
+            self.handicap = rc.hc
 
     def __repr__(self) -> str:
         data = {}
@@ -212,8 +228,6 @@ class RunnerOrders:
             ladder_update_mo(self.matched_backs, orc.mb)
         if orc.ml:
             ladder_update_mo(self.matched_backs, orc.ml)
-
-    # TODO: Some aggregation functions would make sense here like exposure etc.
 
 
 class OrderCache(ChangeCache):

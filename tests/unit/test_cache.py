@@ -8,10 +8,10 @@ def test_runner_order_book_repr():
     mcm = stream_decode((RESOURCES_DIR / "responses" / "streaming" / "mcm_sub_image_no_market_def.json").read_bytes())
     cache = MarketCache()
     cache.update(mcm)
-    rc = cache.order_book["1.180737193"][25327214]
-    repr_str = repr(rc)
+    rob = cache.order_book["1.180737193"][25327214]
+    repr_str = repr(rob)
     assert repr_str.startswith("<RunnerOrderBook best_display_available_to_back=[")
-    assert repr_str.endswith("], traded_volume=0.02>")
+    assert repr_str.endswith("], total_volume=0.02>")
 
 
 def test_batb_cache():
@@ -80,31 +80,32 @@ def test_order_cache_runner_removal():
     cache.update(stream_decode(OCMS_SAMPLE[0]))
     assert len(cache.orders) == 1
     assert len(cache.orders["1.102151675"]) == 1
-    assert len(cache.orders["1.102151675"][6113662].unmatched_orders) == 1
-    assert not cache.orders["1.102151675"][6113662].matched_backs
-    assert not cache.orders["1.102151675"][6113662].matched_lays
+    ro = cache.orders["1.102151675"][6113662]
+    assert len(ro.unmatched_orders) == 1
+    assert not ro.matched_backs
+    assert not ro.matched_lays
 
-    order = cache.orders["1.102151675"][6113662].unmatched_orders[10822867886]
+    order = ro.unmatched_orders[10822867886]
     assert order.price == 12
     assert order.side == "B"
     assert not order.execution_complete
     assert not order.average_price_matched
     size_requested = order.size_remaining
-    assert not cache.orders["1.102151675"][6113662].matched_backs
+    assert not ro.matched_backs
 
     # bet matched
     cache.update(stream_decode(OCMS_SAMPLE[1]))
-    order = cache.orders["1.102151675"][6113662].executed_orders[10822867886]
+    order = ro.executed_orders[10822867886]
     assert order.execution_complete
     assert order.matched_date
     assert order.size_matched == size_requested
     assert order.size_remaining == 0
     assert order.average_price_matched == 12
-    assert cache.orders["1.102151675"][6113662].matched_backs[12] == 2
+    assert ro.matched_backs[12] == 2
 
     # another runner was removed and the reduction factor was applied to the order
     cache.update(stream_decode(OCMS_SAMPLE[2]))
-    order = cache.orders["1.102151675"][6113662].executed_orders[10822867886]
+    order = ro.executed_orders[10822867886]  # previous order was replaced
     assert order.average_price_matched == 9.47
-    assert cache.orders["1.102151675"][6113662].matched_backs[9.47] == 2
-    assert len(cache.orders["1.102151675"][6113662].matched_backs) == 1
+    assert ro.matched_backs[9.47] == 2
+    assert len(ro.matched_backs) == 1
