@@ -1,8 +1,11 @@
 """Shared definitions between the different API parts."""
 
 from betfair_parser.spec.common.enums import (
+    AccountAPINGExceptionCode,
+    APINGExceptionCode,
     EndpointType,
     EventTypeIdCode,
+    JSONExceptionCode,
     OrderResponse,
     OrderSide,
     OrderStatus,
