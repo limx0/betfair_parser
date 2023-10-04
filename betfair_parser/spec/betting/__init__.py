@@ -48,7 +48,9 @@ from betfair_parser.spec.betting.orders import (
     UpdateOrders,
 )
 from betfair_parser.spec.betting.type_definitions import (
+    CancelExecutionReport,
     CancelInstruction,
+    CancelInstructionReport,
     ClearedOrderSummary,
     ClearedOrderSummaryReport,
     Competition,
@@ -85,7 +87,9 @@ from betfair_parser.spec.betting.type_definitions import (
     PriceLadderDescription,
     PriceProjection,
     PriceSize,
+    ReplaceExecutionReport,
     ReplaceInstruction,
+    ReplaceInstructionReport,
     Runner,
     RunnerCatalog,
     RunnerMetaData,
@@ -94,4 +98,4 @@ from betfair_parser.spec.betting.type_definitions import (
     UpdateInstruction,
     VenueResult,
 )
-from betfair_parser.spec.common import EventTypeIdCode, OrderType, TimeRange  # noqa for reimport
+from betfair_parser.spec.common import EventTypeIdCode, OrderStatus, OrderType, TimeRange  # noqa for reimport
