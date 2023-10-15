@@ -6,6 +6,7 @@ from betfair_parser.spec.betting.enums import MarketBettingType, MarketStatus, M
 from betfair_parser.spec.common import (
     BaseMessage,
     BetId,
+    CompetitionId,
     Date,
     EventId,
     EventTypeIdCode,
@@ -60,7 +61,7 @@ class OrderFilter(BaseMessage, frozen=True):
 class RunnerDefinition(BaseMessage, frozen=True):
     sort_priority: int
     id: SelectionId
-    name: Optional[str] = None  # Undefined, but present
+    name: Optional[str] = None  # Undefined, but partly present
     hc: Optional[Handicap] = None
     status: Optional[RunnerStatus] = None
     adjustment_factor: Optional[float] = None
@@ -91,15 +92,15 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     betting_type: MarketBettingType
     bsp_market: bool
     bsp_reconciled: bool
-    competition_id: Optional[str] = ""
-    competition_name: Optional[str] = ""
+    competition_id: Optional[CompetitionId] = None
+    competition_name: Optional[str] = None
     complete: bool
     country_code: Optional[str] = None
     cross_matching: bool
     discount_allowed: Optional[bool] = None
     each_way_divisor: Optional[float] = None
-    event_id: str
-    event_name: Optional[str] = ""
+    event_id: EventId
+    event_name: Optional[str] = None
     event_type_id: EventTypeIdCode
     in_play: bool
     key_line_definition: Optional[KeyLineDefinition] = None
@@ -114,8 +115,8 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     line_min_unit: Optional[float] = None
 
     market_base_rate: Optional[float]
-    market_id: Optional[str] = ""
-    market_name: Optional[str] = ""
+    market_id: Optional[MarketId] = None
+    market_name: Optional[str] = None
     market_time: Date
     market_type: str
     name: Optional[str] = None
@@ -138,7 +139,7 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
 
     @property
     def event_type_name(self) -> str:
-        return EventTypeIdCode(int(self.event_type_id)).name
+        return self.event_type_id.name
 
 
 class PV(BaseMessage, array_like=True, frozen=True):
