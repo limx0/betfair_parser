@@ -30,12 +30,6 @@ repos:
         additional_dependencies:
           - tomli
 
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.3.0
-    hooks:
-      - id: pycln
-        name: pycln (Python unused imports)
-
   - repo: https://github.com/psf/black
     rev: 23.9.1
     hooks:
@@ -56,11 +50,6 @@ repos:
     rev: v0.0.292
     hooks:
       - id: ruff
-
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
-    hooks:
-      - id: pyupgrade
 
   - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
     rev: 0.2.3

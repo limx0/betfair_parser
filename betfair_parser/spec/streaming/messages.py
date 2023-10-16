@@ -4,7 +4,7 @@ Definition of the betfair streaming API messages as defined in:
 - https://github.com/betfair/stream-api-sample-code/blob/master/ESASwaggerSchema.json
  """
 
-from typing import List, Literal, Optional, Union
+from typing import Literal, Optional, Union
 
 from betfair_parser.spec.common import BaseMessage
 from betfair_parser.spec.streaming.enums import ChangeType, SegmentType, StatusErrorCode
@@ -132,7 +132,7 @@ class MCM(_ChangeMessage, kw_only=True, frozen=True):
     Market subscriptions are always in the underlying exchange currency - GBP.
     """
 
-    mc: Optional[List[MarketChange]] = None
+    mc: Optional[list[MarketChange]] = None
 
     @property
     def market_changes(self):
@@ -146,7 +146,7 @@ class OCM(_ChangeMessage, kw_only=True, frozen=True):
     Order subscriptions are provided in the currency of the account that the orders are placed in.
     """
 
-    oc: Optional[List[OrderMarketChange]] = None
+    oc: Optional[list[OrderMarketChange]] = None
 
     @property
     def order_market_changes(self):
