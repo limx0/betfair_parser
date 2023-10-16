@@ -83,6 +83,7 @@ check_untyped_defs = true
 
 [tool.ruff]
 fix = false
+extend-select = ["UP"]
 line-length = 120
 
 [tool.ruff.per-file-ignores]
