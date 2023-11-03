@@ -180,7 +180,7 @@ def test_race_status(session: Session):
         ),
     )
     event_ids = [ev_res.event.id for ev_res in resp[::10]]  # every 10th event
-    details = client.request(session, race_status.ListRaceDetail.with_params(meeting_ids=event_ids))
+    details = client.request(session, race_status.ListRaceDetails.with_params(meeting_ids=event_ids))
     assert len(details) >= len(event_ids)  # There are more than one details / race_ids per event_id
     for d in details:
         assert d.meeting_id or d.race_id

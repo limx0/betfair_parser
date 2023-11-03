@@ -12,7 +12,17 @@ from betfair_parser.spec.common.enums import (
     OrderType,
     RegulatorCode,
 )
-from betfair_parser.spec.common.messages import BaseMessage, BaseResponse, Params, Request, Response, decode, encode
+from betfair_parser.spec.common.messages import (
+    BaseMessage,
+    BaseResponse,
+    Params,
+    Request,
+    Response,
+    decode,
+    encode,
+    first_lower,
+    method_tag,
+)
 from betfair_parser.spec.common.type_definitions import (
     BetId,
     CompetitionId,

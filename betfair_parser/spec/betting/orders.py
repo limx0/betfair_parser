@@ -16,6 +16,7 @@ from betfair_parser.spec.betting.type_definitions import (
     RunnerId,
     UpdateExecutionReport,
     UpdateInstruction,
+    betting_tag,
 )
 from betfair_parser.spec.common import (
     BetId,
@@ -33,7 +34,7 @@ from betfair_parser.spec.common import (
 )
 
 
-class OrderRequest(Request, frozen=True):
+class OrderRequest(Request, frozen=True, tag=betting_tag):
     endpoint_type = EndpointType.BETTING
 
 
@@ -57,7 +58,6 @@ class PlaceOrders(OrderRequest, kw_only=True, frozen=True):
     PlaceInstruction.
     """
 
-    method: str = "SportsAPING/v1.0/placeOrders"
     params: _PlaceOrdersParams
     return_type = Response[PlaceExecutionReport]
 
@@ -74,7 +74,6 @@ class CancelOrders(OrderRequest, kw_only=True, frozen=True):
     orders on a market. Only LIMIT orders can be cancelled or partially cancelled once placed.
     """
 
-    method: str = "SportsAPING/v1.0/cancelOrders"
     params: _CancelOrdersParams
     return_type = Response[CancelExecutionReport]
 
@@ -95,7 +94,6 @@ class ReplaceOrders(OrderRequest, kw_only=True, frozen=True):
     the cancellations will not be rolled back. See ReplaceInstruction.
     """
 
-    method: str = "SportsAPING/v1.0/replaceOrders"
     params: _ReplaceOrdersParams
     return_type = Response[ReplaceExecutionReport]
 
@@ -141,7 +139,6 @@ class ListClearedOrders(OrderRequest, kw_only=True, frozen=True):
     a "from" date of the last call will ensure that only new data is returned.
     """
 
-    method: str = "SportsAPING/v1.0/listClearedOrders"
     params: _ListClearedOrdersParams
     return_type = Response[ClearedOrderSummaryReport]
 
@@ -179,7 +176,6 @@ class ListCurrentOrders(OrderRequest, kw_only=True, frozen=True):
     matched from the date and time specified in the dateRange field.
     """
 
-    method: str = "SportsAPING/v1.0/listCurrentOrders"
     params: _ListCurrentOrdersParams
     return_type = Response[CurrentOrderSummaryReport]
 
@@ -193,6 +189,5 @@ class _UpdateOrdersParams(Params, frozen=True):
 class UpdateOrders(OrderRequest, kw_only=True, frozen=True):
     """Update non-exposure changing fields."""
 
-    method: str = "SportsAPING/v1.0/updateOrders"
     params: _UpdateOrdersParams
     return_type = Response[UpdateExecutionReport]

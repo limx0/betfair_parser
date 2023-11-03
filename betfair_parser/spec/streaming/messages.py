@@ -6,7 +6,7 @@ Definition of the betfair streaming API messages as defined in:
 
 from typing import Literal, Optional, Union
 
-from betfair_parser.spec.common import BaseMessage
+from betfair_parser.spec.common import BaseMessage, first_lower
 from betfair_parser.spec.streaming.enums import ChangeType, SegmentType, StatusErrorCode
 from betfair_parser.spec.streaming.type_definitions import (
     MarketChange,
@@ -15,11 +15,6 @@ from betfair_parser.spec.streaming.type_definitions import (
     OrderFilter,
     OrderMarketChange,
 )
-
-
-def first_lower(s: str) -> str:
-    """Lower only the first character of a string."""
-    return s[:1].lower() + s[1:]
 
 
 class StreamRequest(BaseMessage, tag_field="op", tag=first_lower, omit_defaults=True, frozen=True):

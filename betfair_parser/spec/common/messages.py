@@ -26,6 +26,15 @@ def encode(data: Any) -> bytes:
         raise JSONError(str(e)) from e
 
 
+def first_lower(s: str) -> str:
+    """Lower only the first character of a string."""
+    return s[:1].lower() + s[1:]
+
+
+def method_tag(prefix: str, class_name: str) -> str:
+    return prefix + first_lower(class_name)
+
+
 class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, frozen=True, rename="camel"):
     @classmethod
     def parse(cls, raw):
@@ -42,7 +51,10 @@ class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, froz
 
 
 class Params(BaseMessage, omit_defaults=True, frozen=True):
-    """By default, don't send None and other default values in operation parameters."""
+    """
+    Base class for request parameters. Don't send None and other redundant default
+    values. If not subclassed, this class is used to describe an empty parameter set.
+    """
 
 
 class BaseResponse(BaseMessage, frozen=True):
@@ -70,7 +82,7 @@ class ExceptionDetails(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=Tru
     request_uuid: Optional[str] = msgspec.field(name="requestUUID", default=None)
 
     @property
-    def code(self):
+    def code(self) -> ErrorCode:
         return self.error_code
 
 
@@ -80,11 +92,11 @@ class ExceptionData(BaseMessage, frozen=True, rename=None):
     AccountAPINGException: Optional[ExceptionDetails[AccountAPINGExceptionCode]] = None
 
     @property
-    def error(self):
+    def error(self) -> ExceptionDetails:
         return getattr(self, self.exception_name)
 
     @property
-    def code(self):
+    def code(self) -> str:
         return self.error.code
 
 
@@ -98,7 +110,7 @@ class RPCError(BaseMessage, frozen=True):
         """Return some form of ExceptionCode, whatever error we get."""
         return self.data.code if self.data else JSONExceptionCode(self.code)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.exception_code)
 
 
@@ -109,39 +121,51 @@ class Response(RPC, BaseResponse, Generic[ResultType], kw_only=True, frozen=True
     error: Optional[RPCError] = None
 
     @property
-    def is_error(self):
+    def is_error(self) -> bool:
         return self.error is not None
 
 
 _default_id_generator = count(1)
 
 
-def _failsafe_issubclass(x, A_tuple) -> bool:
+def _failsafe_issubclass(x: Any, A: type) -> bool:
     try:
-        return issubclass(x, A_tuple)
+        return issubclass(x, A)
     except TypeError:
         return False
 
 
-class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
+class Request(RPC, kw_only=True, frozen=True, tag_field="method", tag=first_lower):
     # class variables for subclassing, which msgspec won't serialize in messages
     endpoint_type: ClassVar[EndpointType] = EndpointType.NONE
     return_type: ClassVar[type] = Response
     throws: ClassVar[type] = APINGException  # JSON error definition
 
-    # `method` is overridden in subclasses as a class variable, so that it gets
-    # included in the msgspec serialization. Having no default for `params` makes
-    # sure, that initializing a message object without explicitly calling the
-    # `with_params` constructor fails.
-    method: str = ""
-    params: ParamsType
+    # Having no default for `params` makes sure, that initializing a message object that
+    # requires parameters without explicitly calling the `with_params` constructor fails.
+    params: Params
+
+    @classmethod
+    def _params_cls(cls) -> type:
+        """Get the according parameter class from the type hints."""
+        hinted_type = get_type_hints(cls)["params"]
+        if _failsafe_issubclass(hinted_type, Params):
+            # params: Params
+            return hinted_type
+        if hinted_type is type(None):
+            # params: None
+            return dict
+        if hinted_type.__args__:
+            # params: Optional[Params]
+            hinted_type = hinted_type.__args__[0]
+            if _failsafe_issubclass(hinted_type, Params):
+                return hinted_type
+        return dict
 
     @classmethod
     def with_params(cls, request_id=None, **kwargs):
-        """Constructor for RPC messages, which require parameters."""
-        params_cls = get_type_hints(cls)["params"]
-        params = params_cls(**kwargs) if _failsafe_issubclass(params_cls, Params) else kwargs
-
+        """General constructor for RPC requests."""
+        params = cls._params_cls()(**kwargs)
         if request_id is None:
             request_id = next(_default_id_generator)
         return cls(
@@ -149,8 +173,14 @@ class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
             id=request_id,
         )
 
+    @property
+    def method(self) -> str:
+        """Return the RPC request method as defined by the classes tag configuration."""
+        return str(self.__struct_config__.tag)
+
     @staticmethod
-    def headers():
+    def headers() -> dict[str, str]:
+        """HTTP headers of the request."""
         return {
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -158,10 +188,12 @@ class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
             # X-Authentication to be set by the application
         }
 
-    def body(self):
+    def body(self) -> bytes:
+        """HTTP body of the request."""
         return encode(self)
 
-    def parse_response(self, response, raise_errors=True):
+    def parse_response(self, response: bytes, raise_errors: bool = True):
+        """Parse the received response into the defined return type."""
         resp = decode(response, type=self.return_type)
         if resp.id != self.id:
             raise APIError(f"Response ID ({resp.id}) does not match Request ID ({self.id})")

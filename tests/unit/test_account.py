@@ -1,12 +1,7 @@
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.accounts.operations import (
-    GetAccountDetails,
-    GetAccountFunds,
-    _GetAccountDetailsParams,
-    _GetAccountFundsParams,
-)
+from betfair_parser.spec.accounts.operations import GetAccountDetails, GetAccountFunds, Params
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -22,7 +17,7 @@ from tests.resources import RESOURCES_DIR, id_from_path
 )
 def test_account_details_request(details):
     assert isinstance(details, GetAccountDetails)
-    assert isinstance(details.params, _GetAccountDetailsParams) or not details.params
+    assert isinstance(details.params, Params) or not details.params
     assert details.method.endswith("getAccountDetails")
     assert details.validate()
     enc_details = msgspec.json.encode(details)
@@ -47,11 +42,19 @@ def test_account_details_response():
 )
 def test_account_funds_request(funds):
     assert isinstance(funds, GetAccountFunds)
-    assert isinstance(funds.params, _GetAccountFundsParams) or not funds.params
+    assert isinstance(funds.params, Params) or not funds.params
     assert funds.method.endswith("getAccountFunds")
     assert funds.validate()
     enc_funds = msgspec.json.encode(funds)
     assert "getAccountFunds" in enc_funds.decode()
+
+
+def test_account_funds_with_params():
+    """Make sure that `with_params` still works for optional params."""
+    funds = GetAccountFunds.with_params(wallet="UK")
+    assert funds.id
+    assert funds.params.wallet == "UK"
+    assert funds.validate()
 
 
 @pytest.mark.parametrize(

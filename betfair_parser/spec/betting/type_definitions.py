@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Optional
 
 import msgspec
@@ -41,7 +42,11 @@ from betfair_parser.spec.common import (
     Size,
     TimeRange,
     Venue,
+    method_tag,
 )
+
+
+betting_tag = partial(method_tag, "SportsAPING/v1.0/")
 
 
 class Competition(BaseMessage, frozen=True):

@@ -1,4 +1,4 @@
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 from urllib.parse import quote
 
 import msgspec
@@ -8,9 +8,8 @@ from betfair_parser.spec.common import BaseResponse, EndpointType, Params, Reque
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
-class IdentityRequest(Request, frozen=True):
+class IdentityRequest(Request, frozen=True, tag_field=None, tag=None):
     endpoint_type = EndpointType.IDENTITY
-    method: str = ""
 
     def parse_response(self, response, raise_errors=True):
         resp = decode(response, type=self.return_type)
@@ -124,7 +123,6 @@ class _LoginParams(Params, frozen=True):
 
 
 class Login(IdentityRequest, kw_only=True, frozen=True):
-    method: str = "login"
     params: _LoginParams
     return_type = LoginResponse
     throws = LoginImpossible
@@ -153,15 +151,13 @@ class KeepAliveLogoutResponse(BaseResponse, frozen=True):
 
 
 class KeepAlive(IdentityRequest, frozen=True):
-    method: str = "keepAlive"
-    params: None = None
+    params: Optional[Params] = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
 
 
 class Logout(IdentityRequest, frozen=True):
-    method: str = "logout"
-    params: None = None
+    params: Optional[Params] = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
 
@@ -193,7 +189,6 @@ class CertLogin(IdentityRequest, kw_only=True, frozen=True):
     # due to a different return_type
 
     endpoint_type = EndpointType.IDENTITY_CERT
-    method = "certlogin"
     params: _LoginParams
     return_type = CertLoginResponse
     throws = LoginImpossible

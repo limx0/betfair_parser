@@ -14,6 +14,7 @@ def test_request_init(msg):
     assert msg.method.lower() == type(msg).__name__.lower()
     assert not msg.body()
     assert ENDPOINTS.url_for_request(msg).lower().endswith(f"/api/{type(msg).__name__.lower()}")
+    assert msg.validate()
 
 
 def test_login_response():

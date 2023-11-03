@@ -16,7 +16,6 @@ def test_request_init(msg):
     parameters. The request objects should behave the same regardless of the initialisation.
     """
     assert not msg.id
-    assert not msg.method
     assert not msg.body()
     url = endpoint("ITA").url_for_request(msg)
     assert url.endswith("/betting/rest/v1/it/navigation/menu.json")

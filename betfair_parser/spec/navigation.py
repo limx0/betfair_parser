@@ -67,14 +67,13 @@ class Navigation(BaseResponse, frozen=True):
         return self
 
 
-class Menu(Request, kw_only=True, frozen=True):
+class Menu(Request, kw_only=True, frozen=True, tag=""):
     """
     Navigation request
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Navigation+Data+For+Applications
     """
 
     endpoint_type = EndpointType.NAVIGATION
-    method: str = ""
     params: None = None
     id: int = 0
     return_type = Navigation

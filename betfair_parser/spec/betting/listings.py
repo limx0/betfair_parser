@@ -20,11 +20,12 @@ from betfair_parser.spec.betting.type_definitions import (
     PriceProjection,
     TimeRangeResult,
     VenueResult,
+    betting_tag,
 )
 from betfair_parser.spec.common import BetId, Date, EndpointType, MarketId, Params, Request, Response, SelectionId
 
 
-class ListingRequest(Request, frozen=True):
+class ListingRequest(Request, frozen=True, tag=betting_tag):
     endpoint_type = EndpointType.BETTING
 
 
@@ -39,7 +40,6 @@ class ListCompetitions(ListingRequest, kw_only=True, frozen=True):
     the MarketFilter. Currently only Football markets have an associated competition.
     """
 
-    method: str = "SportsAPING/v1.0/listCompetitions"
     params: _ListingParams
     return_type = Response[list[CompetitionResult]]
 
@@ -49,7 +49,6 @@ class ListCountries(ListingRequest, kw_only=True, frozen=True):
     Returns a list of Countries associated with the markets selected by the MarketFilter.
     """
 
-    method: str = "SportsAPING/v1.0/listCountries"
     params: _ListingParams
     return_type = Response[list[CountryCodeResult]]
 
@@ -60,7 +59,6 @@ class ListEvents(ListingRequest, kw_only=True, frozen=True):
     by the MarketFilter.
     """
 
-    method: str = "SportsAPING/v1.0/listEvents"
     params: _ListingParams
     return_type = Response[list[EventResult]]
 
@@ -71,7 +69,6 @@ class ListEventTypes(ListingRequest, kw_only=True, frozen=True):
     MarketFilter.
     """
 
-    method: str = "SportsAPING/v1.0/listEventTypes"
     params: _ListingParams
     return_type = Response[list[EventTypeResult]]
 
@@ -82,7 +79,6 @@ class ListMarketTypes(ListingRequest, kw_only=True, frozen=True):
     by the MarketFilter. The market types are always the same, regardless of locale.
     """
 
-    method: str = "SportsAPING/v1.0/listMarketTypes"
     params: _ListingParams
     return_type = Response[list[MarketTypeResult]]
 
@@ -93,7 +89,6 @@ class ListVenues(ListingRequest, kw_only=True, frozen=True):
     MarketFilter. Currently, only Horse Racing markets are associated with a Venue.
     """
 
-    method: str = "SportsAPING/v1.0/listVenues"
     params: _ListingParams
     return_type = Response[list[VenueResult]]
 
@@ -135,7 +130,6 @@ class ListMarketBook(ListingRequest, kw_only=True, frozen=True):
     position with a reasonably fixed, minimally sized response.
     """
 
-    method: str = "SportsAPING/v1.0/listMarketBook"
     params: _ListMarketBookParams
     return_type = Response[list[MarketBook]]
 
@@ -158,7 +152,6 @@ class ListMarketCatalogue(ListingRequest, kw_only=True, frozen=True):
     Please note: listMarketCatalogue does not return markets that are CLOSED.
     """
 
-    method: str = "SportsAPING/v1.0/listMarketCatalogue"
     params: _ListMarketCatalogueParams
     return_type = Response[list[MarketCatalogue]]
 
@@ -176,7 +169,6 @@ class _ListMarketProfitAndLossParams(Params, frozen=True):
 class ListMarketProfitAndLoss(ListingRequest, kw_only=True, frozen=True):
     """Returns a list of Countries associated with the markets selected by the MarketFilter."""
 
-    method: str = "SportsAPING/v1.0/listMarketProfitAndLoss"
     params: _ListMarketProfitAndLossParams
     return_type = Response[list[MarketProfitAndLoss]]
 
@@ -204,7 +196,6 @@ class ListRunnerBook(ListingRequest, kw_only=True, frozen=True):
     of any orders you have placed in the market..
     """
 
-    method: str = "SportsAPING/v1.0/listRunnerBook"
     params: _ListRunnerBookParams
     return_type = Response[list[MarketBook]]
 
@@ -222,6 +213,5 @@ class ListTimeRanges(ListingRequest, kw_only=True, frozen=True):
     Aug 14th to Aug 15th) associated with the markets selected by the MarketFilter.
     """
 
-    method: str = "SportsAPING/v1.0/listTimeRanges"
     params: _ListTimeRangesParams
     return_type = Response[list[TimeRangeResult]]
