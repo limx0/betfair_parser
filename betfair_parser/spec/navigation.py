@@ -68,15 +68,24 @@ class Navigation(BaseResponse, frozen=True):
 
 
 class Menu(Request, kw_only=True, frozen=True):
-    """Navigation requests
-
+    """
+    Navigation request
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Navigation+Data+For+Applications
     """
 
     endpoint_type = EndpointType.NAVIGATION
-    method = ""
+    method: str = ""
+    params: None = None
     id: int = 0
     return_type = Navigation
+
+    @classmethod
+    def with_params(cls, **kwargs):
+        # ignore any keyword args to avoid issues with request_id validation
+        return cls()
+
+    def body(self):
+        return b""
 
 
 class FlattenedMarket(BaseMessage, kw_only=True, frozen=True, rename=None):

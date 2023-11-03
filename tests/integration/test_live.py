@@ -56,8 +56,34 @@ def test_keep_alive(session: Session):
 def test_account_details(session: Session):
     resp = client.request(session, accounts.GetAccountDetails.with_params())
     assert 0 <= resp.discount_rate < 0.3
+    assert resp.currency_code
     assert resp.region
     assert resp.timezone  # Should we check for UTC here?
+    assert resp.first_name
+    assert resp.last_name
+
+
+@skip_not_logged_in
+def test_account_funds(session: Session):
+    resp = client.request(session, accounts.GetAccountFunds.with_params())
+    assert isinstance(resp, accounts.AccountFundsResponse)
+    assert resp.wallet.value == "UK"  # Only UK wallets left
+    assert resp.available_to_bet_balance >= 0
+    assert resp.exposure >= 0
+    assert resp.retained_commission >= 0
+    assert resp.exposure_limit <= 0
+    assert 0 <= resp.discount_rate <= 0.3
+    assert resp.points_balance >= 0
+
+
+@skip_not_logged_in
+def test_account_funds_fail(session: Session):
+    with pytest.raises(AccountAPINGException) as exc_info:
+        client.request(session, accounts.GetAccountFunds.with_params(wallet="AUS"))
+
+    err = exc_info.value
+    assert str(err) == "INVALID_PARAMETERS: Problem parsing the parameters, or a mandatory parameter was not found"
+    assert err.code.name == "INVALID_PARAMETERS"
 
 
 @skip_not_logged_in
@@ -128,24 +154,6 @@ def test_current_orders(session: Session):
     resp = client.request(session, betting.ListCurrentOrders.with_params())
     assert len(resp.current_orders) == 0
     assert not resp.more_available
-
-
-@skip_not_logged_in
-def test_account_funds(session: Session):
-    resp = client.request(session, accounts.GetAccountFunds.with_params())
-    assert isinstance(resp, accounts.AccountFundsResponse)
-    assert resp.wallet.value == "UK"  # Only UK wallets left
-    assert resp.available_to_bet_balance >= 0
-
-
-@skip_not_logged_in
-def test_account_funds_fail(session: Session):
-    with pytest.raises(AccountAPINGException) as exc_info:
-        client.request(session, accounts.GetAccountFunds.with_params(wallet="AUS"))
-
-    err = exc_info.value
-    assert str(err) == "INVALID_PARAMETERS: Problem parsing the parameters, or a mandatory parameter was not found"
-    assert err.code.name == "INVALID_PARAMETERS"
 
 
 @skip_not_logged_in

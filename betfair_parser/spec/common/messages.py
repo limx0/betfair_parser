@@ -1,3 +1,4 @@
+from itertools import count
 from typing import Any, ClassVar, Generic, Literal, Optional, TypeVar, get_type_hints
 
 import msgspec
@@ -112,22 +113,38 @@ class Response(RPC, BaseResponse, Generic[ResultType], kw_only=True, frozen=True
         return self.error is not None
 
 
+_default_id_generator = count(1)
+
+
 class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
     # class variables for subclassing, which msgspec won't serialize in messages
     endpoint_type: ClassVar[EndpointType] = EndpointType.NONE
     return_type: ClassVar[type] = Response
     throws: ClassVar[type] = APINGException  # JSON error definition
 
-    # method is overridden in subclasses as a class variable, but not marked as class
-    # variable here, so that it gets included in the serialization
-    method: str = ""
-    params: ParamsType | dict = {}
+    # `method` is overridden in subclasses as a class variable, but not marked as class
+    # variable here, so that it gets included in the msgspec serialization. Having no
+    # default for `method` and `params` makes sure, that initializing a message object
+    # without explicitly calling the `with_params` constructor fails.
+    method: str
+    params: ParamsType
 
     @classmethod
-    def with_params(cls, request_id=1, **kwargs):
+    def with_params(cls, request_id=None, **kwargs):
+        """
+        Constructor for RPC messages. Just calling Request(...) is not sufficient, because
+        some class variables need to be copied into the instance name space in order for
+        msgspec serialization to work correctly.
+        """
         params_cls = get_type_hints(cls)["params"]
+        if not isinstance(params_cls, TypeVar) and issubclass(params_cls, Params):
+            params = params_cls(**kwargs)
+        else:
+            params = kwargs
+        if request_id is None:
+            request_id = next(_default_id_generator)
         return cls(
-            params=params_cls(**kwargs),
+            params=params,
             method=cls.method,
             id=request_id,
         )

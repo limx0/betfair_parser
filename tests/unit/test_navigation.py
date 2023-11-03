@@ -8,8 +8,17 @@ from betfair_parser.spec.navigation import Menu, Navigation, flatten_nav_tree
 from tests.resources import RESOURCES_DIR
 
 
-def test_navigation_request():
-    url = endpoint("ITA").url_for_request(Menu)
+@pytest.mark.parametrize("msg", [Menu(), Menu.with_params()])
+def test_request_init(msg):
+    """
+    menu requests don't use the request `method` encoded by msgspec within the body of the
+    request. So that the initialization with `with_params` can be omitted, if there are no
+    parameters. The request objects should behave interchangeably of initialization.
+    """
+    assert not msg.id
+    assert not msg.method
+    assert not msg.body()
+    url = endpoint("ITA").url_for_request(msg)
     assert url.endswith("/betting/rest/v1/it/navigation/menu.json")
 
 

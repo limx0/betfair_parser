@@ -10,13 +10,16 @@ from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 class IdentityRequest(Request, frozen=True):
     endpoint_type = EndpointType.IDENTITY
+    method: str = ""
 
     def parse_response(self, response, raise_errors=True):
         resp = decode(response, type=self.return_type)
         if resp.is_error and raise_errors:
-            exception = self.throws(str(resp.error), response=resp, request=self)
-            raise exception
+            raise self.throws(str(resp.error), response=resp, request=self)
         return resp
+
+    def body(self):
+        return b""
 
 
 class LoginStatus(StrEnum):
@@ -151,12 +154,14 @@ class KeepAliveLogoutResponse(BaseResponse, frozen=True):
 
 class KeepAlive(IdentityRequest, frozen=True):
     method = "keepAlive"
+    params: None = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
 
 
 class Logout(IdentityRequest, frozen=True):
     method = "logout"
+    params: None = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
 
