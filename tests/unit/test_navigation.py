@@ -11,9 +11,9 @@ from tests.resources import RESOURCES_DIR
 @pytest.mark.parametrize("msg", [Menu(), Menu.with_params()])
 def test_request_init(msg):
     """
-    menu requests don't use the request `method` encoded by msgspec within the body of the
-    request. So that the initialization with `with_params` can be omitted, if there are no
-    parameters. The request objects should behave interchangeably of initialization.
+    menu requests don't use the request `method` encoded by msgspec in the body of the
+    request. So the initialisation with `with_params` can be omitted if there are no
+    parameters. The request objects should behave the same regardless of the initialisation.
     """
     assert not msg.id
     assert not msg.method
