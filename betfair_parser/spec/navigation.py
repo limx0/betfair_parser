@@ -76,7 +76,7 @@ class Menu(Request, kw_only=True, frozen=True):
     endpoint_type = EndpointType.NAVIGATION
     method = ""
     id: int = 0
-    return_type = Navigation  # type: ignore
+    return_type = Navigation
 
 
 class FlattenedMarket(BaseMessage, kw_only=True, frozen=True, rename=None):

@@ -13,7 +13,7 @@ from betfair_parser.spec.common import EndpointType, Params, Request, Response, 
 
 class AccountRequest(Request, frozen=True):
     endpoint_type = EndpointType.ACCOUNTS
-    throws = AccountAPINGException  # type: ignore
+    throws = AccountAPINGException
 
 
 class _GetAccountFundsParams(Params, frozen=True):

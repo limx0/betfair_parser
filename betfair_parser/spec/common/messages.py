@@ -1,4 +1,4 @@
-from typing import Any, Generic, Literal, Optional, TypeVar, get_type_hints
+from typing import Any, ClassVar, Generic, Literal, Optional, TypeVar, get_type_hints
 
 import msgspec
 
@@ -113,11 +113,15 @@ class Response(RPC, BaseResponse, Generic[ResultType], kw_only=True, frozen=True
 
 
 class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
-    endpoint_type = EndpointType.NONE
+    # class variables for subclassing, which msgspec won't serialize in messages
+    endpoint_type: ClassVar[EndpointType] = EndpointType.NONE
+    return_type: ClassVar[type] = Response
+    throws: ClassVar[type] = APINGException  # JSON error definition
+
+    # method is overridden in subclasses as a class variable, but not marked as class
+    # variable here, so that it gets included in the serialization
     method: str = ""
-    params: ParamsType = {}  # type: ignore
-    return_type = Response  # not to be serialized, so no type definition
-    throws = APINGException  # JSON error definition
+    params: ParamsType | dict = {}
 
     @classmethod
     def with_params(cls, request_id=1, **kwargs):
@@ -144,14 +148,13 @@ class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
         resp = decode(response, type=self.return_type)
         if resp.id != self.id:
             raise APIError(f"Response ID ({resp.id}) does not match Request ID ({self.id})")
-        if resp.is_error:
-            if raise_errors:
-                exception = self.throws(
-                    str(resp.error.exception_code),
-                    response=resp,
-                    request=self,
-                    code=resp.error.exception_code,
-                )
-                raise exception
+        if not resp.is_error:
+            return resp.result
+        if not raise_errors:
             return resp.error
-        return resp.result
+        raise self.throws(
+            str(resp.error.exception_code),
+            response=resp,
+            request=self,
+            code=resp.error.exception_code,
+        )

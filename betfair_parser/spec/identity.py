@@ -123,8 +123,8 @@ class _LoginParams(Params, frozen=True):
 class Login(IdentityRequest, kw_only=True, frozen=True):
     method = "login"
     params: _LoginParams
-    return_type = LoginResponse  # type: ignore
-    throws = LoginImpossible  # type: ignore
+    return_type = LoginResponse
+    throws = LoginImpossible
 
     @staticmethod
     def headers():
@@ -151,14 +151,14 @@ class KeepAliveLogoutResponse(BaseResponse, frozen=True):
 
 class KeepAlive(IdentityRequest, frozen=True):
     method = "keepAlive"
-    return_type = KeepAliveLogoutResponse  # type: ignore
-    throws = IdentityError  # type: ignore
+    return_type = KeepAliveLogoutResponse
+    throws = IdentityError
 
 
 class Logout(IdentityRequest, frozen=True):
     method = "logout"
-    return_type = KeepAliveLogoutResponse  # type: ignore
-    throws = IdentityError  # type: ignore
+    return_type = KeepAliveLogoutResponse
+    throws = IdentityError
 
 
 class CertLoginResponse(BaseResponse, frozen=True):
@@ -190,8 +190,8 @@ class CertLogin(IdentityRequest, kw_only=True, frozen=True):
     endpoint_type = EndpointType.IDENTITY_CERT
     method = "certlogin"
     params: _LoginParams
-    return_type = CertLoginResponse  # type: ignore
-    throws = LoginImpossible  # type: ignore
+    return_type = CertLoginResponse
+    throws = LoginImpossible
 
     headers = staticmethod(Login.headers)
     body = Login.body
