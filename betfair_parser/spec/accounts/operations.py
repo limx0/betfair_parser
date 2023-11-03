@@ -27,16 +27,16 @@ class _GetAccountDetailsParams(Params, frozen=True):
 class GetAccountFunds(AccountRequest, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
-    method = "AccountAPING/v1.0/getAccountFunds"
-    params: _GetAccountFundsParams
+    method: str = "AccountAPING/v1.0/getAccountFunds"
+    params: Optional[_GetAccountFundsParams] = None
     return_type = Response[AccountFundsResponse]
 
 
 class GetAccountDetails(AccountRequest, kw_only=True, frozen=True):
     """Returns the details relating your account, including your discount rate and Betfair point balance."""
 
-    method = "AccountAPING/v1.0/getAccountDetails"
-    params: _GetAccountDetailsParams
+    method: str = "AccountAPING/v1.0/getAccountDetails"
+    params: Optional[_GetAccountDetailsParams] = None
     return_type = Response[AccountDetailsResponse]
 
 
@@ -58,7 +58,7 @@ class _GetAccountStatementParams(Params, frozen=True):
 class GetAccountStatement(AccountRequest, kw_only=True, frozen=True):
     """Return the account statement. Essentially a large list of your last profits and losses."""
 
-    method = "AccountAPING/v1.0/getAccountStatement"
+    method: str = "AccountAPING/v1.0/getAccountStatement"
     params: _GetAccountStatementParams
     return_type = Response[AccountStatementReport]
 
@@ -70,6 +70,6 @@ class _ListCurrencyRatesParams(Params, frozen=True):
 class ListCurrencyRates(AccountRequest, kw_only=True, frozen=True):
     """Returns a list of currency rates based on given currency. Updates only once per hour."""
 
-    method = "AccountAPING/v1.0/listCurrencyRates"
+    method: str = "AccountAPING/v1.0/listCurrencyRates"
     params: _ListCurrencyRatesParams
     return_type = Response[list[CurrencyRate]]

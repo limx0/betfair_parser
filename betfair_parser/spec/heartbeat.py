@@ -41,6 +41,6 @@ class Heartbeat(Request, kw_only=True, frozen=True):
     """
 
     endpoint_type = EndpointType.HEARTBEAT
-    method = "HeartbeatAPING/v1.0/heartbeat"
+    method: str = "HeartbeatAPING/v1.0/heartbeat"
     params: _HeartbeatParams
     return_type = Response[HeartbeatReport]

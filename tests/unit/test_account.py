@@ -11,22 +11,9 @@ from tests.resources import RESOURCES_DIR, id_from_path
 
 
 @pytest.mark.parametrize(
-    "msg_type",
-    [GetAccountDetails, GetAccountFunds],
-)
-def test_init_requires_params(msg_type):
-    """
-    Even if some methods don't require params, if the request requires the class variable
-    `method` set into the message body, it must be initialized with the factory method
-    `with_params`. This is unfortunate, but only affects these two methods.
-    """
-    with pytest.raises(TypeError):
-        msg_type()
-
-
-@pytest.mark.parametrize(
     "details",
     [
+        GetAccountDetails(),
         GetAccountDetails.with_params(),
         msgspec.json.decode(
             (RESOURCES_DIR / "requests" / "accounts" / "get_account_details.json").read_bytes(), type=GetAccountDetails
@@ -35,11 +22,11 @@ def test_init_requires_params(msg_type):
 )
 def test_account_details_request(details):
     assert isinstance(details, GetAccountDetails)
-    assert isinstance(details.params, _GetAccountDetailsParams)
-    assert details.method == GetAccountDetails.method
+    assert isinstance(details.params, _GetAccountDetailsParams) or not details.params
+    assert details.method.endswith("getAccountDetails")
     assert details.validate()
     enc_details = msgspec.json.encode(details)
-    assert GetAccountDetails.method in enc_details.decode()
+    assert "getAccountDetails" in enc_details.decode()
 
 
 def test_account_details_response():
@@ -51,6 +38,7 @@ def test_account_details_response():
 @pytest.mark.parametrize(
     "funds",
     [
+        GetAccountFunds(),
         GetAccountFunds.with_params(),
         msgspec.json.decode(
             (RESOURCES_DIR / "requests" / "accounts" / "get_account_funds.json").read_bytes(), type=GetAccountFunds
@@ -59,11 +47,11 @@ def test_account_details_response():
 )
 def test_account_funds_request(funds):
     assert isinstance(funds, GetAccountFunds)
-    assert isinstance(funds.params, _GetAccountFundsParams)
-    assert funds.method == GetAccountFunds.method
+    assert isinstance(funds.params, _GetAccountFundsParams) or not funds.params
+    assert funds.method.endswith("getAccountFunds")
     assert funds.validate()
     enc_funds = msgspec.json.encode(funds)
-    assert GetAccountFunds.method in enc_funds.decode()
+    assert "getAccountFunds" in enc_funds.decode()
 
 
 @pytest.mark.parametrize(

@@ -56,6 +56,6 @@ class _ListRaceDetailsParams(Params, frozen=True):
 
 class ListRaceDetail(Request, kw_only=True, frozen=True):
     endpoint_type = EndpointType.SCORES
-    method = "ScoresAPING/v1.0/listRaceDetails"
+    method: str = "ScoresAPING/v1.0/listRaceDetails"
     params: _ListRaceDetailsParams
     return_type = Response[list[RaceDetails]]

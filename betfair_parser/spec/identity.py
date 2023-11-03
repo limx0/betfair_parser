@@ -124,7 +124,7 @@ class _LoginParams(Params, frozen=True):
 
 
 class Login(IdentityRequest, kw_only=True, frozen=True):
-    method = "login"
+    method: str = "login"
     params: _LoginParams
     return_type = LoginResponse
     throws = LoginImpossible
@@ -153,14 +153,14 @@ class KeepAliveLogoutResponse(BaseResponse, frozen=True):
 
 
 class KeepAlive(IdentityRequest, frozen=True):
-    method = "keepAlive"
+    method: str = "keepAlive"
     params: None = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
 
 
 class Logout(IdentityRequest, frozen=True):
-    method = "logout"
+    method: str = "logout"
     params: None = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError

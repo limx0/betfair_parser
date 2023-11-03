@@ -116,36 +116,36 @@ class Response(RPC, BaseResponse, Generic[ResultType], kw_only=True, frozen=True
 _default_id_generator = count(1)
 
 
+def _failsafe_issubclass(x, A_tuple) -> bool:
+    try:
+        return issubclass(x, A_tuple)
+    except TypeError:
+        return False
+
+
 class Request(RPC, Generic[ParamsType], kw_only=True, frozen=True):
     # class variables for subclassing, which msgspec won't serialize in messages
     endpoint_type: ClassVar[EndpointType] = EndpointType.NONE
     return_type: ClassVar[type] = Response
     throws: ClassVar[type] = APINGException  # JSON error definition
 
-    # `method` is overridden in subclasses as a class variable, but not marked as class
-    # variable here, so that it gets included in the msgspec serialization. Having no
-    # default for `method` and `params` makes sure, that initializing a message object
-    # without explicitly calling the `with_params` constructor fails.
-    method: str
+    # `method` is overridden in subclasses as a class variable, so that it gets
+    # included in the msgspec serialization. Having no default for `params` makes
+    # sure, that initializing a message object without explicitly calling the
+    # `with_params` constructor fails.
+    method: str = ""
     params: ParamsType
 
     @classmethod
     def with_params(cls, request_id=None, **kwargs):
-        """
-        Constructor for RPC messages. Just calling Request(...) is not sufficient, because
-        some class variables need to be copied into the instance name space in order for
-        msgspec serialization to work correctly.
-        """
+        """Constructor for RPC messages, which require parameters."""
         params_cls = get_type_hints(cls)["params"]
-        if not isinstance(params_cls, TypeVar) and issubclass(params_cls, Params):
-            params = params_cls(**kwargs)
-        else:
-            params = kwargs
+        params = params_cls(**kwargs) if _failsafe_issubclass(params_cls, Params) else kwargs
+
         if request_id is None:
             request_id = next(_default_id_generator)
         return cls(
             params=params,
-            method=cls.method,
             id=request_id,
         )
 

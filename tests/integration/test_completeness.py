@@ -195,7 +195,11 @@ def test_operations(spec, node):
         params_cls = None
     else:
         params_cls_name = compat_type_name(params_cls)
-        assert params_cls_name.endswith("Params") or params_cls_name == "ParamsType"  # ParamsType: no arguments
+        if params_cls_name == "Optional":
+            # for GetAccountDetails, GetAccountFunds
+            params_cls = py_type_unpack(params_cls)
+            params_cls_name = compat_type_name(params_cls)
+        assert params_cls_name.endswith("Params")
     params = node.findall("parameters/request/parameter")
     for param in params:
         check_typedef_param(param, params_cls, operation_name)
