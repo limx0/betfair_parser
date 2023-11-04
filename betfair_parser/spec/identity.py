@@ -193,5 +193,6 @@ class CertLogin(_IdentityRequest, kw_only=True, frozen=True):
     return_type = CertLoginResponse
     throws = LoginImpossible
 
-    headers = staticmethod(Login.headers)
+    # TODO: remove this type ignore for py3.10+
+    headers = staticmethod(Login.headers)  # type: ignore[assignment,unused-ignore]
     body = Login.body
