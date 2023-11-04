@@ -304,7 +304,7 @@ class RunnerCatalog(BaseMessage, frozen=True):
 
     # The handicap applies to market with the MarketBettingType ASIAN_HANDICAP_SINGLE_LINE
     # & ASIAN_HANDICAP_DOUBLE_LINE only
-    handicap: float
+    handicap: Handicap
     sort_priority: Optional[int] = None  # This is marked as REQUIRED in the API doc, but omitted sometimes
     metadata: Optional[RunnerMetaData] = None  # Metadata associated with the runner
 
@@ -317,7 +317,7 @@ class Runner(BaseMessage, frozen=True):
     """The dynamic data about runners in a market"""
 
     selection_id: int  # The unique id of the runner (selection)
-    handicap: float  # The handicap
+    handicap: Handicap
     status: RunnerStatus  # The status of the selection
     adjustment_factor: Optional[float] = None  # The adjustment factor applied if the selection is removed
     last_price_traded: Optional[float] = None  # The price of the most recent bet matched on this selection
@@ -401,7 +401,7 @@ class ClearedOrderSummary(BaseMessage, frozen=True):
     event_id: Optional[EventId] = None  # The id of the event bet on
     market_id: Optional[MarketId] = None  # The id of the market bet on
     selection_id: Optional[int] = None  # The id of the selection bet on
-    handicap: Optional[float] = None  # The handicap value for Asian handicap markets
+    handicap: Optional[Handicap] = None  # The handicap value for Asian handicap markets
     bet_id: Optional[BetId] = None  # The id of the bet
     placed_date: Optional[Date] = None  # The date the bet order was placed by the customer
     persistence_type: Optional[PersistenceType] = None  # The turn in play persistence state of the order
@@ -437,7 +437,7 @@ class RunnerId(BaseMessage, frozen=True):
 
     market_id: MarketId  # The id of the market bet on
     selection_id: int  # The id of the selection bet on
-    handicap: Optional[float] = None  # The handicap associated with the runner in case of Asian handicap markets
+    handicap: Optional[Handicap] = None  # The handicap associated with the runner in case of Asian handicap markets
 
 
 class CurrentItemDescription(BaseMessage, frozen=True):
@@ -452,7 +452,7 @@ class CurrentOrderSummary(BaseMessage, frozen=True):
     bet_id: BetId  # The bet ID of the original place order
     market_id: MarketId  # The market ID the order is for
     selection_id: int  # The selection ID the order is for
-    handicap: float  # The handicap associated with the runner in case of Asian handicap markets
+    handicap: Handicap  # The handicap associated with the runner in case of Asian handicap markets
     price_size: PriceSize  # The price and size of the bet
     bsp_liability: Size  # The liability of a given BSP bet
     side: Side  # BACK/LAY

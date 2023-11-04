@@ -22,7 +22,17 @@ from betfair_parser.spec.betting.type_definitions import (
     VenueResult,
     betting_tag,
 )
-from betfair_parser.spec.common import BetId, Date, EndpointType, MarketId, Params, Request, Response, SelectionId
+from betfair_parser.spec.common import (
+    BetId,
+    Date,
+    EndpointType,
+    Handicap,
+    MarketId,
+    Params,
+    Request,
+    Response,
+    SelectionId,
+)
 
 
 class _ListingParams(Params, frozen=True):
@@ -176,7 +186,7 @@ class ListMarketProfitAndLoss(_ListingRequest, kw_only=True, frozen=True):
 class _ListRunnerBookParams(Params, frozen=True):
     market_id: MarketId  # The unique id for the market
     selection_id: SelectionId  # The unique id for the selection in the market
-    handicap: Optional[float] = None  # The handicap associated with the runner in case of Asian handicap market
+    handicap: Optional[Handicap] = None  # The handicap associated with the runner in case of Asian handicap market
     price_projection: Optional[PriceProjection] = None
     order_projection: Optional[OrderProjection] = None
     match_projection: Optional[MatchProjection] = None  # If you ask for orders, specifies the representation of matches
