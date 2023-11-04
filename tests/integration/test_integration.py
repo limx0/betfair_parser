@@ -47,7 +47,12 @@ def test_requests(path):
         return
 
     request_type = op_cls_from_path(path)
-    assert decode(raw, type=request_type)
+    assert request_type
+    parsed = request_type.parse(raw)
+    assert isinstance(parsed, request_type)
+    assert parsed.id
+    assert parsed.params
+    assert parsed.validate()
 
 
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "responses").glob("*/*.json")), ids=id_from_path)

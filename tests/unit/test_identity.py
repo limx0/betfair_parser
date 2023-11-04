@@ -1,6 +1,7 @@
 import pytest
 
 from betfair_parser.endpoints import ENDPOINTS
+from betfair_parser.spec.common import first_lower
 from betfair_parser.spec.identity import KeepAlive, LoginResponse, Logout
 
 
@@ -11,7 +12,7 @@ def test_request_init(msg):
     within the request body. So the initialisation with `with_params` can be omitted, if there are
     no parameters. The objects should behave the same regardless of the initialisation.
     """
-    assert msg.method.lower() == type(msg).__name__.lower()
+    assert msg.method == first_lower(type(msg).__name__)
     assert not msg.body()
     assert ENDPOINTS.url_for_request(msg).lower().endswith(f"/api/{type(msg).__name__.lower()}")
     assert msg.validate()

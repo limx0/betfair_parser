@@ -15,7 +15,7 @@ from betfair_parser.spec.common import EndpointType, Params, Request, Response, 
 accounts_tag = partial(method_tag, "AccountAPING/v1.0/")
 
 
-class AccountRequest(Request, frozen=True, tag_field="method", tag=accounts_tag):
+class _AccountRequest(Request, frozen=True, tag_field="method", tag=accounts_tag):
     endpoint_type = EndpointType.ACCOUNTS
     throws = AccountAPINGException
 
@@ -24,14 +24,14 @@ class _GetAccountFundsParams(Params, frozen=True):
     wallet: Optional[Wallet] = None  # Name of the wallet in question. Global wallet is returned by default
 
 
-class GetAccountFunds(AccountRequest, kw_only=True, frozen=True):
+class GetAccountFunds(_AccountRequest, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
     params: Optional[_GetAccountFundsParams] = None
     return_type = Response[AccountFundsResponse]
 
 
-class GetAccountDetails(AccountRequest, kw_only=True, frozen=True):
+class GetAccountDetails(_AccountRequest, kw_only=True, frozen=True):
     """Returns the details relating your account, including your discount rate and Betfair point balance."""
 
     params: Optional[Params] = None
@@ -53,7 +53,7 @@ class _GetAccountStatementParams(Params, frozen=True):
     wallet: Optional[Wallet] = None  # Which wallet to return statementItems for. Defaults to UK
 
 
-class GetAccountStatement(AccountRequest, kw_only=True, frozen=True):
+class GetAccountStatement(_AccountRequest, kw_only=True, frozen=True):
     """Return the account statement. Essentially a large list of your last profits and losses."""
 
     params: _GetAccountStatementParams
@@ -64,7 +64,7 @@ class _ListCurrencyRatesParams(Params, frozen=True):
     from_currency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
 
 
-class ListCurrencyRates(AccountRequest, kw_only=True, frozen=True):
+class ListCurrencyRates(_AccountRequest, kw_only=True, frozen=True):
     """Returns a list of currency rates based on given currency. Updates only once per hour."""
 
     params: _ListCurrencyRatesParams

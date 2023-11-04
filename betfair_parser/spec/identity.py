@@ -8,7 +8,7 @@ from betfair_parser.spec.common import BaseResponse, EndpointType, Params, Reque
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
-class IdentityRequest(Request, frozen=True, tag_field=None, tag=None):
+class _IdentityRequest(Request, frozen=True):
     endpoint_type = EndpointType.IDENTITY
 
     def parse_response(self, response, raise_errors=True):
@@ -122,21 +122,21 @@ class _LoginParams(Params, frozen=True):
     password: str
 
 
-class Login(IdentityRequest, kw_only=True, frozen=True):
+class Login(_IdentityRequest, kw_only=True, frozen=True):
     params: _LoginParams
     return_type = LoginResponse
     throws = LoginImpossible
 
     @staticmethod
-    def headers():
+    def headers() -> dict[str, str]:
         return {
             "Accept": "application/json",
             "Content-Type": "application/x-www-form-urlencoded",
             # X-Application to be set by the application
         }
 
-    def body(self):
-        return f"username={quote(self.params.username)}&password={quote(self.params.password)}"
+    def body(self) -> bytes:
+        return f"username={quote(self.params.username)}&password={quote(self.params.password)}".encode()
 
 
 class KeepAliveLogoutResponse(BaseResponse, frozen=True):
@@ -150,13 +150,13 @@ class KeepAliveLogoutResponse(BaseResponse, frozen=True):
         return self.status != "SUCCESS"
 
 
-class KeepAlive(IdentityRequest, frozen=True):
+class KeepAlive(_IdentityRequest, frozen=True):
     params: Optional[Params] = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
 
 
-class Logout(IdentityRequest, frozen=True):
+class Logout(_IdentityRequest, frozen=True):
     params: Optional[Params] = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
@@ -184,7 +184,7 @@ class CertLoginResponse(BaseResponse, frozen=True):
         return self.status != LoginExceptionCode.SUCCESS
 
 
-class CertLogin(IdentityRequest, kw_only=True, frozen=True):
+class CertLogin(_IdentityRequest, kw_only=True, frozen=True):
     # Subclassing Login would have been more obvious, but then mypy freaks out
     # due to a different return_type
 

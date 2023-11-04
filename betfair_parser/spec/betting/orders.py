@@ -34,7 +34,7 @@ from betfair_parser.spec.common import (
 )
 
 
-class OrderRequest(Request, frozen=True, tag=betting_tag):
+class _OrderRequest(Request, frozen=True, tag=betting_tag):
     endpoint_type = EndpointType.BETTING
 
 
@@ -47,7 +47,7 @@ class _PlaceOrdersParams(Params, frozen=True):
     async_: Optional[bool] = msgspec.field(name="async", default=False)
 
 
-class PlaceOrders(OrderRequest, kw_only=True, frozen=True):
+class PlaceOrders(_OrderRequest, kw_only=True, frozen=True):
     """Place new orders into market.
 
     Please note that additional bet sizing rules apply to bets placed into the Italian Exchange.
@@ -68,7 +68,7 @@ class _CancelOrdersParams(Params, frozen=True):
     customer_ref: Optional[CustomerRef] = None
 
 
-class CancelOrders(OrderRequest, kw_only=True, frozen=True):
+class CancelOrders(_OrderRequest, kw_only=True, frozen=True):
     """
     Cancel all bets OR cancel all bets on a market OR fully or partially cancel particular
     orders on a market. Only LIMIT orders can be cancelled or partially cancelled once placed.
@@ -86,7 +86,7 @@ class _ReplaceOrdersParams(Params, frozen=True):
     async_: Optional[bool] = msgspec.field(name="async", default=False)
 
 
-class ReplaceOrders(OrderRequest, kw_only=True, frozen=True):
+class ReplaceOrders(_OrderRequest, kw_only=True, frozen=True):
     """
     This operation is logically a bulk cancel followed by a bulk place. The cancel is completed
     first then the new orders are placed. The new orders will be placed atomically in that they
@@ -125,7 +125,7 @@ class _ListClearedOrdersParams(Params, frozen=True):
     record_count: Optional[int] = None  # Number of records from the index position 'fromRecord', maximum 1000
 
 
-class ListClearedOrders(OrderRequest, kw_only=True, frozen=True):
+class ListClearedOrders(_OrderRequest, kw_only=True, frozen=True):
     """
     Returns a list of settled bets based on the bet status, ordered by settled date. To retrieve
     more than 1000 records, you need to make use of the fromRecord and recordCount parameters.
@@ -161,7 +161,7 @@ class _ListCurrentOrdersParams(Params, frozen=True):
     include_item_description: Optional[bool] = None
 
 
-class ListCurrentOrders(OrderRequest, kw_only=True, frozen=True):
+class ListCurrentOrders(_OrderRequest, kw_only=True, frozen=True):
     """
     Returns a list of your current orders. Optionally you can filter and sort your current orders
     using the various parameters, setting none of the parameters will return all of your current
@@ -186,7 +186,7 @@ class _UpdateOrdersParams(Params, frozen=True):
     customer_ref: Optional[CustomerRef] = None
 
 
-class UpdateOrders(OrderRequest, kw_only=True, frozen=True):
+class UpdateOrders(_OrderRequest, kw_only=True, frozen=True):
     """Update non-exposure changing fields."""
 
     params: _UpdateOrdersParams
