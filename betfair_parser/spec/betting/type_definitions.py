@@ -244,8 +244,8 @@ class MarketDescription(BaseMessage, kw_only=True, frozen=True):
 _MetaCountryCode = str  # CountryCode
 
 
-class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, rename="upper"):
-    # Yes, this is the only type definition, that has (mostly) uppered key names
+class RunnerMetaData(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, omit_defaults=True, rename="upper"):
+    # Yes, this is the only type definition, that has (mostly) upper key names
     """
     Runner metadata as defined in the API as additional information.
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Additional+Information
@@ -283,6 +283,22 @@ class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, rename="upper
     colours_filename: Optional[str] = None  # Image representing the jockey silk
     cloth_number: Optional[int] = None  # The number on the saddle-cloth
     cloth_number_alpha: Optional[str] = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
+
+    def __post_init__(self):
+        if self.weight_value is not None and self.weight_value <= 0:
+            self.weight_value = None
+        if self.stall_draw is not None and self.stall_draw > 50:
+            self.stall_draw = None
+        if self.sire_year_born is not None and self.sire_year_born < 1980:
+            self.sire_year_born = None
+        if self.dam_year_born is not None and self.dam_year_born < 1980:
+            self.dam_year_born = None
+        if self.damsire_year_born is not None and self.damsire_year_born < 1960:
+            self.damsire_year_born = None
+        if self.cloth_number is not None and not 0 < self.cloth_number < 50:
+            self.cloth_number = None
+        if self.age is not None and not 1 < self.age < 30:
+            self.age = None
 
     @property
     def colours_url(self):
