@@ -1,7 +1,11 @@
+from functools import partial
 from typing import Optional
 
-from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Params, Request, Response
+from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Params, Request, Response, method_tag
 from betfair_parser.strenums import DocumentedEnum, doc
+
+
+scores_tag = partial(method_tag, "ScoresAPING/v1.0/")
 
 
 class RaceStatus(DocumentedEnum):
@@ -54,8 +58,7 @@ class _ListRaceDetailsParams(Params, frozen=True):
     race_ids: Optional[set[str]] = None  # Restricts the results to the specified race IDs.
 
 
-class ListRaceDetail(Request, kw_only=True, frozen=True):
+class ListRaceDetails(Request, kw_only=True, frozen=True, tag=scores_tag):
     endpoint_type = EndpointType.SCORES
-    method = "ScoresAPING/v1.0/listRaceDetails"
     params: _ListRaceDetailsParams
     return_type = Response[list[RaceDetails]]

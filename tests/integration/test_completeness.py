@@ -7,6 +7,7 @@ This includes checking of all parameters of operations and type definitions.
 import keyword
 import re
 import xml.etree.ElementTree as etree  # noqa
+from typing import get_type_hints
 
 import pytest
 
@@ -148,28 +149,30 @@ def check_typedef_param(param, py_cls, typedef_name):
     assert xml_type == param_cls_name, f"{typedef_name}.{xml_param_name}:{xml_type}: Invalid type: {param_cls_name}"
 
 
+UNCOVERED_API_KEYWORDS = [
+    # Exclude operations, that are deliberately out of scope of this API
+    "Subscription",
+    "Subscribed",
+    "Vendor",
+    "Developer",
+    "Affiliate",
+    "AuthorisationCode",
+    "WebApp",
+]
+
+
 @pytest.mark.parametrize(
     ["spec", "node"],
     [
         (spec, node)
         for xml_file, spec in zip(XML_FILES, (accounts.operations, betting.operations, heartbeat))
         for node in xml_nodes(xml_file, "operation")
+        if not any(unhandled in node.get("name") for unhandled in UNCOVERED_API_KEYWORDS)
     ],
     ids=id_check_item,
 )
 def test_operations(spec, node):
     operation_name = node.get("name")
-    for ex in [
-        "Subscription",
-        "Subscribed",
-        "Vendor",
-        "Developer",
-        "Affiliate",
-        "Authorisation",
-        "WebApp",
-    ]:
-        if ex in operation_name:
-            pytest.skip("Subscription, developer and vendor operations are not covered by this API implementation")
     if "MarketGroup" in operation_name:
         pytest.skip("MarketGroup is not contained in the documentation and was probably removed from the API")
     if operation_name == "transferFunds":
@@ -190,12 +193,16 @@ def test_operations(spec, node):
     xml_error_type = node.findall("parameters/exceptions/exception")[0].get("type")
     assert xml_type_compat(xml_error_type) == operation_cls.throws.__name__
     try:
-        params_cls = operation_cls.__annotations__["params"]
+        params_cls = get_type_hints(operation_cls)["params"]
     except KeyError:
-        params_cls = None
-    else:
+        return
+
+    params_cls_name = compat_type_name(params_cls)
+    if params_cls_name == "Optional":
+        # for GetAccountDetails, GetAccountFunds
+        params_cls = py_type_unpack(params_cls)
         params_cls_name = compat_type_name(params_cls)
-        assert params_cls_name.endswith("Params") or params_cls_name == "ParamsType"  # ParamsType: no arguments
+    assert params_cls_name.endswith("Params")
     params = node.findall("parameters/request/parameter")
     for param in params:
         check_typedef_param(param, params_cls, operation_name)
@@ -208,7 +215,7 @@ def capitalize(val: str) -> str:
     return val[:1].upper() + val[1:]
 
 
-def snake_case(val):
+def snake_case(val: str) -> str:
     # https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
     val = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", val)
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", val).lower()
@@ -260,7 +267,7 @@ def py_type_unpack_annotated(type_def):
     return type_def
 
 
-def py_type_format(type_def):
+def py_type_format(type_def) -> str:
     type_def_name = compat_type_name(type_def)
     if hasattr(type_def, "__metadata__"):
         return py_type_replace(type_def.__metadata__[-1].title)
@@ -335,7 +342,7 @@ XML_TYPE_NAME_REPLACEMENTS = {
 }
 
 
-def py_type_replace(name):
+def py_type_replace(name: str) -> str:
     # All the special handled types and inconsistencies need some extra care
     return PY_TYPE_NAME_REPLACEMENTS.get(name, name)
 
@@ -354,7 +361,7 @@ def xml_type_compat(xml_type_def, param_name=None):
     return xml_type_def
 
 
-def compat_type_name(type_def):
+def compat_type_name(type_def) -> str:
     """Workaround for py3.9 which does not define a __name__ attribute for typing classes."""
     try:
         return type_def.__name__

@@ -4,18 +4,18 @@ from typing import Literal, Optional, Union
 from betfair_parser.spec.common import BaseMessage, BaseResponse, Date, EndpointType, Request
 
 
-def tag_func(s: str):
+def navigation_tag(class_name: str):
     """
-    >>> tag_func("EventType")
+    >>> navigation_tag("EventType")
     'EVENT_TYPE'
 
-    >>> tag_func("Group")
+    >>> navigation_tag("Group")
     'GROUP'
     """
-    return re.sub(r"(?<!^)(?=[A-Z])", "_", s).upper()
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", class_name).upper()
 
 
-class Market(BaseMessage, tag=tag_func, frozen=True):
+class Market(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
     id: str
     exchange_id: str
@@ -24,14 +24,14 @@ class Market(BaseMessage, tag=tag_func, frozen=True):
     number_of_winners: Union[int, str]
 
 
-class Event(BaseMessage, tag=tag_func, frozen=True):
+class Event(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
     id: int
     country_code: str
     children: list[Union["Group", "Event", Market]]
 
 
-class Race(BaseMessage, tag=tag_func, frozen=True):
+class Race(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
     id: str
     country_code: str
@@ -41,13 +41,13 @@ class Race(BaseMessage, tag=tag_func, frozen=True):
     race_number: Optional[str] = None
 
 
-class Group(BaseMessage, tag=tag_func, frozen=True):
+class Group(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
     id: str
     children: list[Union["Group", Event]]
 
 
-class EventType(BaseMessage, tag=tag_func, frozen=True):
+class EventType(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
     id: int
     children: list[Union[Group, Event, Race]]
@@ -67,16 +67,24 @@ class Navigation(BaseResponse, frozen=True):
         return self
 
 
-class Menu(Request, kw_only=True, frozen=True):
-    """Navigation requests
-
+class Menu(Request, kw_only=True, frozen=True, tag=""):
+    """
+    Navigation request
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Navigation+Data+For+Applications
     """
 
     endpoint_type = EndpointType.NAVIGATION
-    method = ""
+    params: None = None
     id: int = 0
-    return_type = Navigation  # type: ignore
+    return_type = Navigation
+
+    @classmethod
+    def with_params(cls, request_id=None, **kwargs):
+        # Force id to 0 to avoid issues with message validation
+        return cls(id=0, **kwargs)
+
+    def body(self):
+        return b""
 
 
 class FlattenedMarket(BaseMessage, kw_only=True, frozen=True, rename=None):
@@ -120,15 +128,14 @@ def filter_flattened(nav_iter, **filters):
 
 
 def flattened_nav_iter(node, **context):
-    node_type_name = tag_func(node.__class__.__name__).lower()
+    node_type_name = navigation_tag(node.__class__.__name__).lower()
     context[node_type_name] = node
     if isinstance(node, Market):
         flattened = _flattened_from_context(context)
         yield flattened
     else:
         for child in node.children:
-            for flattened in flattened_nav_iter(child, **context):
-                yield flattened
+            yield from flattened_nav_iter(child, **context)
 
 
 def _flattened_from_context(ctx):

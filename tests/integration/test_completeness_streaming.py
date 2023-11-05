@@ -21,9 +21,9 @@ def api_name(spec: str) -> str:
     if spec == "OrderChangeMessage":
         return "OCM"
     if spec == "RequestMessage":
-        return "StreamRequest"
+        return "_StreamRequest"
     if spec == "ResponseMessage":
-        return "StreamResponse"
+        return "_StreamResponse"
     return spec.replace("Message", "")
 
 

@@ -17,7 +17,7 @@ MarketType = Annotated[str, msgspec.Meta(title="MarketType")]
 Venue = Annotated[str, msgspec.Meta(title="Venue")]
 MarketId = Annotated[str, msgspec.Meta(title="MarketId")]  # The only ID, that actually needs to be a string
 SelectionId = Annotated[int, msgspec.Meta(title="SelectionId", ge=0)]  # The only ID, that is actually defined as int
-Handicap = Annotated[float, msgspec.Meta(title="Handicap", gt=-100, lt=100)]
+Handicap = Annotated[float, msgspec.Meta(title="Handicap", gt=-1000, lt=1000)]
 EventId = Annotated[IDType, msgspec.Meta(title="EventId")]
 EventTypeId = Annotated[IDType, msgspec.Meta(title="EventTypeId")]
 CountryCode = Annotated[str, msgspec.Meta(title="CountryCode", min_length=2, max_length=3)]

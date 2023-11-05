@@ -1,4 +1,4 @@
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 from urllib.parse import quote
 
 import msgspec
@@ -8,15 +8,17 @@ from betfair_parser.spec.common import BaseResponse, EndpointType, Params, Reque
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
-class IdentityRequest(Request, frozen=True):
+class _IdentityRequest(Request, frozen=True):
     endpoint_type = EndpointType.IDENTITY
 
     def parse_response(self, response, raise_errors=True):
         resp = decode(response, type=self.return_type)
         if resp.is_error and raise_errors:
-            exception = self.throws(str(resp.error), response=resp, request=self)
-            raise exception
+            raise self.throws(str(resp.error), response=resp, request=self)
         return resp
+
+    def body(self):
+        return b""
 
 
 class LoginStatus(StrEnum):
@@ -120,22 +122,21 @@ class _LoginParams(Params, frozen=True):
     password: str
 
 
-class Login(IdentityRequest, kw_only=True, frozen=True):
-    method = "login"
+class Login(_IdentityRequest, kw_only=True, frozen=True):
     params: _LoginParams
-    return_type = LoginResponse  # type: ignore
-    throws = LoginImpossible  # type: ignore
+    return_type = LoginResponse
+    throws = LoginImpossible
 
     @staticmethod
-    def headers():
+    def headers() -> dict[str, str]:
         return {
             "Accept": "application/json",
             "Content-Type": "application/x-www-form-urlencoded",
             # X-Application to be set by the application
         }
 
-    def body(self):
-        return f"username={quote(self.params.username)}&password={quote(self.params.password)}"
+    def body(self) -> bytes:
+        return f"username={quote(self.params.username)}&password={quote(self.params.password)}".encode()
 
 
 class KeepAliveLogoutResponse(BaseResponse, frozen=True):
@@ -149,16 +150,16 @@ class KeepAliveLogoutResponse(BaseResponse, frozen=True):
         return self.status != "SUCCESS"
 
 
-class KeepAlive(IdentityRequest, frozen=True):
-    method = "keepAlive"
-    return_type = KeepAliveLogoutResponse  # type: ignore
-    throws = IdentityError  # type: ignore
+class KeepAlive(_IdentityRequest, frozen=True):
+    params: Optional[Params] = None
+    return_type = KeepAliveLogoutResponse
+    throws = IdentityError
 
 
-class Logout(IdentityRequest, frozen=True):
-    method = "logout"
-    return_type = KeepAliveLogoutResponse  # type: ignore
-    throws = IdentityError  # type: ignore
+class Logout(_IdentityRequest, frozen=True):
+    params: Optional[Params] = None
+    return_type = KeepAliveLogoutResponse
+    throws = IdentityError
 
 
 class CertLoginResponse(BaseResponse, frozen=True):
@@ -183,15 +184,15 @@ class CertLoginResponse(BaseResponse, frozen=True):
         return self.status != LoginExceptionCode.SUCCESS
 
 
-class CertLogin(IdentityRequest, kw_only=True, frozen=True):
+class CertLogin(_IdentityRequest, kw_only=True, frozen=True):
     # Subclassing Login would have been more obvious, but then mypy freaks out
     # due to a different return_type
 
     endpoint_type = EndpointType.IDENTITY_CERT
-    method = "certlogin"
     params: _LoginParams
-    return_type = CertLoginResponse  # type: ignore
-    throws = LoginImpossible  # type: ignore
+    return_type = CertLoginResponse
+    throws = LoginImpossible
 
-    headers = staticmethod(Login.headers)
+    # TODO: remove this type ignore for py3.10+
+    headers = staticmethod(Login.headers)  # type: ignore[assignment,unused-ignore]
     body = Login.body

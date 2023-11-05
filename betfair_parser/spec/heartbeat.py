@@ -1,5 +1,10 @@
-from betfair_parser.spec.common import BaseMessage, EndpointType, Params, Request, Response
+from functools import partial
+
+from betfair_parser.spec.common import BaseMessage, EndpointType, Params, Request, Response, method_tag
 from betfair_parser.strenums import DocumentedEnum, doc
+
+
+heartbeat_tag = partial(method_tag, "HeartbeatAPING/v1.0/")
 
 
 class ActionPerformed(DocumentedEnum):
@@ -25,7 +30,7 @@ class _HeartbeatParams(Params, frozen=True):
     preferred_timeout_seconds: int
 
 
-class Heartbeat(Request, kw_only=True, frozen=True):
+class Heartbeat(Request, kw_only=True, frozen=True, tag=heartbeat_tag):
     """
     This heartbeat operation is provided to help customers have their positions managed automatically in the
     event of their API clients losing connectivity with the Betfair API. If a heartbeat request is not received
@@ -41,6 +46,5 @@ class Heartbeat(Request, kw_only=True, frozen=True):
     """
 
     endpoint_type = EndpointType.HEARTBEAT
-    method = "HeartbeatAPING/v1.0/heartbeat"
     params: _HeartbeatParams
     return_type = Response[HeartbeatReport]

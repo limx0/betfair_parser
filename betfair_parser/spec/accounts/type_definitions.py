@@ -104,7 +104,7 @@ class AccountFundsResponse(BaseMessage, frozen=True):
     discount_rate: Optional[float] = None
     points_balance: Optional[int] = None
 
-    # This is NOT documented in the API description, but seems to be present at least int recorded data
+    # This is not documented in the API description, but seems to be present anyway
     wallet: Optional[Wallet] = None
 
 

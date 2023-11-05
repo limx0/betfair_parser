@@ -5,7 +5,7 @@ import pytest
 
 from betfair_parser.cache import MarketCache, RunnerOrderBook
 from betfair_parser.spec import accounts, betting
-from betfair_parser.spec.common import Request, decode
+from betfair_parser.spec.common import decode
 from betfair_parser.spec.streaming import (
     MCM,
     OCM,
@@ -46,7 +46,13 @@ def test_requests(path):
         assert isinstance(data, (Authentication, MarketSubscription, OrderSubscription))
         return
 
-    assert decode(raw, type=Request)
+    request_type = op_cls_from_path(path)
+    assert request_type
+    parsed = request_type.parse(raw)
+    assert isinstance(parsed, request_type)
+    assert parsed.id
+    assert parsed.params
+    assert parsed.validate()
 
 
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "responses").glob("*/*.json")), ids=id_from_path)
@@ -67,8 +73,14 @@ def test_responses(path):
     resp = decode(raw, type=parse_type)
     assert resp
     if "error" in str(path):
+        assert resp.is_error
         assert resp.error
+        assert isinstance(resp.error.code, int)
+        assert resp.error.exception_code
+        assert not resp.result
     else:
+        assert not resp.is_error
+        assert not resp.error
         assert resp.result
 
 
@@ -83,6 +95,7 @@ LINE_COUNT = {
 @pytest.mark.parametrize("path", sorted((RESOURCES_DIR / "data").glob("**/*.bz2")), ids=id_from_path)
 def test_archive(path):
     mc = MarketCache()
+    i = 0
     for i, line in enumerate(bz2.open(path), start=1):
         msg = stream_decode(line)
         assert isinstance(msg, MCM)

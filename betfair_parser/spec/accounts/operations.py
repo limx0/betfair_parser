@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Optional
 
 from betfair_parser.exceptions import AccountAPINGException
@@ -8,35 +9,32 @@ from betfair_parser.spec.accounts.type_definitions import (
     AccountStatementReport,
     CurrencyRate,
 )
-from betfair_parser.spec.common import EndpointType, Params, Request, Response, TimeRange
+from betfair_parser.spec.common import EndpointType, Params, Request, Response, TimeRange, method_tag
 
 
-class AccountRequest(Request, frozen=True):
+accounts_tag = partial(method_tag, "AccountAPING/v1.0/")
+
+
+class _AccountRequest(Request, frozen=True, tag_field="method", tag=accounts_tag):
     endpoint_type = EndpointType.ACCOUNTS
-    throws = AccountAPINGException  # type: ignore
+    throws = AccountAPINGException
 
 
 class _GetAccountFundsParams(Params, frozen=True):
     wallet: Optional[Wallet] = None  # Name of the wallet in question. Global wallet is returned by default
 
 
-class _GetAccountDetailsParams(Params, frozen=True):
-    pass
-
-
-class GetAccountFunds(AccountRequest, kw_only=True, frozen=True):
+class GetAccountFunds(_AccountRequest, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
-    method = "AccountAPING/v1.0/getAccountFunds"
-    params: _GetAccountFundsParams
+    params: Optional[_GetAccountFundsParams] = None
     return_type = Response[AccountFundsResponse]
 
 
-class GetAccountDetails(AccountRequest, kw_only=True, frozen=True):
+class GetAccountDetails(_AccountRequest, kw_only=True, frozen=True):
     """Returns the details relating your account, including your discount rate and Betfair point balance."""
 
-    method = "AccountAPING/v1.0/getAccountDetails"
-    params: _GetAccountDetailsParams
+    params: Optional[Params] = None
     return_type = Response[AccountDetailsResponse]
 
 
@@ -55,10 +53,9 @@ class _GetAccountStatementParams(Params, frozen=True):
     wallet: Optional[Wallet] = None  # Which wallet to return statementItems for. Defaults to UK
 
 
-class GetAccountStatement(AccountRequest, kw_only=True, frozen=True):
+class GetAccountStatement(_AccountRequest, kw_only=True, frozen=True):
     """Return the account statement. Essentially a large list of your last profits and losses."""
 
-    method = "AccountAPING/v1.0/getAccountStatement"
     params: _GetAccountStatementParams
     return_type = Response[AccountStatementReport]
 
@@ -67,9 +64,8 @@ class _ListCurrencyRatesParams(Params, frozen=True):
     from_currency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
 
 
-class ListCurrencyRates(AccountRequest, kw_only=True, frozen=True):
+class ListCurrencyRates(_AccountRequest, kw_only=True, frozen=True):
     """Returns a list of currency rates based on given currency. Updates only once per hour."""
 
-    method = "AccountAPING/v1.0/listCurrencyRates"
     params: _ListCurrencyRatesParams
     return_type = Response[list[CurrencyRate]]
