@@ -31,7 +31,7 @@ repos:
           - tomli
 
   - repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 23.10.1
     hooks:
       - id: black
 
@@ -41,13 +41,13 @@ repos:
       - id: isort
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.0
+    rev: v1.6.1
     hooks:
       - id: mypy
         additional_dependencies: [msgspec, types-requests]
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.292
+    rev: v0.1.4
     hooks:
       - id: ruff
 
