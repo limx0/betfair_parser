@@ -35,7 +35,7 @@ def method_tag(prefix: str, class_name: str) -> str:
     return prefix + first_lower(class_name)
 
 
-class BaseMessage(msgspec.Struct, kw_only=True, frozen=True, forbid_unknown_fields=True, rename="camel"):
+class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, frozen=True, rename="camel"):
     @classmethod
     def parse(cls, raw):
         return decode(raw, type=cls)
