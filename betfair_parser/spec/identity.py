@@ -184,7 +184,7 @@ class CertLoginResponse(BaseResponse, frozen=True):
         return self.status != LoginExceptionCode.SUCCESS
 
 
-class CertLogin(_IdentityRequest, kw_only=True, frozen=True):
+class CertLogin(_IdentityRequest, kw_only=True, frozen=True, tag=str.lower):
     # Subclassing Login would have been more obvious, but then mypy freaks out
     # due to a different return_type
 
