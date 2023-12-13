@@ -1,6 +1,10 @@
+from datetime import datetime
+
+import msgspec
+import msgspec.json
 import pytest
 
-from betfair_parser.spec.betting import CancelOrders, PlaceOrders, ReplaceOrders
+from betfair_parser.spec.betting import CancelOrders, PlaceOrders, ReplaceOrders, RunnerMetaData
 from betfair_parser.spec.common import decode
 from tests.resources import RESOURCES_DIR, id_from_path
 
@@ -90,3 +94,45 @@ def test_replace_order_response(filename):
     raw = (RESOURCES_DIR / "responses" / "betting" / filename).read_bytes()
     message = decode(raw, type=ReplaceOrders.return_type)
     assert message.validate()
+
+
+def test_runner_metadata_validation_pass():
+    metadata = dict(
+        weight_value=100,
+        stall_draw=10,
+        sire_year_born=1990,
+        dam_year_born=2000,
+        damsire_year_born=1990,
+        cloth_number=13,
+        age=3,
+    )
+    for rmd in (
+        RunnerMetaData(**metadata),  # type: ignore
+        RunnerMetaData.parse(msgspec.json.encode({k.upper(): v for k, v in metadata.items()})),
+    ):
+        assert rmd.weight_value == 100
+        assert rmd.stall_draw == 10
+        assert rmd.sire_year_born == 1990
+        assert rmd.dam_year_born == 2000
+        assert rmd.cloth_number == 13
+        assert rmd.age == 3
+
+
+def test_runner_metadata_validation_fail():
+    cur_year = datetime.now().year
+    metadata = dict(
+        weight_value=-1,
+        stall_draw=100,
+        sire_year_born=cur_year + 1,
+        dam_year_born=1950,
+        damsire_year_born=1930,
+        cloth_number=-1,
+        age=35,
+    )
+    for rmd in (
+        RunnerMetaData(**metadata),  # type: ignore
+        RunnerMetaData.parse(msgspec.json.encode({k.upper(): v for k, v in metadata.items()})),
+    ):
+        for field in RunnerMetaData.__struct_fields__:
+            # all fields should have failed __post_init__ validation
+            assert getattr(rmd, field) is None
