@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import partial
 from typing import Optional
 
@@ -283,6 +284,24 @@ class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, rename="upper
     colours_filename: Optional[str] = None  # Image representing the jockey silk
     cloth_number: Optional[int] = None  # The number on the saddle-cloth
     cloth_number_alpha: Optional[str] = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
+
+    def __post_init__(self):
+        force_setattr = msgspec.structs.force_setattr
+        cur_year = datetime.now().year
+        if self.weight_value is not None and self.weight_value <= 0:
+            force_setattr(self, "weight_value", None)
+        if self.stall_draw is not None and not 0 < self.stall_draw < 50:
+            force_setattr(self, "stall_draw", None)
+        if self.sire_year_born is not None and not 1980 < self.sire_year_born < cur_year:
+            force_setattr(self, "sire_year_born", None)
+        if self.dam_year_born is not None and not 1980 < self.dam_year_born < cur_year:
+            force_setattr(self, "dam_year_born", None)
+        if self.damsire_year_born is not None and not 1960 < self.damsire_year_born < cur_year:
+            force_setattr(self, "damsire_year_born", None)
+        if self.cloth_number is not None and not 0 < self.cloth_number < 50:
+            force_setattr(self, "cloth_number", None)
+        if self.age is not None and not 1 < self.age < 30:
+            force_setattr(self, "age", None)
 
     @property
     def colours_url(self):

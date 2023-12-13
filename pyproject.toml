@@ -26,7 +26,7 @@ classifiers = [
 ]
 keywords = ["parser", "betfair", "api", "json", "streaming"]
 dependencies = [
-    "msgspec>=0.18.0",
+    "msgspec>=0.18.5",
 ]
 optional-dependencies.dev = [
     "pytest>=7.1",
@@ -50,7 +50,7 @@ authors = ["Bradley McElroy <bradley.mcelroy@live.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-msgspec = ">=0.18"
+msgspec = ">=0.18.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1"
