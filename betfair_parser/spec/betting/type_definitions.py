@@ -286,7 +286,7 @@ class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, rename="upper
     cloth_number_alpha: Optional[str] = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
 
     def __post_init__(self):
-        force_setattr = msgspec.structs.force_setattr  # type: ignore
+        force_setattr = msgspec.structs.force_setattr
         cur_year = datetime.now().year
         if self.weight_value is not None and self.weight_value <= 0:
             force_setattr(self, "weight_value", None)
