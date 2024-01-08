@@ -36,17 +36,17 @@ from betfair_parser.spec import accounts, betting
 
 session = requests.Session()  # or anything similar like httpx.Client()
 client.login(session, "username", "password", "app_key")
-client.request(session, accounts.operations.GetAccountFunds.with_params())
+client.request(session, accounts.GetAccountFunds.with_params())
 # AccountFundsResponse(available_to_bet_balance=10000.0, exposure=0.0,
 # retained_commission=0.0, exposure_limit=-10000.0, discount_rate=0.0,
 # points_balance=10, wallet=<Wallet.UK: 'UK'>)
 
 # Request with an invalid wallet parameter:
-client.request(session, accounts.operations.GetAccountFunds.with_params(wallet="AUS"))
+client.request(session, accounts.GetAccountFunds.with_params(wallet="AUS"))
 # >>> AccountAPINGException: INVALID_PARAMETERS: Problem parsing the parameters,
 #     or a mandatory parameter was not found
 
-client.request(session, betting.operations.ListCurrentOrders.with_params())
+client.request(session, betting.ListCurrentOrders.with_params())
 # CurrentOrderSummaryReport(current_orders=[], more_available=False)
 
 # Support for other countries
