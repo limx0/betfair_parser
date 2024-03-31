@@ -69,9 +69,9 @@ def test_account_funds(session: Session):
     assert isinstance(resp, accounts.AccountFundsResponse)
     assert resp.wallet.value == "UK"  # Only UK wallets left
     assert resp.available_to_bet_balance >= 0
-    assert resp.exposure >= 0
     assert resp.retained_commission >= 0
-    assert resp.exposure_limit <= 0
+    assert resp.exposure <= 0  # always returned negative
+    assert resp.exposure_limit <= 0  # always returned negative
     assert 0 <= resp.discount_rate <= 0.3
     assert resp.points_balance >= 0
 
@@ -152,8 +152,16 @@ def test_market_catalogue(session: Session):
 @skip_not_logged_in
 def test_current_orders(session: Session):
     resp = client.request(session, betting.ListCurrentOrders.with_params())
-    assert len(resp.current_orders) == 0
     assert not resp.more_available
+    if len(resp.current_orders):
+        for order in resp.current_orders:
+            assert isinstance(order, betting.CurrentOrderSummary)
+            assert order.bet_id
+            assert order.market_id
+            assert order.selection_id
+            assert order.side in (betting.Side.BACK, betting.Side.LAY)
+            assert 1 < order.price_size.price < 1001
+            assert order.price_size.size > 0
 
 
 @skip_not_logged_in

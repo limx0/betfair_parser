@@ -20,10 +20,10 @@ def _parse_json_date(datetime_str):
 def assert_json_equal(x, y):
     assert type(x) == type(y)
     if isinstance(x, dict):
-        assert len(x) == len(y)
+        # can't compare the length, as None values might have been omitted
+        assert sum(1 for v in x.values() if v is not None) == sum(1 for v in y.values() if v is not None)
         for key_x in x:
-            assert key_x in y
-            assert_json_equal(x[key_x], y[key_x])
+            assert_json_equal(x[key_x], y.get(key_x))
     elif isinstance(x, list):
         assert len(x) == len(y)
         for item_x, item_y in zip(x, y):

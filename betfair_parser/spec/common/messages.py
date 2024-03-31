@@ -50,7 +50,7 @@ class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, froz
         return msgspec.structs.replace(self, **kwargs)
 
 
-class Params(BaseMessage, omit_defaults=True, frozen=True):
+class Params(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     """
     Base class for request parameters. Don't send None and other redundant default
     values. If not subclassed, this class is used to describe an empty parameter set.

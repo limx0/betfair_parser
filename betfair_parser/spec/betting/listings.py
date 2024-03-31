@@ -35,7 +35,7 @@ from betfair_parser.spec.common import (
 )
 
 
-class _ListingParams(Params, frozen=True):
+class _ListingParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     filter: MarketFilter
     locale: Optional[str] = None
 
@@ -106,7 +106,7 @@ class ListVenues(_ListingRequest, kw_only=True, frozen=True):
 # More complex listings
 
 
-class _ListMarketBookParams(Params, frozen=True):
+class _ListMarketBookParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     market_ids: list[str]  # One or more market ids
     price_projection: Optional[PriceProjection] = None  # The desired projection of price data
     order_projection: Optional[OrderProjection] = None  # The orders you want to receive in the response
@@ -144,7 +144,7 @@ class ListMarketBook(_ListingRequest, kw_only=True, frozen=True):
     return_type = Response[list[MarketBook]]
 
 
-class _ListMarketCatalogueParams(Params, kw_only=True, frozen=True):
+class _ListMarketCatalogueParams(Params, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     filter: MarketFilter  # The filter to select desired markets
     market_projection: Optional[set[MarketProjection]] = None  # The type and amount of data returned about the market
     sort: Optional[MarketSort] = None  # The order of the results, defaults to RANK
@@ -169,7 +169,7 @@ class ListMarketCatalogue(_ListingRequest, kw_only=True, frozen=True):
 ListMarketCatalog = ListMarketCatalogue  # allow both spellings
 
 
-class _ListMarketProfitAndLossParams(Params, frozen=True):
+class _ListMarketProfitAndLossParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     market_ids: set[MarketId]  # List of markets to calculate profit and loss
     include_settled_bets: Optional[bool] = False  # Option to include settled bets (partially settled markets only)
     include_bsp_bets: Optional[bool] = False  # Option to include BSP bets
@@ -183,7 +183,7 @@ class ListMarketProfitAndLoss(_ListingRequest, kw_only=True, frozen=True):
     return_type = Response[list[MarketProfitAndLoss]]
 
 
-class _ListRunnerBookParams(Params, frozen=True):
+class _ListRunnerBookParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     market_id: MarketId  # The unique id for the market
     selection_id: SelectionId  # The unique id for the selection in the market
     handicap: Optional[Handicap] = None  # The handicap associated with the runner in case of Asian handicap market
