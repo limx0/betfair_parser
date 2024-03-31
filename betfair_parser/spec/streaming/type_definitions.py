@@ -24,7 +24,7 @@ from betfair_parser.spec.streaming.enums import LapseStatusReasonCode, MarketDat
 # Request objects
 
 
-class MarketFilter(BaseMessage, frozen=True):
+class MarketFilter(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     betting_types: Optional[list[MarketBettingType]] = None  # Match the betting type of the market
     bsp_market: Optional[bool] = None  # If set, restrict to BSP or non-BSP markets only. If unset, return both
     country_codes: Optional[list[str]] = None  # Restrict to specified country or countries. Defaults to 'GB' on error
@@ -37,7 +37,7 @@ class MarketFilter(BaseMessage, frozen=True):
     venues: Optional[list[Venue]] = None  # Restrict by the venue associated with the market. Only for horse racing
 
 
-class MarketDataFilter(BaseMessage, frozen=True):
+class MarketDataFilter(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     fields: Optional[list[MarketDataFilterFields]] = None
     ladder_levels: Optional[int] = None
 
@@ -58,7 +58,7 @@ class OrderFilter(BaseMessage, frozen=True):
 # Response objects
 
 
-class RunnerDefinition(BaseMessage, frozen=True):
+class RunnerDefinition(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     sort_priority: int
     id: SelectionId
     name: Optional[str] = None  # Undefined, but partly present
@@ -87,7 +87,7 @@ class PriceLadderDefinition(BaseMessage, frozen=True):
     type: PriceLadderDefinitionType
 
 
-class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
+class MarketDefinition(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     bet_delay: int
     betting_type: MarketBettingType
     bsp_market: bool
@@ -168,7 +168,7 @@ StartingPriceLay = Annotated[PV, msgspec.Meta(title="StartingPriceLay")]
 Trade = Annotated[PV, msgspec.Meta(title="Trade")]
 
 
-class RunnerChange(BaseMessage, frozen=True):
+class RunnerChange(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     id: SelectionId
     atb: Optional[list[AvailableToBack]] = None
     atl: Optional[list[AvailableToLay]] = None
@@ -256,7 +256,7 @@ class RunnerChange(BaseMessage, frozen=True):
         return self.hc
 
 
-class MarketChange(BaseMessage, kw_only=True, frozen=True):
+class MarketChange(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     id: MarketId
     rc: Optional[list[RunnerChange]] = None  # Runner Changes
     con: Optional[bool] = None  # Conflated
@@ -285,7 +285,7 @@ class MarketChange(BaseMessage, kw_only=True, frozen=True):
         return self.tv
 
 
-class Order(BaseMessage, frozen=True):
+class Order(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     id: BetId
     p: float  # Price
     s: float  # Size
@@ -430,7 +430,7 @@ class MatchedOrder(BaseMessage, array_like=True, frozen=True):
     size: Size
 
 
-class StrategyMatchChange(BaseMessage, frozen=True):
+class StrategyMatchChange(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     mb: Optional[list[MatchedOrder]] = None  # Matched Backs
     ml: Optional[list[MatchedOrder]] = None  # Matched Lays
 
@@ -445,7 +445,7 @@ class StrategyMatchChange(BaseMessage, frozen=True):
         return self.ml
 
 
-class OrderRunnerChange(BaseMessage, frozen=True):
+class OrderRunnerChange(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     id: SelectionId
     full_image: Optional[bool] = False
     hc: Optional[Handicap] = None
@@ -480,7 +480,7 @@ class OrderRunnerChange(BaseMessage, frozen=True):
         return self.uo
 
 
-class OrderMarketChange(BaseMessage, kw_only=True, frozen=True):
+class OrderMarketChange(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
     id: MarketId
     account_id: Optional[int] = None
     closed: Optional[bool] = None
