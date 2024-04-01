@@ -4,8 +4,16 @@ import msgspec
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.betting import CancelOrders, PlaceOrders, ReplaceOrders, RunnerMetaData
-from betfair_parser.spec.common import decode
+from betfair_parser.spec.betting import (
+    CancelOrders,
+    OrderType,
+    PlaceInstruction,
+    PlaceOrders,
+    ReplaceOrders,
+    RunnerMetaData,
+    Side,
+)
+from betfair_parser.spec.common import decode, encode
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -136,3 +144,31 @@ def test_runner_metadata_validation_fail():
         for field in RunnerMetaData.__struct_fields__:
             # all fields should have failed __post_init__ validation
             assert getattr(rmd, field) is None
+
+
+REQUEST_OBJECTS = [
+    CancelOrders.with_params(market_id=10),
+    PlaceOrders.with_params(
+        market_id=123, instructions=[PlaceInstruction(order_type=OrderType.LIMIT, selection_id=123123, side=Side.BACK)]
+    ),
+    ReplaceOrders.with_params(market_id=456, instructions=[]),
+    RunnerMetaData(),
+]
+
+
+@pytest.mark.parametrize(
+    "obj",
+    REQUEST_OBJECTS,
+    ids=lambda obj: type(obj).__name__,
+)
+def test_omit_defaults(obj):
+    assert b"None" not in encode(obj)
+
+
+@pytest.mark.parametrize(
+    "obj",
+    REQUEST_OBJECTS,
+    ids=lambda obj: type(obj).__name__,
+)
+def test_repr_omit_default(obj):
+    assert "None" not in repr(obj)

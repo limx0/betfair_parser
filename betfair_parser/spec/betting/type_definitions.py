@@ -110,7 +110,7 @@ class TimeRangeResult(BaseMessage, frozen=True):
     market_count: Optional[int] = None  # Count of markets associated with this TimeRange
 
 
-class MarketFilter(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class MarketFilter(BaseMessage, frozen=True):
     text_query: Optional[str] = None  # Restrict markets by any text associated with the Event name
     exchange_ids: Optional[set[ExchangeId]] = None  # DEPRECATED
     event_type_ids: Optional[set[EventTypeId]] = None  # Restrict markets by event type associated with the market
@@ -166,7 +166,7 @@ class ExchangePrices(BaseMessage, frozen=True):
     traded_volume: Optional[list[PriceSize]] = None
 
 
-class Order(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class Order(BaseMessage, frozen=True):
     bet_id: BetId
     order_type: OrderType
     status: OrderStatus
@@ -216,7 +216,7 @@ class MarketLicence(BaseMessage, frozen=True):
     clarifications: Optional[str] = None  # Clarifications to the rules for the market
 
 
-class MarketDescription(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class MarketDescription(BaseMessage, kw_only=True, frozen=True):
     persistence_enabled: bool  # Indicates if the market supports 'Keep' bets if turned in-play
     bsp_market: bool  # Indicates if the market supports Betfair SP betting
     market_time: Date  # Scheduled start time of the market
@@ -245,7 +245,7 @@ class MarketDescription(BaseMessage, kw_only=True, omit_defaults=True, repr_omit
 _MetaCountryCode = str  # CountryCode
 
 
-class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, repr_omit_defaults=True, rename="upper"):
+class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     # Yes, this is the only type definition, that has (mostly) uppered key names
     """
     Runner metadata as defined in the API as additional information.
@@ -315,7 +315,7 @@ class RunnerMetaData(BaseMessage, frozen=True, omit_defaults=True, repr_omit_def
         return self.forecastprice_numerator / self.forecastprice_denominator + 1
 
 
-class RunnerCatalog(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class RunnerCatalog(BaseMessage, frozen=True):
     """Information about the Runners (selections) in a market"""
 
     selection_id: int  # The unique id for the selection
@@ -332,7 +332,7 @@ class RunnerCatalog(BaseMessage, omit_defaults=True, repr_omit_defaults=True, fr
         return self.runner_name
 
 
-class Runner(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class Runner(BaseMessage, frozen=True):
     """The dynamic data about runners in a market"""
 
     selection_id: int  # The unique id of the runner (selection)
@@ -349,7 +349,7 @@ class Runner(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=Tr
     matches_by_strategy: Optional[dict[str, list[Match]]] = None  # All matches for each strategy, sort by matched data
 
 
-class MarketCatalogue(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class MarketCatalogue(BaseMessage, frozen=True):
     market_id: MarketId  # The unique identifier for the market
     market_name: str  # The name of the market
     market_start_time: Optional[Date] = None  # Only returned when the MARKET_START_TIME enum is requested
@@ -374,7 +374,7 @@ class KeyLineDescription(BaseMessage, frozen=True):
     key_line: list[KeyLineSelection]  # A list of KeyLineSelection objects
 
 
-class MarketBook(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class MarketBook(BaseMessage, frozen=True):
     """The dynamic data in a market"""
 
     market_id: MarketId  # The unique identifier for the market
@@ -397,7 +397,7 @@ class MarketBook(BaseMessage, omit_defaults=True, repr_omit_defaults=True, froze
     key_line_description: Optional[KeyLineDescription] = None  # Description of a market's key line
 
 
-class ItemDescription(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class ItemDescription(BaseMessage, frozen=True):
     """
     This object contains some text which may be useful to render a betting history view.
     It offers no long-term warranty as to the correctness of the text.
@@ -413,7 +413,7 @@ class ItemDescription(BaseMessage, omit_defaults=True, repr_omit_defaults=True, 
     each_way_divisor: Optional[float] = None  # The divisor for the EACH_WAY market type
 
 
-class ClearedOrderSummary(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class ClearedOrderSummary(BaseMessage, frozen=True):
     """Summary of a cleared order"""
 
     event_type_id: Optional[EventTypeId] = None  # The id of the event type bet on
@@ -465,7 +465,7 @@ class CurrentItemDescription(BaseMessage, frozen=True):
     market_version: MarketVersion  # The relevant version of the market for this item
 
 
-class CurrentOrderSummary(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class CurrentOrderSummary(BaseMessage, frozen=True):
     """Summary of a current order"""
 
     bet_id: BetId  # The bet ID of the original place order
@@ -503,7 +503,7 @@ class CurrentOrderSummaryReport(BaseMessage, frozen=True):
     more_available: bool  # Indicates whether there are further result items beyond this page
 
 
-class LimitOrder(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class LimitOrder(BaseMessage, frozen=True):
     """Place a new LIMIT order (simple exchange bet for immediate execution)"""
 
     size: Size
@@ -524,7 +524,7 @@ class MarketOnCloseOrder(BaseMessage, frozen=True):
     liability: Size
 
 
-class PlaceInstruction(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class PlaceInstruction(BaseMessage, kw_only=True, frozen=True):
     """Instruction to place a new order"""
 
     order_type: OrderType  # The order type
@@ -541,7 +541,7 @@ class PlaceInstruction(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_
     customer_order_ref: Optional[str] = None  # An optional reference to identify instructions
 
 
-class PlaceInstructionReport(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class PlaceInstructionReport(BaseMessage, kw_only=True, frozen=True):
     """Report for a place instruction"""
 
     status: InstructionReportStatus  # The instruction report status
@@ -554,7 +554,7 @@ class PlaceInstructionReport(BaseMessage, kw_only=True, omit_defaults=True, repr
     size_matched: Optional[Size] = None  # The current amount of the bet that was matched, if successful
 
 
-class PlaceExecutionReport(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class PlaceExecutionReport(BaseMessage, kw_only=True, frozen=True):
     customer_ref: Optional[CustomerRef] = None  # Echo of the customer reference if passed
     status: ExecutionReportStatus  # The execution report status
     error_code: Optional[ExecutionReportErrorCode] = None  # The execution report error code
@@ -562,7 +562,7 @@ class PlaceExecutionReport(BaseMessage, kw_only=True, omit_defaults=True, repr_o
     instruction_reports: Optional[list[PlaceInstructionReport]] = None  # The list of place instruction reports
 
 
-class CancelInstruction(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class CancelInstruction(BaseMessage, frozen=True):
     """Instruction to fully or partially cancel an order (only applies to LIMIT orders)"""
 
     bet_id: BetId
@@ -578,7 +578,7 @@ class ReplaceInstruction(BaseMessage, frozen=True):
     new_price: Price  # The price to replace the bet at
 
 
-class CancelInstructionReport(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class CancelInstructionReport(BaseMessage, kw_only=True, frozen=True):
     status: InstructionReportStatus  # Whether the command succeeded or failed
     error_code: Optional[InstructionReportErrorCode] = None  # Cause of failure, or null if command succeeds
     instruction: Optional[CancelInstruction] = None  # The instruction that was requested
@@ -586,7 +586,7 @@ class CancelInstructionReport(BaseMessage, kw_only=True, omit_defaults=True, rep
     cancelled_date: Optional[Date] = None  # The API states, that this is mandatory, but it's skipped in case of error
 
 
-class CancelExecutionReport(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class CancelExecutionReport(BaseMessage, kw_only=True, frozen=True):
     customer_ref: Optional[CustomerRef] = None  # Echo of the customerRef if passed
     status: ExecutionReportStatus
     error_code: Optional[ExecutionReportErrorCode] = None
@@ -594,14 +594,14 @@ class CancelExecutionReport(BaseMessage, kw_only=True, omit_defaults=True, repr_
     instruction_reports: Optional[list[CancelInstructionReport]] = None
 
 
-class ReplaceInstructionReport(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class ReplaceInstructionReport(BaseMessage, frozen=True):
     status: InstructionReportStatus  # Whether the command succeeded or failed
     error_code: Optional[InstructionReportErrorCode] = None  # Cause of failure, or null if command succeeds
     cancel_instruction_report: Optional[CancelInstructionReport] = None  # Cancellation report for the original order
     place_instruction_report: Optional[PlaceInstructionReport] = None  # Placement report for the new order
 
 
-class ReplaceExecutionReport(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class ReplaceExecutionReport(BaseMessage, kw_only=True, frozen=True):
     customer_ref: Optional[CustomerRef] = None  # Echo of the customerRef if passed.
     status: ExecutionReportStatus
     error_code: Optional[ExecutionReportErrorCode] = None
@@ -630,7 +630,7 @@ class UpdateExecutionReport(BaseMessage, frozen=True):
     instruction_reports: Optional[list[UpdateInstructionReport]]
 
 
-class ExBestOffersOverrides(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class ExBestOffersOverrides(BaseMessage, frozen=True):
     """Options to alter the default representation of best offer prices"""
 
     best_prices_depth: Optional[int] = None  # The maximum number of prices to return on each side for each runner
@@ -640,7 +640,7 @@ class ExBestOffersOverrides(BaseMessage, omit_defaults=True, repr_omit_defaults=
     rollup_liability_factor: Optional[int] = None  # Only applicable when rollupModel is MANAGED_LIABILITY
 
 
-class PriceProjection(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class PriceProjection(BaseMessage, frozen=True):
     """Selection criteria of the returning price data"""
 
     price_data: Optional[set[PriceData]] = None  # The basic price data you want to receive in the response
@@ -656,7 +656,7 @@ class PriceProjection(BaseMessage, omit_defaults=True, repr_omit_defaults=True, 
     rollover_stakes: Optional[bool] = None
 
 
-class RunnerProfitAndLoss(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class RunnerProfitAndLoss(BaseMessage, frozen=True):
     """Profit and loss if selection wins or loses"""
 
     selection_id: Optional[SelectionId] = None  # The unique identifier for the selection
@@ -667,7 +667,7 @@ class RunnerProfitAndLoss(BaseMessage, omit_defaults=True, repr_omit_defaults=Tr
     if_place: Optional[float] = None
 
 
-class MarketProfitAndLoss(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class MarketProfitAndLoss(BaseMessage, frozen=True):
     """Profit and loss in a market"""
 
     market_id: Optional[MarketId] = None  # The unique identifier for the market

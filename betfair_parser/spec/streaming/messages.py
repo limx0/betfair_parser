@@ -49,7 +49,7 @@ class _Subscription(_StreamRequest, kw_only=True, frozen=True):
     segmentation_enabled: bool = True  # allow server to send large sets of data in segments, instead of a single block
 
 
-class MarketSubscription(_Subscription, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class MarketSubscription(_Subscription, kw_only=True, frozen=True):
     """
     This subscription type is used to receive price changes for one or more markets; your subscription
     criteria determine what you see. Limiting the amount of data that you consume will make your initial
@@ -60,7 +60,7 @@ class MarketSubscription(_Subscription, kw_only=True, omit_defaults=True, repr_o
     market_data_filter: MarketDataFilter
 
 
-class OrderSubscription(_Subscription, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class OrderSubscription(_Subscription, kw_only=True, frozen=True):
     """This subscription type is used to receive order changes."""
 
     order_filter: OrderFilter  # Optional filter applied to order subscription
@@ -79,7 +79,7 @@ class Connection(_StreamResponse, kw_only=True, frozen=True):
     connection_id: str  # Unique identifier for support queries
 
 
-class Status(_StreamResponse, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class Status(_StreamResponse, kw_only=True, frozen=True):
     """Every request receives a status response with a matching id."""
 
     connection_closed: bool
@@ -125,7 +125,7 @@ class _ChangeMessage(_StreamResponse, kw_only=True, frozen=True):
         return self.pt
 
 
-class MCM(_ChangeMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class MCM(_ChangeMessage, kw_only=True, frozen=True):
     """
     This is the ChangeMessage stream of data Betfair sends back after subscribing to the market stream.
     Market subscriptions are always in the underlying exchange currency - GBP.
@@ -139,7 +139,7 @@ class MCM(_ChangeMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=T
         return self.mc
 
 
-class OCM(_ChangeMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class OCM(_ChangeMessage, kw_only=True, frozen=True):
     """
     This is the ChangeMessage stream of data Betfair sends back after subscribing to the order stream.
     Order subscriptions are provided in the currency of the account that the orders are placed in.

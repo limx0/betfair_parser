@@ -20,7 +20,7 @@ class _AccountRequest(Request, frozen=True, tag_field="method", tag=accounts_tag
     throws = AccountAPINGException
 
 
-class _GetAccountFundsParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _GetAccountFundsParams(Params, frozen=True):
     wallet: Optional[Wallet] = None  # Name of the wallet in question. Global wallet is returned by default
 
 
@@ -38,7 +38,7 @@ class GetAccountDetails(_AccountRequest, kw_only=True, frozen=True):
     return_type = Response[AccountDetailsResponse]
 
 
-class _GetAccountStatementParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _GetAccountStatementParams(Params, frozen=True):
     locale: Optional[str] = None  # The language to be used where applicable. Defaults to account settings
     from_record: Optional[int] = None  # Specifies the first record that will be returned, defaults to 0
     record_count: Optional[int] = None  # Specifies the maximum number of records to be returned. Maximum 100
@@ -60,7 +60,7 @@ class GetAccountStatement(_AccountRequest, kw_only=True, frozen=True):
     return_type = Response[AccountStatementReport]
 
 
-class _ListCurrencyRatesParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _ListCurrencyRatesParams(Params, frozen=True):
     from_currency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
 
 

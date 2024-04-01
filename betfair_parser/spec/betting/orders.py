@@ -38,7 +38,7 @@ class _OrderRequest(Request, frozen=True, tag=betting_tag):
     endpoint_type = EndpointType.BETTING
 
 
-class _PlaceOrdersParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _PlaceOrdersParams(Params, frozen=True):
     market_id: str
     instructions: list[PlaceInstruction]
     customer_ref: Optional[CustomerRef] = None
@@ -62,7 +62,7 @@ class PlaceOrders(_OrderRequest, kw_only=True, frozen=True):
     return_type = Response[PlaceExecutionReport]
 
 
-class _CancelOrdersParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _CancelOrdersParams(Params, frozen=True):
     market_id: Optional[str] = None
     instructions: Optional[list[CancelInstruction]] = None
     customer_ref: Optional[CustomerRef] = None
@@ -78,7 +78,7 @@ class CancelOrders(_OrderRequest, kw_only=True, frozen=True):
     return_type = Response[CancelExecutionReport]
 
 
-class _ReplaceOrdersParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _ReplaceOrdersParams(Params, frozen=True):
     market_id: str
     instructions: list[ReplaceInstruction]
     customer_ref: Optional[CustomerRef] = None
@@ -98,7 +98,7 @@ class ReplaceOrders(_OrderRequest, kw_only=True, frozen=True):
     return_type = Response[ReplaceExecutionReport]
 
 
-class _ListClearedOrdersParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _ListClearedOrdersParams(Params, frozen=True):
     bet_status: BetStatus  # Restricts the results to the specified status.
     event_type_ids: Optional[set[EventTypeId]] = None  # Restricts the results to the specified Event Type IDs.
     event_ids: Optional[set[EventId]] = None  # Restricts the results to the specified Event IDs.
@@ -143,7 +143,7 @@ class ListClearedOrders(_OrderRequest, kw_only=True, frozen=True):
     return_type = Response[ClearedOrderSummaryReport]
 
 
-class _ListCurrentOrdersParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _ListCurrentOrdersParams(Params, frozen=True):
     """
     Parameters for retrieving a list of current orders.
     """
@@ -180,7 +180,7 @@ class ListCurrentOrders(_OrderRequest, kw_only=True, frozen=True):
     return_type = Response[CurrentOrderSummaryReport]
 
 
-class _UpdateOrdersParams(Params, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class _UpdateOrdersParams(Params, frozen=True):
     market_id: str  # The market id these orders are to be placed on
     instructions: list[UpdateInstruction]  # The limit of update instructions per request is 60
     customer_ref: Optional[CustomerRef] = None
