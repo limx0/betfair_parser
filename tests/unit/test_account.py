@@ -1,7 +1,14 @@
 import msgspec.json
 import pytest
 
-from betfair_parser.spec.accounts.operations import GetAccountDetails, GetAccountFunds, Params
+from betfair_parser.spec.accounts.operations import (
+    GetAccountDetails,
+    GetAccountFunds,
+    GetAccountStatement,
+    ListCurrencyRates,
+    Params,
+)
+from betfair_parser.spec.common import encode
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -69,3 +76,29 @@ def test_account_funds_response(filename):
     raw = (RESOURCES_DIR / "responses" / "accounts" / filename).read_bytes()
     funds = msgspec.json.decode(raw, type=GetAccountFunds.return_type)
     assert funds.validate()
+
+
+REQUEST_OBJECTS = [
+    GetAccountDetails.with_params(),
+    GetAccountFunds.with_params(),
+    GetAccountStatement.with_params(),
+    ListCurrencyRates.with_params(),
+]
+
+
+@pytest.mark.parametrize(
+    "obj",
+    REQUEST_OBJECTS,
+    ids=lambda obj: type(obj).__name__,
+)
+def test_omit_defaults(obj):
+    assert b"None" not in encode(obj)
+
+
+@pytest.mark.parametrize(
+    "obj",
+    REQUEST_OBJECTS,
+    ids=lambda obj: type(obj).__name__,
+)
+def test_repr_omit_default(obj):
+    assert "None" not in repr(obj)

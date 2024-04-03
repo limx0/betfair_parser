@@ -1,4 +1,5 @@
 """Check a broad selection of common API requests and responses for correct parsing."""
+
 import bz2
 
 import pytest

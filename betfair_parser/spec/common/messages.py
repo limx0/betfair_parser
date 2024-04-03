@@ -35,7 +35,15 @@ def method_tag(prefix: str, class_name: str) -> str:
     return prefix + first_lower(class_name)
 
 
-class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, frozen=True, rename="camel"):
+class BaseMessage(
+    msgspec.Struct,
+    kw_only=True,
+    forbid_unknown_fields=True,
+    omit_defaults=True,
+    repr_omit_defaults=True,
+    frozen=True,
+    rename="camel",
+):
     @classmethod
     def parse(cls, raw):
         return decode(raw, type=cls)
@@ -50,7 +58,7 @@ class BaseMessage(msgspec.Struct, kw_only=True, forbid_unknown_fields=True, froz
         return msgspec.structs.replace(self, **kwargs)
 
 
-class Params(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class Params(BaseMessage, frozen=True):
     """
     Base class for request parameters. Don't send None and other redundant default
     values. If not subclassed, this class is used to describe an empty parameter set.
@@ -66,7 +74,7 @@ class BaseResponse(BaseMessage, frozen=True):
         return False
 
 
-class RPC(BaseMessage, frozen=True):
+class RPC(BaseMessage, omit_defaults=False, repr_omit_defaults=False, frozen=True):
     jsonrpc: Literal["2.0"] = "2.0"
     id: int = 1
 

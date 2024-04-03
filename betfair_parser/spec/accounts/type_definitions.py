@@ -11,7 +11,7 @@ from betfair_parser.spec.accounts.enums import (
 from betfair_parser.spec.common import BaseMessage, Date
 
 
-class ApplicationSubscription(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class ApplicationSubscription(BaseMessage, frozen=True):
     """Application subscription details"""
 
     subscription_token: str  # Application key identifier
@@ -25,7 +25,7 @@ class ApplicationSubscription(BaseMessage, omit_defaults=True, repr_omit_default
     vendor_client_id: Optional[str] = None
 
 
-class SubscriptionHistory(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class SubscriptionHistory(BaseMessage, frozen=True):
     """Application subscription history details"""
 
     subscription_token: str  # Application key identifier
@@ -38,7 +38,7 @@ class SubscriptionHistory(BaseMessage, omit_defaults=True, repr_omit_defaults=Tr
     client_reference: Optional[str] = None
 
 
-class SubscriptionTokenInfo(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class SubscriptionTokenInfo(BaseMessage, frozen=True):
     """Subscription token information"""
 
     subscription_token: str
@@ -49,7 +49,7 @@ class SubscriptionTokenInfo(BaseMessage, omit_defaults=True, repr_omit_defaults=
     subscription_status: Optional[SubscriptionStatus] = None
 
 
-class AccountSubscription(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class AccountSubscription(BaseMessage, frozen=True):
     """Application subscription details"""
 
     subscription_tokens: list[SubscriptionTokenInfo]
@@ -57,7 +57,7 @@ class AccountSubscription(BaseMessage, omit_defaults=True, repr_omit_defaults=Tr
     application_version_id: Optional[str] = None
 
 
-class DeveloperAppVersion(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class DeveloperAppVersion(BaseMessage, frozen=True):
     """Describes a version of an external application"""
 
     owner: str  # The user who owns the specific version of the application
@@ -91,7 +91,7 @@ class DeveloperApp(BaseMessage, frozen=True):
     app_versions: list[DeveloperAppVersion]  # The application versions (including application keys)
 
 
-class AccountFundsResponse(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class AccountFundsResponse(BaseMessage, frozen=True):
     """Response for retrieving available to bet."""
 
     available_to_bet_balance: Optional[float] = None
@@ -108,7 +108,7 @@ class AccountFundsResponse(BaseMessage, omit_defaults=True, repr_omit_defaults=T
     wallet: Optional[Wallet] = None
 
 
-class AccountDetailsResponse(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class AccountDetailsResponse(BaseMessage, frozen=True):
     """Response for Account details."""
 
     # Default user currency Code. See Currency Parameters for minimum bet sizes relating to each currency.
@@ -129,7 +129,7 @@ class AccountDetailsResponse(BaseMessage, omit_defaults=True, repr_omit_defaults
     country_code: Optional[str] = None  # The customer's country of residence (ISO 2 Char format)
 
 
-class StatementLegacyData(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class StatementLegacyData(BaseMessage, frozen=True):
     """Summary of a cleared order."""
 
     avg_price: Optional[float]  # The average matched price of the bet (null if no part has been matched)
@@ -171,7 +171,7 @@ class StatementLegacyData(BaseMessage, omit_defaults=True, repr_omit_defaults=Tr
     avg_price_raw: Optional[float] = None
 
 
-class StatementItem(BaseMessage, kw_only=True, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class StatementItem(BaseMessage, kw_only=True, frozen=True):
     """Summary of a cleared order."""
 
     # An external reference, eg. equivalent to betId in the case of an exchange bet statement item.
@@ -200,7 +200,7 @@ class AccountStatementReport(BaseMessage, frozen=True):
     more_available: bool  # Indicates whether there are further result items beyond this page.
 
 
-class CurrencyRate(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class CurrencyRate(BaseMessage, frozen=True):
     currency_code: Optional[str] = None  # Three-letter ISO 4217 code
     rate: Optional[float] = None  # Exchange rate for the currency specified in the request
 
@@ -212,7 +212,7 @@ class AuthorisationResponse(BaseMessage, frozen=True):
     redirect_url: str  # URL to redirect the user to the vendor page
 
 
-class SubscriptionOptions(BaseMessage, frozen=True, omit_defaults=True, repr_omit_defaults=True, rename=None):
+class SubscriptionOptions(BaseMessage, frozen=True, rename=None):
     # No rename: SubscriptionOption fields don't use camelCase in Betfair API
 
     """Wrapper object containing details of how a subscription should be created"""
@@ -244,7 +244,7 @@ class VendorAccessTokenInfo(BaseMessage, frozen=True, rename=None):
     application_subscription: ApplicationSubscription
 
 
-class VendorDetails(BaseMessage, omit_defaults=True, repr_omit_defaults=True, frozen=True):
+class VendorDetails(BaseMessage, frozen=True):
     """Wrapper object containing vendor name and redirect url"""
 
     app_version_id: int  # Internal id of the application
