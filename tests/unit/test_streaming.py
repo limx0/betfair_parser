@@ -1,6 +1,6 @@
 import msgspec
 
-from betfair_parser.spec.streaming import MCM, OCM, MatchedOrder, RunnerStatus, StartingPriceLay, stream_decode
+from betfair_parser.spec.streaming import MCM, OCM, MatchedOrder, RunnerStatus, StartingPriceLay, Status, stream_decode
 from tests.resources import RESOURCES_DIR
 
 
@@ -165,3 +165,9 @@ def test_bsp_result():
     runners = mcm.mc[0].market_definition.runners
     assert runners[0].bsp == 2.0008034621107256
     assert runners[0].status == RunnerStatus.WINNER
+
+
+def test_status_error_alt():
+    raw = (RESOURCES_DIR / "responses" / "streaming" / "status_error_alt.json").read_bytes()
+    status: Status = stream_decode(raw)
+    assert status

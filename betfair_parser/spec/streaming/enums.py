@@ -49,6 +49,7 @@ class StatusErrorCode(DocumentedEnum):
     # General errors which may or may not be linked to specific request id
     UNEXPECTED_ERROR = doc("Failure code returned when an internal error occurred on the server")
     CONNECTION_FAILED = doc("Failure code used when the client / server connection is terminated")
+    INVALID_REQUEST = doc("Invalid Request")
 
 
 class LapseStatusReasonCode(DocumentedEnum):

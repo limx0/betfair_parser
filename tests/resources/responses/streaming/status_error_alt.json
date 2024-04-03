@@ -1,0 +1,9 @@
+{
+  "op": "status",
+  "id": 0,
+  "statusCode": "FAILURE",
+  "errorCode": "INVALID_REQUEST",
+  "errorMessage": "Connection is already authenticated: {op='authentication', id=0, appKey='123', session='true'}",
+  "connectionClosed": true,
+  "connectionId": "111"
+}
