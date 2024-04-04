@@ -83,8 +83,8 @@ check_untyped_defs = true
 
 [tool.ruff]
 fix = false
-extend-select = ["UP"]
 line-length = 120
+lint.extend-select = ["UP"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
