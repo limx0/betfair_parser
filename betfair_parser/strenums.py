@@ -17,7 +17,7 @@ class StrEnum(str, Enum):
         return key
 
     def __repr__(self):
-        return f"<{type(self).__name__}.{self.name}>"
+        return f"{type(self).__name__}.{self.name}"
 
 
 class LowerStrEnum(StrEnum):
@@ -90,4 +90,4 @@ class DocumentedEnum(Enum):
         return self.name
 
     def __repr__(self):
-        return f"<{type(self).__name__}.{self.name}>"
+        return f"{type(self).__name__}.{self.name}"
