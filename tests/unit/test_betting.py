@@ -105,12 +105,13 @@ def test_replace_order_response(filename):
 
 
 def test_runner_metadata_validation_pass():
+    cur_year = datetime.now().year
     metadata = dict(
         weight_value=100,
         stall_draw=10,
-        sire_year_born=1990,
-        dam_year_born=2000,
-        damsire_year_born=1990,
+        sire_year_born=cur_year - 25,
+        dam_year_born=cur_year - 15,
+        damsire_year_born=cur_year - 35,
         cloth_number=13,
         age=3,
     )
@@ -120,8 +121,9 @@ def test_runner_metadata_validation_pass():
     ):
         assert rmd.weight_value == 100
         assert rmd.stall_draw == 10
-        assert rmd.sire_year_born == 1990
-        assert rmd.dam_year_born == 2000
+        assert rmd.sire_year_born == cur_year - 25
+        assert rmd.dam_year_born == cur_year - 15
+        assert rmd.damsire_year_born == cur_year - 35
         assert rmd.cloth_number == 13
         assert rmd.age == 3
 
@@ -132,8 +134,8 @@ def test_runner_metadata_validation_fail():
         weight_value=-1,
         stall_draw=100,
         sire_year_born=cur_year + 1,
-        dam_year_born=1950,
-        damsire_year_born=1930,
+        dam_year_born=cur_year - 75,
+        damsire_year_born=cur_year - 90,
         cloth_number=-1,
         age=35,
     )

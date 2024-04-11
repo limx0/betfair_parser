@@ -10,7 +10,7 @@ def test_strenum():
 
     assert SE.FIELD1 == "FIELD1"
     assert SE.FIELD2 == "xyz"
-    assert repr(SE.FIELD2) == "<SE.FIELD2>"
+    assert repr(SE.FIELD2) == "SE.FIELD2"
 
 
 def test_documented_enum():
@@ -22,15 +22,15 @@ def test_documented_enum():
 
     assert DE.FIELD_AUTO.value == "FIELD_AUTO"
     assert DE.FIELD_AUTO.__doc__ is None
-    assert repr(DE.FIELD_AUTO) == "<DE.FIELD_AUTO>"
+    assert repr(DE.FIELD_AUTO) == "DE.FIELD_AUTO"
     assert DE.FIELD_DOC.value == "FIELD_DOC"
     assert DE.FIELD_DOC.__doc__ == "This is a docstring"
     assert DE.FIELD_DOC_VALUE.value == "doc_val"
     assert DE.FIELD_DOC_VALUE.__doc__ == "This is another docstring"
-    assert repr(DE.FIELD_DOC) == "<DE.FIELD_DOC>"
+    assert repr(DE.FIELD_DOC) == "DE.FIELD_DOC"
     assert DE.FIELD_VAL.value == "SOME_VALUE"
     assert DE.FIELD_VAL.__doc__ is None
-    assert repr(DE.FIELD_VAL) == "<DE.FIELD_VAL>"
+    assert repr(DE.FIELD_VAL) == "DE.FIELD_VAL"
 
     assert DE("FIELD_AUTO") == DE.FIELD_AUTO
     assert set(DE._value2member_map_.keys()) == {"FIELD_AUTO", "FIELD_DOC", "doc_val", "SOME_VALUE"}

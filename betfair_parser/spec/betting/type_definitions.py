@@ -111,26 +111,26 @@ class TimeRangeResult(BaseMessage, frozen=True):
 
 
 class MarketFilter(BaseMessage, frozen=True):
-    text_query: Optional[str] = None  # Restrict markets by any text associated with the Event name
-    exchange_ids: Optional[set[ExchangeId]] = None  # DEPRECATED
-    event_type_ids: Optional[set[EventTypeId]] = None  # Restrict markets by event type associated with the market
-    event_ids: Optional[set[EventId]] = None  # Restrict markets by the event id associated with the market
-    competition_ids: Optional[set[CompetitionId]] = None  # Restrict markets by the competitions
-    market_ids: Optional[set[MarketId]] = None  # Restrict markets by the market id associated with the market
-    venues: Optional[set[Venue]] = None  # Restrict markets by the venue associated with the market
     bsp_only: Optional[bool] = None  # Restrict to bsp markets only if True or non-bsp markets if False
-
-    # Restrict to markets that will turn in play if True or will not turn in play if False
-    turn_in_play_enabled: Optional[bool] = None
+    competition_ids: Optional[set[CompetitionId]] = None  # Restrict markets by the competitions
+    event_ids: Optional[set[EventId]] = None  # Restrict markets by the event id associated with the market
+    event_type_ids: Optional[set[EventTypeId]] = None  # Restrict markets by event type associated with the market
+    exchange_ids: Optional[set[ExchangeId]] = None  # DEPRECATED
 
     # Restrict to markets that are currently in play if True or are not currently in play if False
     in_play_only: Optional[bool] = None
     market_betting_types: Optional[set[MarketBettingType]] = None  # Match the betting type of the market
     market_countries: Optional[set[CountryCode]] = None  # Match the specified country or countries
-    market_type_codes: Optional[set[str]] = None  # Restrict to markets that match the type of the market
+    market_ids: Optional[set[MarketId]] = None  # Restrict markets by the market id associated with the market
     market_start_time: Optional[TimeRange] = None  # Restrict to markets with a market start time range
-    with_orders: Optional[set[str]] = None  # Markets that have one or more orders of defined OrderStatus
+    market_type_codes: Optional[set[str]] = None  # Restrict to markets that match the type of the market
     race_types: Optional[set[str]] = None  # Restrict by race type
+    text_query: Optional[str] = None  # Restrict markets by any text associated with the Event name
+
+    # Restrict to markets that will turn in play if True or will not turn in play if False
+    turn_in_play_enabled: Optional[bool] = None
+    venues: Optional[set[Venue]] = None  # Restrict markets by the venue associated with the market
+    with_orders: Optional[set[str]] = None  # Markets that have one or more orders of defined OrderStatus
 
 
 class MarketLineRangeInfo(BaseMessage, frozen=True):
@@ -217,25 +217,25 @@ class MarketLicence(BaseMessage, frozen=True):
 
 
 class MarketDescription(BaseMessage, kw_only=True, frozen=True):
-    persistence_enabled: bool  # Indicates if the market supports 'Keep' bets if turned in-play
-    bsp_market: bool  # Indicates if the market supports Betfair SP betting
-    market_time: Date  # Scheduled start time of the market
-    suspend_time: Date  # Next time the market will be suspended for betting, usually just marketTime
-    settle_time: Optional[Date] = None
     betting_type: MarketBettingType
-    turn_in_play_enabled: bool  # Indicates if the market is set to turn in-play
-    market_type: str  # Market base type
-    regulator: str  # Market regulator
-    market_base_rate: float  # Commission rate applicable to the market
-    discount_allowed: bool  # Indicates whether user's discount rate is taken into account on this
-    wallet: Optional[str] = None  # The wallet to which the market belongs
-    rules: Optional[str] = None  # The wallet to which the market belongs
-    rules_has_date: Optional[bool] = None  # Indicates whether rules have a date included
-    each_way_divisor: Optional[float] = None  # Divisor for EACH_WAY market type
+    bsp_market: bool  # Indicates if the market supports Betfair SP betting
     clarifications: Optional[str] = None  # Additional information regarding the market
+    discount_allowed: bool  # Indicates whether user's discount rate is taken into account on this
+    each_way_divisor: Optional[float] = None  # Divisor for EACH_WAY market type
     line_range_info: Optional[MarketLineRangeInfo] = None  # Line range info for line markets
-    race_type: Optional[str] = None  # External identifier of a race type
+    market_base_rate: float  # Commission rate applicable to the market
+    market_time: Date  # Scheduled start time of the market
+    market_type: str  # Market base type
+    persistence_enabled: bool  # Indicates if the market supports 'Keep' bets if turned in-play
     price_ladder_description: Optional[PriceLadderDescription] = None  # Details about the price ladder in use
+    race_type: Optional[str] = None  # External identifier of a race type
+    regulator: str  # Market regulator
+    rules: Optional[str] = None  # The market rules
+    rules_has_date: Optional[bool] = None  # Indicates whether rules have a date included
+    settle_time: Optional[Date] = None
+    suspend_time: Date  # Next time the market will be suspended for betting, usually just marketTime
+    turn_in_play_enabled: bool  # Indicates if the market is set to turn in-play
+    wallet: Optional[str] = None  # The wallet to which the market belongs
 
 
 # TODO: Some fields in the meta data should be country codes. Unfortunately, sometimes they contain
@@ -252,38 +252,38 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Additional+Information
     """
 
-    weight_units: Optional[str] = None  # The unit of weight used.
     adjusted_rating: Optional[int] = None  # Race-specific ratings that reflect weights allocated in the race
-    dam_year_born: Optional[int] = None  # The year the horse’s mother's birth
-    days_since_last_run: Optional[int] = None  # The number of days since the horse last ran
-    wearing: Optional[str] = None  # Any extra equipment the horse is wearing
-    damsire_year_born: Optional[int] = None  # Year in which the horse's grandfather was born on its mother's side
-    sire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's father was bred
-    trainer_name: Optional[str] = None  # The name of the horse's trainer
-    stall_draw: Optional[int] = None  # The stall number the horse is starting from
-    sex_type: Optional[str] = None  # The sex of the horse
-    owner_name: Optional[str] = None  # The owner of the horse
-    sire_name: Optional[str] = None  # The name of the horse's father
-    forecastprice_numerator: Optional[int] = None  # The forecast price numerator
-    forecastprice_denominator: Optional[int] = None  # The forecast price denominator
-    jockey_claim: Optional[int] = None  # Reduction in the weight that the horse carries for a particular jockey
-    weight_value: Optional[float] = None  # The weight of the horse
-    dam_name: Optional[str] = None  # The name of the horse's mother
     age: Optional[int] = None  # The age of the horse
-    colour_type: Optional[str] = None  # The colour of the horse
-    damsire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's grandfather was born
-    damsire_name: Optional[str] = None  # The name of the horse's grandfather
-    sire_year_born: Optional[int] = None  # The year the horse's father was born
-    official_rating: Optional[int] = None  # The horses official rating
-    form: Optional[str] = None  # The horses recent form
     bred: Optional[_MetaCountryCode] = None  # The country in which the horse was born
-    runner_id: Optional[int] = msgspec.field(name="runnerId", default=None)  # The runnerId for the horse
-    jockey_name: Optional[str] = None  # Name of the jockey. This field will contain 'Reserve' if its a reserve runner
-    dam_bred: Optional[_MetaCountryCode] = None  # The country where the horse's mother was born
-    colours_description: Optional[str] = None  # The textual description of the jockey silk
-    colours_filename: Optional[str] = None  # Image representing the jockey silk
     cloth_number: Optional[int] = None  # The number on the saddle-cloth
     cloth_number_alpha: Optional[str] = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
+    colour_type: Optional[str] = None  # The colour of the horse
+    colours_description: Optional[str] = None  # The textual description of the jockey silk
+    colours_filename: Optional[str] = None  # Image representing the jockey silk
+    dam_bred: Optional[_MetaCountryCode] = None  # The country where the horse's mother was born
+    dam_name: Optional[str] = None  # The name of the horse's mother
+    dam_year_born: Optional[int] = None  # The year the horse’s mother's birth
+    damsire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's grandfather was born
+    damsire_name: Optional[str] = None  # The name of the horse's grandfather
+    damsire_year_born: Optional[int] = None  # Year in which the horse's grandfather was born on its mother's side
+    days_since_last_run: Optional[int] = None  # The number of days since the horse last ran
+    forecastprice_denominator: Optional[int] = None  # The forecast price denominator
+    forecastprice_numerator: Optional[int] = None  # The forecast price numerator
+    form: Optional[str] = None  # The horses recent form
+    jockey_claim: Optional[int] = None  # Reduction in the weight that the horse carries for a particular jockey
+    jockey_name: Optional[str] = None  # Name of the jockey. This field will contain 'Reserve' if it's a reserve runner
+    official_rating: Optional[int] = None  # The horses official rating
+    owner_name: Optional[str] = None  # The owner of the horse
+    runner_id: Optional[int] = msgspec.field(name="runnerId", default=None)  # The runnerId for the horse
+    sex_type: Optional[str] = None  # The sex of the horse
+    sire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's father was bred
+    sire_name: Optional[str] = None  # The name of the horse's father
+    sire_year_born: Optional[int] = None  # The year the horse's father was born
+    stall_draw: Optional[int] = None  # The stall number the horse is starting from
+    trainer_name: Optional[str] = None  # The name of the horse's trainer
+    wearing: Optional[str] = None  # Any extra equipment the horse is wearing
+    weight_units: Optional[str] = None  # The unit of weight used.
+    weight_value: Optional[float] = None  # The weight of the horse
 
     def __post_init__(self):
         force_setattr = msgspec.structs.force_setattr
@@ -292,11 +292,11 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
             force_setattr(self, "weight_value", None)
         if self.stall_draw is not None and not 0 < self.stall_draw < 50:
             force_setattr(self, "stall_draw", None)
-        if self.sire_year_born is not None and not 1980 < self.sire_year_born < cur_year:
+        if self.sire_year_born is not None and not cur_year - 40 < self.sire_year_born < cur_year:
             force_setattr(self, "sire_year_born", None)
-        if self.dam_year_born is not None and not 1980 < self.dam_year_born < cur_year:
+        if self.dam_year_born is not None and not cur_year - 40 < self.dam_year_born < cur_year:
             force_setattr(self, "dam_year_born", None)
-        if self.damsire_year_born is not None and not 1960 < self.damsire_year_born < cur_year:
+        if self.damsire_year_born is not None and not cur_year - 60 < self.damsire_year_born < cur_year:
             force_setattr(self, "damsire_year_born", None)
         if self.cloth_number is not None and not 0 < self.cloth_number < 50:
             force_setattr(self, "cloth_number", None)
@@ -353,12 +353,12 @@ class MarketCatalogue(BaseMessage, frozen=True):
     market_id: MarketId  # The unique identifier for the market
     market_name: str  # The name of the market
     market_start_time: Optional[Date] = None  # Only returned when the MARKET_START_TIME enum is requested
-    description: Optional[MarketDescription] = None  # Details about the market
     total_matched: Optional[float] = None  # The total amount of money matched on the market
-    runners: Optional[list[RunnerCatalog]] = None  # The runners (selections) contained in the market
     event_type: Optional[EventType] = None  # The Event Type the market is contained within
     competition: Optional[Competition] = None  # The competition the market is contained within
+    description: Optional[MarketDescription] = None  # Details about the market
     event: Optional[Event] = None  # The event the market is contained within
+    runners: Optional[list[RunnerCatalog]] = None  # The runners (selections) contained in the market
 
 
 class KeyLineSelection(BaseMessage, frozen=True):
@@ -379,22 +379,22 @@ class MarketBook(BaseMessage, frozen=True):
 
     market_id: MarketId  # The unique identifier for the market
     is_market_data_delayed: bool  # True if the data returned by listMarketBook will be delayed
-    status: Optional[MarketStatus] = None  # The status of the market
     bet_delay: Optional[int] = None  # The number of seconds an order is held until it is submitted into the market
     bsp_reconciled: Optional[bool] = None  # True if the market starting price has been reconciled
     complete: Optional[bool] = None  # If false, runners may be added to the market
-    inplay: Optional[bool] = None  # True if the market is currently in play
-    number_of_winners: Optional[int] = None  # The number of selections that could be settled as winners
-    number_of_runners: Optional[int] = None  # The number of runners in the market
-    number_of_active_runners: Optional[int] = None  # The number of runners that are currently active
-    last_match_time: Optional[Date] = None  # The most recent time an order was executed
-    total_matched: Optional[float] = None  # The total amount matched on the market
-    total_available: Optional[float] = None  # The total amount of orders that remain unmatched
     cross_matching: Optional[bool] = None  # True if cross matching is enabled for this market
+    inplay: Optional[bool] = None  # True if the market is currently in play
+    key_line_description: Optional[KeyLineDescription] = None  # Description of a market's key line
+    last_match_time: Optional[Date] = None  # The most recent time an order was executed
+    number_of_active_runners: Optional[int] = None  # The number of runners that are currently active
+    number_of_runners: Optional[int] = None  # The number of runners in the market
+    number_of_winners: Optional[int] = None  # The number of selections that could be settled as winners
     runners_voidable: Optional[bool] = None  # True if runners in the market can be voided
+    status: Optional[MarketStatus] = None  # The status of the market
+    total_available: Optional[float] = None  # The total amount of orders that remain unmatched
+    total_matched: Optional[float] = None  # The total amount matched on the market
     version: Optional[int] = None  # The version of the market
     runners: Optional[list[Runner]] = None  # Information about the runners (selections) in the market
-    key_line_description: Optional[KeyLineDescription] = None  # Description of a market's key line
 
 
 class ItemDescription(BaseMessage, frozen=True):
@@ -432,9 +432,7 @@ class ClearedOrderSummary(BaseMessage, frozen=True):
     settled_date: Optional[Date] = None  # The date and time the bet order was settled by Betfair
     last_matched_date: Optional[Date] = None  # The date and time the last bet order was matched by Betfair
     bet_count: Optional[int] = None  # The number of actual bets within this grouping
-
-    # The cumulative amount of commission paid by the customer across all bets under this item
-    commission: Optional[Size] = None
+    commission: Optional[Size] = None  # Cumulative commission paid by the customer across all bets under this item
     price_matched: Optional[Price] = None  # The average matched price across all settled bets or bet fragments
     price_reduced: Optional[bool] = None  # Indicates if the matched price was affected by a reduction factor
     size_settled: Optional[Size] = None  # The cumulative bet size that was settled as matched or voided under this item
@@ -480,7 +478,7 @@ class CurrentOrderSummary(BaseMessage, frozen=True):
     order_type: OrderType  # BSP Order type
     placed_date: Date  # The date the bet was placed
 
-    # The date of the last matched bet fragment.
+    # Date of the last matched bet fragment.
     # Mandatory according to documentation, but optional in reality
     matched_date: Optional[Date] = None
     average_price_matched: Optional[Price] = None  # The average price matched at
