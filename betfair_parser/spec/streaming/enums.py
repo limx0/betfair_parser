@@ -21,9 +21,7 @@ class PriceLadderDefinitionType(StrEnum):
 
 class StatusErrorCode(DocumentedEnum):
     # General errors not sent with id linking to specific request (as no request context)
-    INVALID_INPUT = doc(
-        "Failure code returned when an invalid input is provided (could not " "deserialize the message)"
-    )
+    INVALID_INPUT = doc("Failure code returned when an invalid input is provided (could not deserialize the message)")
     TIMEOUT = doc("Failure code when a client times out (i.e. too slow sending data)")
 
     # Specific to authentication

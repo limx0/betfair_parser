@@ -131,7 +131,7 @@ class ListMarketBook(_ListingRequest, kw_only=True, frozen=True):
 
     Best Practice:
     Customers seeking to use listMarketBook to obtain price, volume, unmatched (EXECUTABLE) orders
-    and matched position in a single operation should provide an OrderProjectionof “EXECUTABLE” in
+    and matched position in a single operation should provide an OrderProjection of “EXECUTABLE” in
     their listMarketBook request and receive all unmatched (EXECUTABLE) orders and the aggregated
     matched volume from all orders irrespective of whether they are partially or fully matched.
     The level of matched volume aggregation (MatchProjection) requested should be
@@ -156,7 +156,7 @@ class ListMarketCatalogue(_ListingRequest, kw_only=True, frozen=True):
     """
     Returns a list of information about published (ACTIVE/SUSPENDED) markets that does not change
     (or changes very rarely). You use listMarketCatalogue to retrieve the name of the market, the
-    names of selections and other information about markets.  Market Data Request Limits apply to
+    names of selections and other information about markets. Market Data Request Limits apply to
     requests made to listMarketCatalogue.
 
     Please note: listMarketCatalogue does not return markets that are CLOSED.
@@ -203,7 +203,7 @@ class ListRunnerBook(_ListingRequest, kw_only=True, frozen=True):
     """
     Returns a list of dynamic data about a market and a specified runner. Dynamic data includes
     prices, the status of the market, the status of selections, the traded volume, and the status
-    of any orders you have placed in the market..
+    of any orders you have placed in the market.
     """
 
     params: _ListRunnerBookParams

@@ -5,7 +5,7 @@ Minimalistic client example
 
 This library aims for compatibility with any kind of http client. Thus, the objects within
 the specification provide a straight forward way to quickly construct a http request out of
-of a prepared header and body.
+a prepared header and body.
 """
 
 from betfair_parser.endpoints import ENDPOINTS

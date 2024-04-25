@@ -36,7 +36,7 @@ class OrderProjection(DocumentedEnum):
         "or partially matched bet (order)"
     )
     EXECUTION_COMPLETE = doc(
-        "An order that does not have any remaining unmatched portion.  This is a fully matched bet (order)."
+        "An order that does not have any remaining unmatched portion. This is a fully matched bet (order)."
     )
 
 
@@ -58,7 +58,7 @@ class RunnerStatus(DocumentedEnum):
     )
     REMOVED = auto()
     HIDDEN = doc(
-        "The selection is hidden from the market.  This occurs in Horse Racing markets were runners "
+        "The selection is hidden from the market. This occurs in Horse Racing markets were runners "
         "is hidden when it is doesn't hold an official entry following an entry stage. This could be "
         "because the horse was never entered or because they have been scratched from a race at a "
         "declaration stage. All matched customer bet prices are set to 1.0 even if there are later "
@@ -158,7 +158,7 @@ class ExecutionReportStatus(DocumentedEnum):
         "submitted in the same PlaceInstruction"
     )
     TIMEOUT = doc(
-        "The order timed out & the status of the bet is unknown.  If a TIMEOUT error occurs on a "
+        "The order timed out & the status of the bet is unknown. If a TIMEOUT error occurs on a "
         "placeOrders/replaceOrders request, you should check listCurrentOrders to verify the status of your "
         "bets before placing further orders. Please Note: Timeouts will occur after 5 seconds of attempting "
         "to process the bet but please allow up to 15 seconds for a timed out order to appear. After this "
@@ -184,7 +184,7 @@ class ExecutionReportErrorCode(DocumentedEnum):
     LOSS_LIMIT_EXCEEDED = doc("The account has exceed the self imposed loss limit")
     MARKET_SUSPENDED = doc("Market is suspended")
     MARKET_NOT_OPEN_FOR_BETTING = doc(
-        "Market is not open for betting. It is either not yet active, suspended or closed awaiting " "settlement."
+        "Market is not open for betting. It is either not yet active, suspended or closed awaiting settlement."
     )
     DUPLICATE_TRANSACTION = doc(
         "Duplicate customer reference data submitted - Please note: There is a time window associated with "

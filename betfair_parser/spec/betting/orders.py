@@ -111,7 +111,7 @@ class _ListClearedOrdersParams(Params, frozen=True):
 
     # Optionally restricts the results to be from/to the specified settled date. This date is inclusive,
     # i.e. if an order was cleared on exactly this date (to the millisecond) then it will be included
-    # in the results. If the from is later than the to, no results will be returned.
+    # in the results. If 'from' is later than 'to', no results will be returned.
     # Please Note: if you have a longer running market that is settled at multiple different times
     # then there is no way to get the returned market rollup to only include bets settled in a certain
     # date range, it will always return the overall position from the market including all settlements.
