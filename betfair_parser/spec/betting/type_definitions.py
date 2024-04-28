@@ -246,7 +246,7 @@ _MetaCountryCode = str  # CountryCode
 
 
 class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
-    # Yes, this is the only type definition, that has (mostly) uppered key names
+    # Yes, this is the only type definition, that has (mostly) upper-case key names
     """
     Runner metadata as defined in the API as additional information.
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Additional+Information
@@ -382,7 +382,7 @@ class MarketBook(BaseMessage, frozen=True):
     bet_delay: Optional[int] = None  # The number of seconds an order is held until it is submitted into the market
     bsp_reconciled: Optional[bool] = None  # True if the market starting price has been reconciled
     complete: Optional[bool] = None  # If false, runners may be added to the market
-    cross_matching: Optional[bool] = None  # True if cross matching is enabled for this market
+    cross_matching: Optional[bool] = None  # True if cross-matching is enabled for this market
     inplay: Optional[bool] = None  # True if the market is currently in play
     key_line_description: Optional[KeyLineDescription] = None  # Description of a market's key line
     last_match_time: Optional[Date] = None  # The most recent time an order was executed
