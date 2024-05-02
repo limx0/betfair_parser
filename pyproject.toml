@@ -61,15 +61,6 @@ requests = "^2.20"
 [tool.poetry.group.dev.dependencies]
 twine = "^4.0.2"
 
-[tool.black]
-line-length = 120
-
-[tool.isort]
-profile = "black"
-line_length = 120
-lines_after_imports = 2
-combine_as_imports = true
-
 [tool.codespell]
 skip = "*.bz2,*.json,*.xml,poetry.lock"
 ignore-regex = ".*codespell-ignore$"
@@ -85,6 +76,16 @@ check_untyped_defs = true
 fix = false
 line-length = 120
 lint.extend-select = ["UP"]
+lint.isort.lines-after-imports = 2
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+lines_after_imports = 2
+combine_as_imports = true
