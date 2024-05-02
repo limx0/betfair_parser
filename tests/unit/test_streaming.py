@@ -9,7 +9,7 @@ def test_ocm():
         b'{"op":"ocm","id":2,"clk":"AAAAAAAAAAAAAA==","pt":1669350204489,"oc":[{"id":"1.206818134","fullImage":true,'
         b'"orc":[{"id":49914337,"fullImage":true,"uo":[],"mb":[],"ml":[[2, 100]]}]}]}'
     )
-    ocm: OCM = stream_decode(raw)  # type: ignore
+    ocm: OCM = stream_decode(raw)  # type: ignore[assignment]
     assert isinstance(ocm, OCM)
     assert ocm.oc[0].orc[0].ml[0] == MatchedOrder(price=2.0, size=100)
 
@@ -28,7 +28,7 @@ def test_mcm():
         b'"discountAllowed":null,"timezone":"GMT","openDate":"2021-10-13T23:40:00.000Z","version":4099822530,'
         b'"priceLadderDefinition":"CLASSIC"}}]}'
     )
-    mcm: MCM = stream_decode(raw)  # type: ignore
+    mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
     assert isinstance(mcm, MCM)
     runner = mcm.mc[0].market_definition.runners[0]
     assert runner.hc == 0.0
@@ -131,29 +131,29 @@ def test_mcm_no_missing_fields():
             }
         ],
     }
-    mcm: MCM = stream_decode(msgspec.json.encode(raw))  # type: ignore
+    mcm: MCM = stream_decode(msgspec.json.encode(raw))  # type: ignore[assignment]
     data = msgspec.json.decode(msgspec.json.encode(mcm))
     result = set(data["mc"][0]["marketDefinition"].keys())
-    expected = set(raw["mc"][0]["marketDefinition"].keys())  # type: ignore
+    expected = set(raw["mc"][0]["marketDefinition"].keys())  # type: ignore[index]
     assert expected - result == set()
 
 
 def test_mcm_no_clk():
     raw = b'{"op": "mcm", "clk": null, "pt": 1576840503572, "mc": []}'  # noqa
-    mcm: MCM = stream_decode(raw)  # type: ignore
+    mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
     assert mcm.clk is None
 
 
 def test_mcm_market_definition_each_way():
     raw = (RESOURCES_DIR / "responses" / "streaming" / "mcm_market_definition_each_way.json").read_bytes()
-    mcm: MCM = stream_decode(raw)  # type: ignore
+    mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
     assert mcm.mc[0].market_definition.market_type == "EACH_WAY"
     assert mcm.mc[0].market_definition.each_way_divisor == 4.0
 
 
 def test_bsp_data():
     raw = (RESOURCES_DIR / "responses" / "streaming" / "mcm_bsp_data.json").read_bytes()
-    mcm: MCM = stream_decode(raw)[0]  # type: ignore
+    mcm: MCM = stream_decode(raw)[0]  # type: ignore[assignment,index]
     rc = mcm.mc[0].rc[0]
     assert rc.spl == [StartingPriceLay(price=1.01, volume=2.8)]
     assert rc.spn == 4.5
@@ -161,7 +161,7 @@ def test_bsp_data():
 
 def test_bsp_result():
     raw = (RESOURCES_DIR / "responses" / "streaming" / "mcm_market_definition_bsp.json").read_bytes()
-    mcm: MCM = stream_decode(raw)  # type: ignore
+    mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
     runners = mcm.mc[0].market_definition.runners
     assert runners[0].bsp == 2.0008034621107256
     assert runners[0].status == RunnerStatus.WINNER
@@ -169,5 +169,5 @@ def test_bsp_result():
 
 def test_status_error_alt():
     raw = (RESOURCES_DIR / "responses" / "streaming" / "status_error_alt.json").read_bytes()
-    status: Status = stream_decode(raw)  # type: ignore
+    status: Status = stream_decode(raw)  # type: ignore[assignment]
     assert status

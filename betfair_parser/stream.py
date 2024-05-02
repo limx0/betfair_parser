@@ -54,7 +54,7 @@ class ExchangeStream:
         return bool(self.connection_id)
 
     def unique_id(self) -> int:
-        return next(self._id_generator)  # type: ignore
+        return next(self._id_generator)  # type: ignore[call-overload]
 
     def handle_connection(self, msg: Connection) -> Connection:
         self._connection_id = msg.connection_id
@@ -108,7 +108,7 @@ class ExchangeStream:
     def receive_bytes(self, data: bytes) -> Any:
         if not data:
             return None
-        return self.handle_msg(stream_decode(data))  # type: ignore
+        return self.handle_msg(stream_decode(data))  # type: ignore[arg-type]
 
     def receive(self, stream: io.RawIOBase) -> Any:
         return self.receive_bytes(stream.readline())
@@ -151,7 +151,7 @@ class StreamReader:
         self.esm = ExchangeStream(app_key, token)
 
     def handle_change_message(self, msg: ChangeMessageType) -> ChangeMessageType:
-        self.caches[msg.id].update(msg)  # type: ignore
+        self.caches[msg.id].update(msg)  # type: ignore[arg-type]
         return msg
 
     def subscribe(self, subscription: SubscriptionType) -> bytes:

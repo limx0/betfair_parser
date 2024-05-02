@@ -96,7 +96,7 @@ def test_stream(session, subscription, iterations=3):
     ids=lambda x: type(x).__name__,
 )
 @pytest.mark.asyncio
-async def test_async_stream(session, subscription, iterations=3):
+async def test_stream_async(session, subscription, iterations=3):
     token = session.headers.get("X-Authentication")
     app_key = session.headers.get("X-Application")
     esm = ExchangeStream(app_key, token)
@@ -129,22 +129,25 @@ def test_stream_reader(session, iterations=15):
 
     sr = StreamReader(app_key, token)
     for subscription in SUBSCRIPTIONS:
-        sr.subscribe(subscription)  # type: ignore
+        sr.subscribe(subscription)  # type: ignore[arg-type]
 
     with create_stream_io(STREAM_INTEGRATION) as stream:
         for i, changed_ids in enumerate(sr.iter_changes(stream)):
             assert len(changed_ids)
             assert all(change_id.startswith("1.") for change_id in changed_ids)
-            assert all(change_id in sr.caches[MARKET_STREAM_ID].order_book for change_id in changed_ids)  # type: ignore
+            assert all(change_id in sr.caches[MARKET_STREAM_ID].order_book for change_id in changed_ids)  # type: ignore[union-attr]
             if i >= iterations:
                 break
 
-    order_book = sr.caches[MARKET_STREAM_ID].order_book  # type: ignore
-    market_definitions: dict[str, MarketDefinition] = sr.caches[MARKET_STREAM_ID].market_definitions  # type: ignore
-    assert len(order_book) == len(market_definitions) > 20
+    assert sr.caches[ORDER_STREAM_ID].orders is not None  # type: ignore[union-attr]
+
+    market_definitions: dict[str, MarketDefinition] = sr.caches[MARKET_STREAM_ID].market_definitions  # type: ignore[union-attr]
+    assert len(market_definitions) > 20
     assert all(isinstance(key, str) for key in market_definitions)
     assert all(isinstance(md, MarketDefinition) for md in market_definitions.values())
 
+    order_book = sr.caches[MARKET_STREAM_ID].order_book  # type: ignore[union-attr]
+    assert len(order_book) == len(market_definitions)
     assert all(isinstance(key, str) for key in order_book)
     for market_order_book in order_book.values():
         for runner_order_book in market_order_book.values():
@@ -161,5 +164,3 @@ def test_stream_reader(session, iterations=15):
                 assert volume
             for volume in runner_order_book.available_to_lay.values():
                 assert volume
-
-    assert sr.caches[ORDER_STREAM_ID].orders is not None  # type: ignore
