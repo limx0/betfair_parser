@@ -114,7 +114,7 @@ class ExchangeStream:
         return self.receive_bytes(stream.readline())
 
 
-def create_ssl_socket(hostname, timeout: float | None = None) -> ssl.SSLSocket:
+def create_ssl_socket(hostname, timeout: Optional[float] = None) -> ssl.SSLSocket:
     """Create ssl socket and set timeout."""
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.load_default_certs()
