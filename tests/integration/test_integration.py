@@ -43,7 +43,7 @@ def test_requests(path):
     raw = path.read_bytes()
     if "streaming" in str(path):
         data = stream_decode(raw)
-        # TODO: use isinstance(msg, STREAM_REQUEST) for py3.10+
+        # TODO: use isinstance(msg, StreamRequestType) for py3.10+
         assert isinstance(data, (Authentication, MarketSubscription, OrderSubscription))
         return
 
@@ -63,10 +63,10 @@ def test_responses(path):
         data = stream_decode(raw)
         if isinstance(data, list):
             for msg in data:
-                # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+                # TODO: use isinstance(msg, StreamResponseType) for py3.10+
                 assert isinstance(msg, (MCM, OCM, Status, Connection))
         else:
-            # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+            # TODO: use isinstance(msg, StreamResponseType) for py3.10+
             assert isinstance(data, (MCM, OCM, Status, Connection))
         return
 

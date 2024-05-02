@@ -15,7 +15,7 @@ def test_performance(benchmark):
     result = benchmark.pedantic(stream_decode_lines, args=(data,))
     assert len(result) == 50854
     for msg in result:
-        # TODO: use isinstance(msg, STREAM_RESPONSE) for py3.10+
+        # TODO: use isinstance(msg, StreamResponseType) for py3.10+
         assert isinstance(msg, (MCM, OCM))
 
 

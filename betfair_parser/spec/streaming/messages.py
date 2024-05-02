@@ -2,9 +2,9 @@
 Definition of the betfair streaming API messages as defined in:
 - https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
 - https://github.com/betfair/stream-api-sample-code/blob/master/ESASwaggerSchema.json
- """
+"""
 
-from typing import Literal, Optional, Union
+from typing import Literal, Optional
 
 from betfair_parser.spec.common import BaseMessage, first_lower
 from betfair_parser.spec.streaming.enums import ChangeType, SegmentType, StatusErrorCode
@@ -14,19 +14,20 @@ from betfair_parser.spec.streaming.type_definitions import (
     MarketFilter,
     OrderFilter,
     OrderMarketChange,
+    StreamRef,
 )
 
 
 class _StreamRequest(BaseMessage, tag_field="op", tag=first_lower, frozen=True):
     """Common parent class for any stream request."""
 
-    id: Optional[Union[int, str]] = None  # Client generated unique id to link request with response (like json rpc)
+    id: Optional[StreamRef] = None  # Client generated unique id to link request with response (like json rpc)
 
 
 class _StreamResponse(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """Common parent class for any stream response."""
 
-    id: Optional[Union[int, str]] = None  # Client generated unique id to link request with response (like json rpc)
+    id: Optional[StreamRef] = None  # Client generated unique id to link request with response (like json rpc)
 
 
 class Authentication(_StreamRequest, kw_only=True, frozen=True):

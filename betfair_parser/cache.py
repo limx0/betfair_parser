@@ -18,6 +18,7 @@ from betfair_parser.spec.streaming import (
     OCM,
     PV,
     ChangeType,
+    MarketDefinition,
     MatchedOrder,
     Order,
     OrderRunnerChange,
@@ -154,7 +155,7 @@ class ChangeCache:
             self.clear()
 
     def clear(self) -> None:
-        return
+        raise NotImplementedError()
 
 
 class MarketCache(ChangeCache):
@@ -166,8 +167,10 @@ class MarketCache(ChangeCache):
     """
 
     def __init__(self):
-        self.order_book: defaultdict[str, defaultdict] = defaultdict(lambda: defaultdict(RunnerOrderBook))
-        self.market_definitions = {}
+        self.order_book: defaultdict[str, defaultdict[int, RunnerOrderBook]] = defaultdict(
+            lambda: defaultdict(RunnerOrderBook)
+        )
+        self.market_definitions: dict[str, MarketDefinition] = {}
 
     def clear(self) -> None:
         self.order_book.clear()
@@ -177,6 +180,9 @@ class MarketCache(ChangeCache):
         self.update_meta(mcm)
         if mcm.is_heartbeat:
             return
+        if not mcm.mc:
+            return
+
         for mc in mcm.mc:
             if mc.img:
                 self.order_book.pop(mc.id, None)
@@ -236,7 +242,7 @@ class OrderCache(ChangeCache):
     """
 
     def __init__(self):
-        self.orders: defaultdict[str, defaultdict] = defaultdict(lambda: defaultdict(RunnerOrders))
+        self.orders: defaultdict[str, defaultdict[int, RunnerOrders]] = defaultdict(lambda: defaultdict(RunnerOrders))
 
     def clear(self) -> None:
         self.orders.clear()
@@ -244,6 +250,8 @@ class OrderCache(ChangeCache):
     def update(self, ocm: OCM) -> None:
         self.update_meta(ocm)
         if ocm.is_heartbeat:
+            return
+        if not ocm.oc:
             return
 
         for oc in ocm.oc:

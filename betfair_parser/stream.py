@@ -1,24 +1,120 @@
 import asyncio
+import io
 import itertools
 import socket
 import ssl
 import urllib.parse
-from typing import Optional
+from collections.abc import AsyncGenerator, Iterable
+from typing import Any, Callable, Optional, Union
 
-from betfair_parser.exceptions import StreamAuthenticationError, StreamError
+from betfair_parser.cache import MarketCache, OrderCache
+from betfair_parser.exceptions import StreamError
 from betfair_parser.spec.common import encode
 from betfair_parser.spec.streaming import (
-    STREAM_REQUEST,
-    STREAM_RESPONSE,
+    MCM,
+    OCM,
     Authentication,
+    ChangeMessageType,
     Connection,
     Heartbeat,
+    MarketSubscription,
+    OrderSubscription,
     Status,
+    StreamRef,
+    StreamResponseType,
+    SubscriptionType,
     stream_decode,
 )
 
 
-def create_ssl_socket(hostname, timeout: int = 15) -> ssl.SSLSocket:
+LINE_SEPARATOR = b"\r\n"
+
+
+def _default_handler(msg: StreamResponseType) -> StreamResponseType:
+    return msg
+
+
+class ExchangeStream:
+    """Handle the byte stream with betfair."""
+
+    def __init__(self, app_key: str, token: str, id_generator: Optional[Callable] = None) -> None:
+        self.app_key = app_key
+        self.token = token
+        self.subscriptions: dict[StreamRef, SubscriptionType] = {}
+        self.handlers: dict[StreamRef, Callable] = {}
+        self._id_generator = id_generator if id_generator is not None else itertools.count(1000)
+        self._connection_id: Optional[str] = None
+
+    @property
+    def connection_id(self) -> Optional[str]:
+        return self._connection_id
+
+    @property
+    def is_connected(self) -> bool:
+        return bool(self.connection_id)
+
+    def unique_id(self) -> int:
+        return next(self._id_generator)  # type: ignore
+
+    def handle_connection(self, msg: Connection) -> Connection:
+        self._connection_id = msg.connection_id
+        return msg
+
+    def handle_heartbeat(self, msg: Heartbeat) -> Heartbeat:  # noqa
+        return msg
+
+    def handle_status(self, msg: Status) -> Status:
+        if msg.is_error or msg.connection_closed:
+            raise StreamError(
+                f"Connection {self.connection_id} to stream {msg.id} failed: {msg.error_code}: {msg.error_message}"
+            )
+        return msg
+
+    def handle_msg(self, msg: StreamResponseType) -> Any:
+        # TODO: use match syntax for py3.10+
+        if isinstance(msg, Heartbeat):
+            return self.handle_heartbeat(msg)
+        if isinstance(msg, Status):
+            return self.handle_status(msg)
+        if isinstance(msg, Connection):
+            return self.handle_connection(msg)
+        try:
+            return self.handlers[msg.id](msg)
+        except KeyError:
+            raise StreamError(f"Unexpected stream message: {msg}")
+        except Exception as e:
+            raise StreamError(f"Handling stream message failed: {msg}") from e
+
+    def authenticate(self) -> bytes:
+        return encode(Authentication(id=self.unique_id(), app_key=self.app_key, session=self.token)) + LINE_SEPARATOR
+
+    def subscribe(self, subscription: SubscriptionType, handler: Callable = _default_handler) -> Optional[bytes]:
+        self.subscriptions[subscription.id] = subscription
+        self.handlers[subscription.id] = handler
+        if self.connection_id:
+            # only write something, if the connection is already established
+            return encode(subscription) + LINE_SEPARATOR
+        return None
+
+    def connect(self) -> bytes:
+        auth = self.authenticate()
+        if not self.subscriptions:
+            return auth
+
+        # send out subscriptions, that were registered before connecting
+        subscriptions = LINE_SEPARATOR.join(encode(subscription) for subscription in self.subscriptions.values())
+        return auth + subscriptions + LINE_SEPARATOR
+
+    def receive_bytes(self, data: bytes) -> Any:
+        if not data:
+            return None
+        return self.handle_msg(stream_decode(data))  # type: ignore
+
+    def receive(self, stream: io.RawIOBase) -> Any:
+        return self.receive_bytes(stream.readline())
+
+
+def create_ssl_socket(hostname, timeout: float | None = None) -> ssl.SSLSocket:
     """Create ssl socket and set timeout."""
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.load_default_certs()
@@ -28,80 +124,73 @@ def create_ssl_socket(hostname, timeout: int = 15) -> ssl.SSLSocket:
     return secure_sock
 
 
-class _BaseStream:
-    _connection_id: Optional[str] = None
-
-    def __init__(self, endpoint) -> None:
-        self._endpoint = endpoint
-        self._id_generator = itertools.count()
-
-    @property
-    def connection_id(self) -> str:
-        return self._connection_id
-
-    def unique_id(self) -> int:
-        return next(self._id_generator)
+def create_stream_io(endpoint, timeout: float = 15):
+    """Open an IO stream through a TLS connection to the given endpoint."""
+    url = urllib.parse.urlparse(endpoint)
+    sock = create_ssl_socket(url.hostname, timeout=timeout)
+    sock.connect((url.hostname, url.port))
+    return socket.SocketIO(sock, "rwb")
 
 
-class Stream(_BaseStream):
-    _sock: Optional[ssl.SSLSocket] = None
-    _io: Optional[socket.SocketIO] = None
-
-    def connect(self) -> None:
-        url = urllib.parse.urlparse(self._endpoint)
-        self._sock = create_ssl_socket(url.hostname)
-        self._sock.connect((url.hostname, url.port))
-        self._io = socket.SocketIO(self._sock, "rwb")
-        msg: Connection = self.receive()  # type: ignore
-        self._connection_id = msg.connection_id
-
-    def send(self, request: STREAM_REQUEST) -> None:
-        if not self._io:
-            raise StreamError("Stream is not connected")
-        msg = encode(request) + b"\r\n"
-        written_bytes = self._io.write(msg)
-        if not len(msg) == written_bytes:
-            raise StreamError(f"Incomplete request transfer: {written_bytes} of {len(msg)} bytes sent")
-
-    def receive(self) -> STREAM_RESPONSE:
-        if not self._io:
-            raise StreamError("Stream is not connected")
-        return stream_decode(self._io.readline())
-
-    def close(self):
-        if self._io is not None:
-            self._io.close()
-            self._io = None
-        if self._sock is not None:
-            try:
-                self._sock.shutdown(socket.SHUT_RDWR)
-            except OSError:
-                pass
-            self._sock.close()
-            self._sock = None
-
-    def authenticate(self, app_key: str, token: str) -> None:
-        self.send(Authentication(id=self.unique_id(), app_key=app_key, session=token))
-        msg: Status = self.receive()  # type: ignore
-        if msg.is_error:
-            raise StreamAuthenticationError(f"{msg.error_code.name}: {msg.error_message}")
-        if msg.connection_closed:
-            raise StreamAuthenticationError("Connection was closed by the server unexpectedly")
-
-    def heartbeat(self) -> None:
-        self.send(Heartbeat(id=self.unique_id()))
-
-    def __enter__(self):
-        self.connect()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.close()
+def _message_changes(msg: StreamResponseType) -> Optional[list[str]]:
+    """Return the market IDs of the markets affected by the given message."""
+    if isinstance(msg, (Status, Connection)):
+        return None
+    if isinstance(msg, MCM) and msg.market_changes:
+        return [m.id for m in msg.market_changes]
+    if isinstance(msg, OCM) and msg.order_market_changes:
+        return [m.id for m in msg.order_market_changes]
+    return None
 
 
-class AsyncStream(_BaseStream):
+class StreamReader:
+    """Read exchange stream data into a separate cache for each subscription."""
+
+    def __init__(self, app_key, token) -> None:
+        self.caches: dict[StreamRef, Union[MarketCache, OrderCache]] = {}
+        self.esm = ExchangeStream(app_key, token)
+
+    def handle_change_message(self, msg: ChangeMessageType) -> ChangeMessageType:
+        self.caches[msg.id].update(msg)  # type: ignore
+        return msg
+
+    def subscribe(self, subscription: SubscriptionType) -> bytes:
+        if isinstance(subscription, MarketSubscription):
+            self.caches[subscription.id] = MarketCache()
+        elif isinstance(subscription, OrderSubscription):
+            self.caches[subscription.id] = OrderCache()
+        else:
+            raise TypeError("Invalid subscription type")
+        return self.esm.subscribe(subscription, self.handle_change_message)
+
+    def receive(self, stream: io.RawIOBase) -> Any:
+        return self.esm.receive(stream)
+
+    def connect(self, stream: io.RawIOBase) -> None:
+        self.esm.receive(stream)  # read connection
+        stream.write(self.esm.connect())  # send auth
+        self.esm.receive(stream)
+
+    def iter_changes(self, stream: io.RawIOBase) -> Iterable[list[str]]:
+        """Iterate over the stream, yielding lists of IDs of the updated markets."""
+        if not self.esm.is_connected:
+            self.connect(stream)
+
+        while True:
+            changes = _message_changes(self.esm.receive(stream))
+            if changes:
+                yield changes
+
+
+class AsyncStream:
+    """Async version of io.RawIOBase over a SSL connection."""
+
     _reader: Optional[asyncio.StreamReader] = None
     _writer: Optional[asyncio.StreamWriter] = None
+
+    def __init__(self, endpoint, timeout: float = 15) -> None:
+        self._endpoint = endpoint
+        self._timeout = timeout
 
     async def connect(self) -> None:
         url = urllib.parse.urlparse(self._endpoint)
@@ -114,23 +203,19 @@ class AsyncStream(_BaseStream):
             server_hostname=url.hostname,
             limit=1_000_000,
         )
-        msg: Connection = await self.receive()  # type: ignore
-        self._connection_id = msg.connection_id
 
-    async def send(self, request: STREAM_REQUEST) -> None:
+    async def write(self, data: bytes) -> None:
         if not self._writer:
             raise StreamError("Stream is not connected")
-        msg = encode(request) + b"\r\n"
-        self._writer.write(msg)
+        self._writer.write(data)
         await self._writer.drain()
 
-    async def receive(self) -> STREAM_RESPONSE:
+    async def readline(self) -> bytes:
         if not self._reader:
             raise StreamError("Stream is not connected")
-        data = await self._reader.readline()
-        return stream_decode(data)
+        return await self._reader.readline()
 
-    async def close(self):
+    async def close(self) -> None:
         self._reader = None  # does not need to be closed explicitly
         if self._writer:
             await self._writer.drain()
@@ -145,20 +230,28 @@ class AsyncStream(_BaseStream):
             await self._writer.wait_closed()
         self._writer = None
 
-    async def authenticate(self, app_key: str, token: str) -> None:
-        await self.send(Authentication(id=self.unique_id(), app_key=app_key, session=token))
-        msg: Status = await self.receive()  # type: ignore
-        if msg.is_error:
-            raise StreamAuthenticationError(f"{msg.error_code.name}: {msg.error_message}")
-        if msg.connection_closed:
-            raise StreamAuthenticationError("Connection was closed by the server unexpectedly")
-
-    async def heartbeat(self) -> None:
-        await self.send(Heartbeat(id=self.unique_id()))
-
     async def __aenter__(self):
         await self.connect()
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         await self.close()
+
+
+class AsyncStreamReader(StreamReader):
+    async def receive_async(self, stream: AsyncStream) -> Any:
+        return self.esm.receive_bytes(await stream.readline())
+
+    async def connect_async(self, stream: AsyncStream) -> None:
+        self.esm.receive_bytes(await stream.readline())  # read connection
+        await stream.write(self.esm.connect())  # send auth
+        self.esm.receive_bytes(await stream.readline())
+
+    async def iter_changes_async(self, stream: AsyncStream) -> AsyncGenerator[list[str], None]:
+        if not self.esm.is_connected:
+            await self.connect_async(stream)
+
+        while True:
+            changes = _message_changes(self.esm.receive_bytes(await stream.readline()))
+            if changes:
+                yield changes

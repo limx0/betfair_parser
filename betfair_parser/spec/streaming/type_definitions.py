@@ -21,6 +21,8 @@ from betfair_parser.spec.common import (
 from betfair_parser.spec.streaming.enums import LapseStatusReasonCode, MarketDataFilterFields, PriceLadderDefinitionType
 
 
+StreamRef = Union[int, str]
+
 # Request objects
 
 
