@@ -7,16 +7,7 @@ import pytest
 from betfair_parser.cache import MarketCache, RunnerOrderBook
 from betfair_parser.spec import accounts, betting
 from betfair_parser.spec.common import decode
-from betfair_parser.spec.streaming import (
-    MCM,
-    OCM,
-    Authentication,
-    Connection,
-    MarketSubscription,
-    OrderSubscription,
-    Status,
-    stream_decode,
-)
+from betfair_parser.spec.streaming import MCM, StreamRequestType, StreamResponseType, stream_decode
 from tests.resources import RESOURCES_DIR, id_from_path
 
 
@@ -43,8 +34,7 @@ def test_requests(path):
     raw = path.read_bytes()
     if "streaming" in str(path):
         data = stream_decode(raw)
-        # TODO: use isinstance(msg, StreamRequestType) for py3.10+
-        assert isinstance(data, (Authentication, MarketSubscription, OrderSubscription))
+        assert isinstance(data, StreamRequestType)  # type: ignore[arg-type,misc]
         return
 
     request_type = op_cls_from_path(path)
@@ -63,11 +53,9 @@ def test_responses(path):
         data = stream_decode(raw)
         if isinstance(data, list):
             for msg in data:
-                # TODO: use isinstance(msg, StreamResponseType) for py3.10+
-                assert isinstance(msg, (MCM, OCM, Status, Connection))
+                assert isinstance(msg, StreamResponseType)  # type: ignore[arg-type,misc]
         else:
-            # TODO: use isinstance(msg, StreamResponseType) for py3.10+
-            assert isinstance(data, (MCM, OCM, Status, Connection))
+            assert isinstance(data, StreamResponseType)  # type: ignore[arg-type,misc]
         return
 
     parse_type = op_cls_from_path(path).return_type

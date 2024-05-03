@@ -10,7 +10,6 @@ Though, there is probably quite some room for further optimizations.
 """
 
 from collections import defaultdict
-from typing import Optional, Union
 
 from betfair_parser.spec.streaming import (
     LPV,
@@ -78,12 +77,12 @@ class RunnerOrderBook:
         self.best_display_available_to_lay: dict[int, LPV] = {}
         self.starting_price_back: dict[float, float] = {}
         self.starting_price_lay: dict[float, float] = {}
-        self.starting_price_near: Optional[float] = None
-        self.starting_price_far: Optional[float] = None
+        self.starting_price_near: float | None = None
+        self.starting_price_far: float | None = None
         self.traded: dict[float, float] = {}
-        self.last_traded_price: Optional[float] = None
-        self.total_volume: Optional[float] = None
-        self.handicap: Optional[float] = None
+        self.last_traded_price: float | None = None
+        self.total_volume: float | None = None
+        self.handicap: float | None = None
 
     def update(self, rc: RunnerChange) -> None:
         if rc.atb:
@@ -136,13 +135,13 @@ class RunnerOrderBook:
 
 
 class ChangeCache:
-    clk: Optional[str] = None
-    initial_clk: Optional[str] = None
-    publish_time: Optional[int] = None
-    stream_unreliable: Optional[bool] = False
-    conflate_ms: Optional[int] = None
+    clk: str | None = None
+    initial_clk: str | None = None
+    publish_time: int | None = None
+    stream_unreliable: bool | None = False
+    conflate_ms: int | None = None
 
-    def update_meta(self, msg: Union[MCM, OCM]) -> None:
+    def update_meta(self, msg: MCM | OCM) -> None:
         if msg.initial_clk:
             self.initial_clk = msg.initial_clk
         if msg.clk:
@@ -218,7 +217,7 @@ class RunnerOrders:
         self.matched_lays: dict[float, float] = {}
         self.unmatched_orders: dict[int, Order] = {}
         self.executed_orders: dict[int, Order] = {}  # Does only contain recently completed orders
-        self.handicap: Optional[float] = None
+        self.handicap: float | None = None
 
     def update(self, orc: OrderRunnerChange) -> None:
         if orc.hc:

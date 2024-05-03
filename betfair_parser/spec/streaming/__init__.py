@@ -1,5 +1,3 @@
-from typing import Union
-
 from msgspec.json import Decoder
 
 from betfair_parser.spec.betting.enums import MarketBettingType, MarketStatus, MarketTypeCode, RunnerStatus  # noqa
@@ -53,18 +51,18 @@ from betfair_parser.spec.streaming.type_definitions import (
 )
 
 
-StreamRequestType = Union[Authentication, MarketSubscription, OrderSubscription, Heartbeat]
-StreamResponseType = Union[Connection, Status, MCM, OCM]
-SubscriptionType = Union[MarketSubscription, OrderSubscription]
-ChangeMessageType = Union[MCM, OCM]
-StreamMessageType = Union[StreamResponseType, list[StreamResponseType], StreamRequestType]
+StreamRequestType = Authentication | MarketSubscription | OrderSubscription | Heartbeat
+StreamResponseType = Connection | Status | MCM | OCM
+SubscriptionType = MarketSubscription | OrderSubscription
+ChangeMessageType = MCM | OCM
+StreamMessageType = StreamResponseType | list[StreamResponseType] | StreamRequestType
 
 _STREAM_DECODER = Decoder(StreamMessageType, strict=False)
 
 
-def stream_decode(raw: Union[str, bytes]) -> StreamMessageType:
+def stream_decode(raw: str | bytes) -> StreamMessageType:
     return _STREAM_DECODER.decode(raw)
 
 
-def stream_decode_lines(raw: Union[str, bytes]) -> list[StreamMessageType]:
+def stream_decode_lines(raw: str | bytes) -> list[StreamMessageType]:
     return _STREAM_DECODER.decode_lines(raw)

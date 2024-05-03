@@ -19,7 +19,7 @@ from betfair_parser.spec.streaming import (
     OrderSubscription,
     Status,
 )
-from betfair_parser.stream import AsyncStream, ExchangeStream, StreamReader, create_stream_io, changed_markets
+from betfair_parser.stream import AsyncStream, ExchangeStream, StreamReader, changed_markets, create_stream_io
 from tests.integration.test_live import appconfig  # noqa: F401
 
 

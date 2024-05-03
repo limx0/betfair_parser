@@ -1,5 +1,5 @@
 from itertools import count
-from typing import Any, ClassVar, Generic, Literal, Optional, TypeVar, get_type_hints
+from typing import Any, ClassVar, Generic, Literal, TypeVar, get_type_hints
 
 import msgspec
 
@@ -86,8 +86,8 @@ ErrorCode = TypeVar("ErrorCode")
 
 class ExceptionDetails(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=True):
     error_code: ErrorCode
-    error_details: Optional[str] = None  # The stack trace of the error
-    request_uuid: Optional[str] = msgspec.field(name="requestUUID", default=None)
+    error_details: str | None = None  # The stack trace of the error
+    request_uuid: str | None = msgspec.field(name="requestUUID", default=None)
 
     @property
     def code(self) -> ErrorCode:
@@ -96,8 +96,8 @@ class ExceptionDetails(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=Tru
 
 class ExceptionData(BaseMessage, frozen=True, rename=None):
     exception_name: Literal["APINGException", "AccountAPINGException"] = msgspec.field(name="exceptionname")
-    APINGException: Optional[ExceptionDetails[APINGExceptionCode]] = None
-    AccountAPINGException: Optional[ExceptionDetails[AccountAPINGExceptionCode]] = None
+    APINGException: ExceptionDetails[APINGExceptionCode] | None = None
+    AccountAPINGException: ExceptionDetails[AccountAPINGExceptionCode] | None = None
 
     @property
     def error(self) -> ExceptionDetails:
@@ -111,7 +111,7 @@ class ExceptionData(BaseMessage, frozen=True, rename=None):
 class RPCError(BaseMessage, frozen=True):
     code: int  # JSONExceptionCode or any other undocumented integer code, if it's an APINGException
     message: str  # Something like "DSC-0018", "AANGX-0011", ...
-    data: Optional[ExceptionData] = None  # The interesting part
+    data: ExceptionData | None = None  # The interesting part
 
     @property
     def exception_code(self):
@@ -125,8 +125,8 @@ class RPCError(BaseMessage, frozen=True):
 class Response(RPC, BaseResponse, Generic[ResultType], kw_only=True, frozen=True):
     """RPC response. Either an error or a result."""
 
-    result: Optional[ResultType] = None
-    error: Optional[RPCError] = None
+    result: ResultType | None = None
+    error: RPCError | None = None
 
     @property
     def is_error(self) -> bool:

@@ -1,5 +1,4 @@
 from functools import partial
-from typing import Optional
 
 from betfair_parser.exceptions import AccountAPINGException
 from betfair_parser.spec.accounts.enums import IncludeItem, Wallet
@@ -21,36 +20,36 @@ class _AccountRequest(Request, frozen=True, tag_field="method", tag=accounts_tag
 
 
 class _GetAccountFundsParams(Params, frozen=True):
-    wallet: Optional[Wallet] = None  # Name of the wallet in question. Global wallet is returned by default
+    wallet: Wallet | None = None  # Name of the wallet in question. Global wallet is returned by default
 
 
 class GetAccountFunds(_AccountRequest, kw_only=True, frozen=True):
     """Returns the available to bet amount, exposure and commission information."""
 
-    params: Optional[_GetAccountFundsParams] = None
+    params: _GetAccountFundsParams | None = None
     return_type = Response[AccountFundsResponse]
 
 
 class GetAccountDetails(_AccountRequest, kw_only=True, frozen=True):
     """Returns the details relating your account, including your discount rate and Betfair point balance."""
 
-    params: Optional[Params] = None
+    params: Params | None = None
     return_type = Response[AccountDetailsResponse]
 
 
 class _GetAccountStatementParams(Params, frozen=True):
-    locale: Optional[str] = None  # The language to be used where applicable. Defaults to account settings
-    from_record: Optional[int] = None  # Specifies the first record that will be returned, defaults to 0
-    record_count: Optional[int] = None  # Specifies the maximum number of records to be returned. Maximum 100
+    locale: str | None = None  # The language to be used where applicable. Defaults to account settings
+    from_record: int | None = None  # Specifies the first record that will be returned, defaults to 0
+    record_count: int | None = None  # Specifies the maximum number of records to be returned. Maximum 100
 
     # Return items with an itemDate within this date range. Both from and to date times are inclusive.
     # If from is not specified then the oldest available items will be in range. If to is not specified
     # then the latest items will be in range. nb. This itemDataRange is currently only applied when
     # includeItem is set to ALL or not specified, else items are NOT bound by itemDate.
     # Please note:  You can only retrieve account statement items for the last 90 days.
-    item_date_range: Optional[TimeRange] = None
-    include_item: Optional[IncludeItem] = None  # Which items to include, if not specified then defaults to ALL.
-    wallet: Optional[Wallet] = None  # Which wallet to return statementItems for. Defaults to UK
+    item_date_range: TimeRange | None = None
+    include_item: IncludeItem | None = None  # Which items to include, if not specified then defaults to ALL.
+    wallet: Wallet | None = None  # Which wallet to return statementItems for. Defaults to UK
 
 
 class GetAccountStatement(_AccountRequest, kw_only=True, frozen=True):
@@ -61,7 +60,7 @@ class GetAccountStatement(_AccountRequest, kw_only=True, frozen=True):
 
 
 class _ListCurrencyRatesParams(Params, frozen=True):
-    from_currency: Optional[str] = None  # The currency from which the rates are computed. Only GBP for now.
+    from_currency: str | None = None  # The currency from which the rates are computed. Only GBP for now.
 
 
 class ListCurrencyRates(_AccountRequest, kw_only=True, frozen=True):

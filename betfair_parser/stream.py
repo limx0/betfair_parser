@@ -1,12 +1,12 @@
 import asyncio
 import io
 import itertools
-import socket
 import pathlib
+import socket
 import ssl
 import urllib.parse
-from collections.abc import AsyncGenerator, Iterable
-from typing import Any, Callable, Optional, Union
+from collections.abc import AsyncGenerator, Callable, Iterable
+from typing import Any
 
 from betfair_parser.cache import MarketCache, OrderCache
 from betfair_parser.exceptions import StreamError
@@ -38,16 +38,16 @@ def _default_handler(msg: StreamResponseType) -> StreamResponseType:
 class ExchangeStream:
     """Handle the byte stream with betfair."""
 
-    def __init__(self, app_key: str, token: str, id_generator: Optional[Callable] = None) -> None:
+    def __init__(self, app_key: str, token: str, id_generator: Callable | None = None) -> None:
         self.app_key = app_key
         self.token = token
         self.subscriptions: dict[StreamRef, SubscriptionType] = {}
         self.handlers: dict[StreamRef, Callable] = {}
         self._id_generator = id_generator if id_generator is not None else itertools.count(1000)
-        self._connection_id: Optional[str] = None
+        self._connection_id: str | None = None
 
     @property
-    def connection_id(self) -> Optional[str]:
+    def connection_id(self) -> str | None:
         return self._connection_id
 
     @property
@@ -72,13 +72,13 @@ class ExchangeStream:
         return msg
 
     def handle_msg(self, msg: StreamResponseType) -> Any:
-        # TODO: use match syntax for py3.10+
-        if isinstance(msg, Heartbeat):
-            return self.handle_heartbeat(msg)
-        if isinstance(msg, Status):
-            return self.handle_status(msg)
-        if isinstance(msg, Connection):
-            return self.handle_connection(msg)
+        match msg:
+            case Heartbeat():
+                return self.handle_heartbeat(msg)
+            case Status():
+                return self.handle_status(msg)
+            case Connection():
+                return self.handle_connection(msg)
         try:
             return self.handlers[msg.id](msg)
         except KeyError:
@@ -89,7 +89,7 @@ class ExchangeStream:
     def authenticate(self) -> bytes:
         return encode(Authentication(id=self.unique_id(), app_key=self.app_key, session=self.token)) + LINE_SEPARATOR
 
-    def subscribe(self, subscription: SubscriptionType, handler: Callable = _default_handler) -> Optional[bytes]:
+    def subscribe(self, subscription: SubscriptionType, handler: Callable = _default_handler) -> bytes | None:
         self.subscriptions[subscription.id] = subscription
         self.handlers[subscription.id] = handler
         if self.connection_id:
@@ -115,7 +115,7 @@ class ExchangeStream:
         return self.receive_bytes(stream.readline())
 
 
-def create_ssl_socket(hostname, timeout: Optional[float] = None) -> ssl.SSLSocket:
+def create_ssl_socket(hostname, timeout: float | None = None) -> ssl.SSLSocket:
     """Create ssl socket and set timeout."""
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.load_default_certs()
@@ -135,8 +135,6 @@ def create_stream_io(endpoint, timeout: float = 15):
 
 def changed_markets(msg: StreamResponseType) -> list[str]:
     """Return the market IDs of the markets affected by the given message."""
-    if isinstance(msg, (Status, Connection)):
-        return []
     if isinstance(msg, MCM) and msg.market_changes:
         return [m.id for m in msg.market_changes]
     if isinstance(msg, OCM) and msg.order_market_changes:
@@ -148,7 +146,7 @@ class StreamReader:
     """Read exchange stream data into a separate cache for each subscription."""
 
     def __init__(self, app_key, token) -> None:
-        self.caches: dict[StreamRef, Union[MarketCache, OrderCache]] = {}
+        self.caches: dict[StreamRef, MarketCache | OrderCache] = {}
         self.esm = ExchangeStream(app_key, token)
 
     def handle_change_message(self, msg: ChangeMessageType) -> ChangeMessageType:
@@ -179,7 +177,7 @@ class StreamReader:
 
         while True:
             msg = self.esm.receive(stream)
-            if isinstance(msg, (OCM, MCM)):
+            if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
                 yield msg
 
     def iter_changes_and_write(
@@ -194,7 +192,7 @@ class StreamReader:
             while True:
                 raw_msg = stream.readline()
                 msg = self.esm.receive_bytes(raw_msg)
-                if isinstance(msg, (OCM, MCM)):
+                if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
                     yield msg
                 f.write(raw_msg)
 
@@ -202,8 +200,8 @@ class StreamReader:
 class AsyncStream:
     """Async version of io.RawIOBase over a SSL connection."""
 
-    _reader: Optional[asyncio.StreamReader] = None
-    _writer: Optional[asyncio.StreamWriter] = None
+    _reader: asyncio.StreamReader | None = None
+    _writer: asyncio.StreamWriter | None = None
 
     def __init__(self, endpoint, timeout: float = 15) -> None:
         self._endpoint = endpoint
@@ -270,13 +268,13 @@ class AsyncStreamReader(StreamReader):
 
         while True:
             msg = self.esm.receive_bytes(await stream.readline())
-            if isinstance(msg, (OCM, MCM)):
+            if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
                 yield msg
 
     async def iter_changes_and_write_async(
         self,
         stream: AsyncStream,
-        path: Union[pathlib.Path, str],
+        path: pathlib.Path | str,
     ) -> AsyncGenerator[ChangeMessageType, None]:
         if not self.esm.is_connected:
             await self.connect_async(stream)
@@ -286,6 +284,6 @@ class AsyncStreamReader(StreamReader):
             while True:
                 raw_msg = await stream.readline()
                 msg = self.esm.receive_bytes(raw_msg)
-                if isinstance(msg, (OCM, MCM)):
+                if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
                     yield msg
                 await loop.run_in_executor(None, f.write, raw_msg)

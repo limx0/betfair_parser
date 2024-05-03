@@ -8,7 +8,7 @@ import msgspec
 RESOURCES_DIR = Path(__file__).parent.absolute()
 
 
-def id_from_path(path: Union[Path, str]) -> str:
+def id_from_path(path: Path | str) -> str:
     """Create a test case id from a file path."""
     return Path(path).stem
 

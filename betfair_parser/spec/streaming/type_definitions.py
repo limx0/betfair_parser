@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Optional, Union
+from typing import Annotated, Literal
 
 import msgspec
 
@@ -21,32 +21,32 @@ from betfair_parser.spec.common import (
 from betfair_parser.spec.streaming.enums import LapseStatusReasonCode, MarketDataFilterFields, PriceLadderDefinitionType
 
 
-StreamRef = Union[int, str]
+StreamRef = int | str
 
 # Request objects
 
 
 class MarketFilter(BaseMessage, frozen=True):
-    betting_types: Optional[list[MarketBettingType]] = None  # Match the betting type of the market
-    bsp_market: Optional[bool] = None  # If set, restrict to BSP or non-BSP markets only. If unset, return both
-    country_codes: Optional[list[str]] = None  # Restrict to specified country or countries. Defaults to 'GB' on error
-    event_ids: Optional[list[EventId]] = None  # Restrict markets by the event id associated with the market
-    event_type_ids: Optional[list[EventTypeIdCode]] = None  # Restrict markets by event type associated with the market
-    market_ids: Optional[list[MarketId]] = None  # If no marketIds passed user will be subscribed to all markets
-    market_types: Optional[list[MarketTypeCode]] = None  # Restrict to markets that match the type of the market
-    race_types: Optional[list[str]] = None  # Harness, Flat, Hurdle, Chase, Bumper, NH Flat, Steeple or NO_VALUE
-    turn_in_play_enabled: Optional[bool] = None  # If set, restrict to turn-inplay or non-inplay markets. Both if unset
-    venues: Optional[list[Venue]] = None  # Restrict by the venue associated with the market. Only for horse racing
+    betting_types: list[MarketBettingType] | None = None  # Match the betting type of the market
+    bsp_market: bool | None = None  # If set, restrict to BSP or non-BSP markets only. If unset, return both
+    country_codes: list[str] | None = None  # Restrict to specified country or countries. Defaults to 'GB' on error
+    event_ids: list[EventId] | None = None  # Restrict markets by the event id associated with the market
+    event_type_ids: list[EventTypeIdCode] | None = None  # Restrict markets by event type associated with the market
+    market_ids: list[MarketId] | None = None  # If no marketIds passed user will be subscribed to all markets
+    market_types: list[MarketTypeCode] | None = None  # Restrict to markets that match the type of the market
+    race_types: list[str] | None = None  # Harness, Flat, Hurdle, Chase, Bumper, NH Flat, Steeple or NO_VALUE
+    turn_in_play_enabled: bool | None = None  # If set, restrict to turn-inplay or non-inplay markets. Both if unset
+    venues: list[Venue] | None = None  # Restrict by the venue associated with the market. Only for horse racing
 
 
 class MarketDataFilter(BaseMessage, frozen=True):
-    fields: Optional[list[MarketDataFilterFields]] = None
-    ladder_levels: Optional[int] = None
+    fields: list[MarketDataFilterFields] | None = None
+    ladder_levels: int | None = None
 
 
 class OrderFilter(BaseMessage, frozen=True):
     include_overall_position: bool = True  # Return overall position (See: OrderRunnerChange.mb / OrderRunnerChange.ml)
-    customer_strategy_refs: Optional[list[str]] = None  # Restricts to specified customerStrategyRefs
+    customer_strategy_refs: list[str] | None = None  # Restricts to specified customerStrategyRefs
 
     # Returns strategy positions (See: OrderRunnerChange.smc=Map<customerStrategyRef, StrategyMatchChange>)
     # these are sent in delta format as per overall position
@@ -54,7 +54,7 @@ class OrderFilter(BaseMessage, frozen=True):
 
     # Internal use only & should not be set on your filter (your subscription is already locked to your account).
     # If set subscription will fail.
-    account_ids: Optional[list[int]] = None
+    account_ids: list[int] | None = None
 
 
 # Response objects
@@ -63,12 +63,12 @@ class OrderFilter(BaseMessage, frozen=True):
 class RunnerDefinition(BaseMessage, frozen=True):
     sort_priority: int
     id: SelectionId
-    name: Optional[str] = None  # Undefined, but partly present
-    hc: Optional[Handicap] = None
-    status: Optional[RunnerStatus] = None
-    adjustment_factor: Optional[float] = None
-    bsp: Optional[float] = None
-    removal_date: Optional[Date] = None
+    name: str | None = None  # Undefined, but partly present
+    hc: Handicap | None = None
+    status: RunnerStatus | None = None
+    adjustment_factor: float | None = None
+    bsp: float | None = None
+    removal_date: Date | None = None
 
     @property
     def handicap(self):
@@ -94,50 +94,50 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     betting_type: MarketBettingType
     bsp_market: bool
     bsp_reconciled: bool
-    competition_id: Optional[CompetitionId] = None
-    competition_name: Optional[str] = None
+    competition_id: CompetitionId | None = None
+    competition_name: str | None = None
     complete: bool
-    country_code: Optional[str] = None
+    country_code: str | None = None
     cross_matching: bool
-    discount_allowed: Optional[bool] = None
-    each_way_divisor: Optional[float] = None
+    discount_allowed: bool | None = None
+    each_way_divisor: float | None = None
     event_id: EventId
-    event_name: Optional[str] = None
+    event_name: str | None = None
     event_type_id: EventTypeIdCode
     in_play: bool
-    key_line_definition: Optional[KeyLineDefinition] = None
+    key_line_definition: KeyLineDefinition | None = None
 
     # For Handicap and Line markets, the lines available on this market will be between the range of
     # lineMinUnit and lineMaxUnit, in increments of the lineInterval value. e.g. If unit is runs,
     # lineMinUnit=10, lineMaxUnit=20 and lineInterval=0.5, then valid lines include 10, 10.5, 11, 11.5 up to 20 runs.
-    line_interval: Optional[float] = None
+    line_interval: float | None = None
     # For Handicap and Line markets, the maximum value for the outcome, in market units for this market (eg 100 runs).
-    line_max_unit: Optional[float] = None
+    line_max_unit: float | None = None
     # For Handicap and Line markets, the minimum value for the outcome, in market units for this market (eg 0 runs).
-    line_min_unit: Optional[float] = None
+    line_min_unit: float | None = None
 
-    market_base_rate: Optional[float]
-    market_id: Optional[MarketId] = None
-    market_name: Optional[str] = None
+    market_base_rate: float | None
+    market_id: MarketId | None = None
+    market_name: str | None = None
     market_time: Date
     market_type: str
-    name: Optional[str] = None
+    name: str | None = None
     number_of_active_runners: int
     number_of_winners: int
-    open_date: Optional[Date] = None
+    open_date: Date | None = None
     persistence_enabled: bool
-    price_ladder_definition: Optional[Union[PriceLadderDefinition, PriceLadderDefinitionType]] = None
-    race_type: Optional[str] = None
+    price_ladder_definition: PriceLadderDefinition | PriceLadderDefinitionType | None = None
+    race_type: str | None = None
     regulators: list[RegulatorCode]
     runners: list[RunnerDefinition]
     runners_voidable: bool
-    settled_time: Optional[Date] = None
+    settled_time: Date | None = None
     status: MarketStatus
     suspend_time: Date
-    timezone: Optional[str] = None
+    timezone: str | None = None
     turn_in_play_enabled: bool
-    venue: Optional[str] = None
-    version: Optional[int] = None
+    venue: str | None = None
+    version: int | None = None
 
     @property
     def event_type_name(self) -> str:
@@ -172,20 +172,20 @@ Trade = Annotated[PV, msgspec.Meta(title="Trade")]
 
 class RunnerChange(BaseMessage, frozen=True):
     id: SelectionId
-    atb: Optional[list[AvailableToBack]] = None
-    atl: Optional[list[AvailableToLay]] = None
-    batb: Optional[list[BestAvailableToBack]] = None
-    batl: Optional[list[BestAvailableToLay]] = None
-    bdatb: Optional[list[BestDisplayAvailableToBack]] = None
-    bdatl: Optional[list[BestDisplayAvailableToLay]] = None
-    spb: Optional[list[StartingPriceBack]] = None  # Starting Price (Available To) Back
-    spl: Optional[list[StartingPriceLay]] = None  # Starting Price (Available To) Lay
-    spn: Optional[float] = None  # Starting Price Near
-    spf: Optional[float] = None  # Starting Price Far
-    trd: Optional[list[Trade]] = None  # Traded
-    ltp: Optional[float] = None  # Last Traded Price
-    tv: Optional[float] = None  # Total Volume
-    hc: Optional[Handicap] = None
+    atb: list[AvailableToBack] | None = None
+    atl: list[AvailableToLay] | None = None
+    batb: list[BestAvailableToBack] | None = None
+    batl: list[BestAvailableToLay] | None = None
+    bdatb: list[BestDisplayAvailableToBack] | None = None
+    bdatl: list[BestDisplayAvailableToLay] | None = None
+    spb: list[StartingPriceBack] | None = None  # Starting Price (Available To) Back
+    spl: list[StartingPriceLay] | None = None  # Starting Price (Available To) Lay
+    spn: float | None = None  # Starting Price Near
+    spf: float | None = None  # Starting Price Far
+    trd: list[Trade] | None = None  # Traded
+    ltp: float | None = None  # Last Traded Price
+    tv: float | None = None  # Total Volume
+    hc: Handicap | None = None
 
     @property
     def available_to_back(self):
@@ -260,11 +260,11 @@ class RunnerChange(BaseMessage, frozen=True):
 
 class MarketChange(BaseMessage, kw_only=True, frozen=True):
     id: MarketId
-    rc: Optional[list[RunnerChange]] = None  # Runner Changes
-    con: Optional[bool] = None  # Conflated
+    rc: list[RunnerChange] | None = None  # Runner Changes
+    con: bool | None = None  # Conflated
     img: bool = False  # Image
-    market_definition: Optional[MarketDefinition] = None
-    tv: Optional[float] = None  # Traded Volume
+    market_definition: MarketDefinition | None = None
+    tv: float | None = None  # Traded Volume
 
     @property
     def runner_changes(self):
@@ -297,22 +297,22 @@ class Order(BaseMessage, frozen=True):
     pt: Literal["L", "P", "MOC"]  # Persistence Type
     ot: Literal["L", "MOC", "LOC"]  # Order Type - codespell-ignore
     pd: int  # Placed Date
-    bsp: Optional[float] = None  # BSP Liability
-    rfo: Optional[str] = None  # Order Reference
-    rfs: Optional[str] = None  # Strategy Reference
-    rc: Optional[str] = None  # Regulator Code
-    rac: Optional[str] = None  # Regulator Auth Code
+    bsp: float | None = None  # BSP Liability
+    rfo: str | None = None  # Order Reference
+    rfs: str | None = None  # Strategy Reference
+    rc: str | None = None  # Regulator Code
+    rac: str | None = None  # Regulator Auth Code
     # TODO: convert int(ms) into datetime for dates??
-    md: Optional[int] = None  # Matched Date
-    cd: Optional[int] = None  # Cancelled Date
-    ld: Optional[int] = None  # Lapsed Date
-    avp: Optional[float] = None  # Average Price Matched
-    sm: Optional[float] = None  # Size Matched
-    sr: Optional[float] = None  # Size Remaining
-    sl: Optional[float] = None  # Size Lapsed
-    sc: Optional[float] = None  # Size Cancelled
-    sv: Optional[float] = None  # Size Voided
-    lsrc: Optional[LapseStatusReasonCode] = None
+    md: int | None = None  # Matched Date
+    cd: int | None = None  # Cancelled Date
+    ld: int | None = None  # Lapsed Date
+    avp: float | None = None  # Average Price Matched
+    sm: float | None = None  # Size Matched
+    sr: float | None = None  # Size Remaining
+    sl: float | None = None  # Size Lapsed
+    sc: float | None = None  # Size Cancelled
+    sv: float | None = None  # Size Voided
+    lsrc: LapseStatusReasonCode | None = None
 
     @property
     def execution_complete(self) -> bool:
@@ -433,8 +433,8 @@ class MatchedOrder(BaseMessage, array_like=True, frozen=True):
 
 
 class StrategyMatchChange(BaseMessage, frozen=True):
-    mb: Optional[list[MatchedOrder]] = None  # Matched Backs
-    ml: Optional[list[MatchedOrder]] = None  # Matched Lays
+    mb: list[MatchedOrder] | None = None  # Matched Backs
+    ml: list[MatchedOrder] | None = None  # Matched Lays
 
     @property
     def matched_backs(self):
@@ -449,12 +449,12 @@ class StrategyMatchChange(BaseMessage, frozen=True):
 
 class OrderRunnerChange(BaseMessage, frozen=True):
     id: SelectionId
-    full_image: Optional[bool] = False
-    hc: Optional[Handicap] = None
-    mb: Optional[list[MatchedOrder]] = None  # Matched Backs
-    ml: Optional[list[MatchedOrder]] = None  # Matched Lays
-    smc: Optional[dict[str, StrategyMatchChange]] = None  # Strategy Matches
-    uo: Optional[list[Order]] = None  # Unmatched Orders
+    full_image: bool | None = False
+    hc: Handicap | None = None
+    mb: list[MatchedOrder] | None = None  # Matched Backs
+    ml: list[MatchedOrder] | None = None  # Matched Lays
+    smc: dict[str, StrategyMatchChange] | None = None  # Strategy Matches
+    uo: list[Order] | None = None  # Unmatched Orders
 
     @property
     def handicap(self):
@@ -484,10 +484,10 @@ class OrderRunnerChange(BaseMessage, frozen=True):
 
 class OrderMarketChange(BaseMessage, kw_only=True, frozen=True):
     id: MarketId
-    account_id: Optional[int] = None
-    closed: Optional[bool] = None
-    full_image: Optional[bool] = False
-    orc: Optional[list[OrderRunnerChange]] = None
+    account_id: int | None = None
+    closed: bool | None = None
+    full_image: bool | None = False
+    orc: list[OrderRunnerChange] | None = None
 
     @property
     def order_runner_changes(self):
