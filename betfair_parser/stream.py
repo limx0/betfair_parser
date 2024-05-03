@@ -2,6 +2,7 @@ import asyncio
 import io
 import itertools
 import socket
+import pathlib
 import ssl
 import urllib.parse
 from collections.abc import AsyncGenerator, Iterable
@@ -132,15 +133,15 @@ def create_stream_io(endpoint, timeout: float = 15):
     return socket.SocketIO(sock, "rwb")
 
 
-def _message_changes(msg: StreamResponseType) -> Optional[list[str]]:
+def changed_markets(msg: StreamResponseType) -> list[str]:
     """Return the market IDs of the markets affected by the given message."""
     if isinstance(msg, (Status, Connection)):
-        return None
+        return []
     if isinstance(msg, MCM) and msg.market_changes:
         return [m.id for m in msg.market_changes]
     if isinstance(msg, OCM) and msg.order_market_changes:
         return [m.id for m in msg.order_market_changes]
-    return None
+    return []
 
 
 class StreamReader:
@@ -171,15 +172,31 @@ class StreamReader:
         stream.write(self.esm.connect())  # send auth
         self.esm.receive(stream)
 
-    def iter_changes(self, stream: io.RawIOBase) -> Iterable[list[str]]:
-        """Iterate over the stream, yielding lists of IDs of the updated markets."""
+    def iter_changes(self, stream: io.RawIOBase) -> Iterable[ChangeMessageType]:
+        """Iterate over the stream, yielding market and order change messages."""
         if not self.esm.is_connected:
             self.connect(stream)
 
         while True:
-            changes = _message_changes(self.esm.receive(stream))
-            if changes:
-                yield changes
+            msg = self.esm.receive(stream)
+            if isinstance(msg, (OCM, MCM)):
+                yield msg
+
+    def iter_changes_and_write(
+        self,
+        stream: io.RawIOBase,
+        path: pathlib.Path | str,
+    ) -> Iterable[ChangeMessageType]:
+        if not self.esm.is_connected:
+            self.connect(stream)
+
+        with open(path, "ab") as f:
+            while True:
+                raw_msg = stream.readline()
+                msg = self.esm.receive_bytes(raw_msg)
+                if isinstance(msg, (OCM, MCM)):
+                    yield msg
+                f.write(raw_msg)
 
 
 class AsyncStream:
@@ -247,11 +264,28 @@ class AsyncStreamReader(StreamReader):
         await stream.write(self.esm.connect())  # send auth
         self.esm.receive_bytes(await stream.readline())
 
-    async def iter_changes_async(self, stream: AsyncStream) -> AsyncGenerator[list[str], None]:
+    async def iter_changes_async(self, stream: AsyncStream) -> AsyncGenerator[ChangeMessageType, None]:
         if not self.esm.is_connected:
             await self.connect_async(stream)
 
         while True:
-            changes = _message_changes(self.esm.receive_bytes(await stream.readline()))
-            if changes:
-                yield changes
+            msg = self.esm.receive_bytes(await stream.readline())
+            if isinstance(msg, (OCM, MCM)):
+                yield msg
+
+    async def iter_changes_and_write_async(
+        self,
+        stream: AsyncStream,
+        path: Union[pathlib.Path, str],
+    ) -> AsyncGenerator[ChangeMessageType, None]:
+        if not self.esm.is_connected:
+            await self.connect_async(stream)
+
+        loop = asyncio.get_running_loop()
+        with open(path, "ab") as f:
+            while True:
+                raw_msg = await stream.readline()
+                msg = self.esm.receive_bytes(raw_msg)
+                if isinstance(msg, (OCM, MCM)):
+                    yield msg
+                await loop.run_in_executor(None, f.write, raw_msg)

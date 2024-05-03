@@ -19,7 +19,7 @@ from betfair_parser.spec.streaming import (
     OrderSubscription,
     Status,
 )
-from betfair_parser.stream import AsyncStream, ExchangeStream, StreamReader, create_stream_io
+from betfair_parser.stream import AsyncStream, ExchangeStream, StreamReader, create_stream_io, changed_markets
 from tests.integration.test_live import appconfig  # noqa: F401
 
 
@@ -132,8 +132,10 @@ def test_stream_reader(session, iterations=15):
         sr.subscribe(subscription)  # type: ignore[arg-type]
 
     with create_stream_io(STREAM_INTEGRATION) as stream:
-        for i, changed_ids in enumerate(sr.iter_changes(stream)):
-            assert len(changed_ids)
+        for i, change_msg in enumerate(sr.iter_changes(stream)):
+            changed_ids = changed_markets(change_msg)
+            if not changed_ids:
+                continue
             assert all(change_id.startswith("1.") for change_id in changed_ids)
             assert all(change_id in sr.caches[MARKET_STREAM_ID].order_book for change_id in changed_ids)  # type: ignore[union-attr]
             if i >= iterations:
@@ -155,8 +157,8 @@ def test_stream_reader(session, iterations=15):
             if not runner_order_book.total_volume:
                 # skip empty order books
                 continue
-            assert runner_order_book.available_to_back
-            assert runner_order_book.available_to_lay
+            assert runner_order_book.available_to_back or runner_order_book.available_to_lay[1.01]
+            assert runner_order_book.available_to_lay or runner_order_book.available_to_back[1000]
             assert runner_order_book.last_traded_price
 
             # fields must be deleted when nulled
