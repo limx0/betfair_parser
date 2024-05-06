@@ -8,7 +8,7 @@ import urllib.parse
 from collections.abc import AsyncGenerator, Callable, Iterable
 from typing import Any
 
-from betfair_parser.cache import MarketCache, OrderCache
+from betfair_parser.cache import MarketSubscriptionCache, OrderSubscriptionCache
 from betfair_parser.exceptions import StreamError
 from betfair_parser.spec.common import encode
 from betfair_parser.spec.streaming import (
@@ -146,7 +146,7 @@ class StreamReader:
     """Read exchange stream data into a separate cache for each subscription."""
 
     def __init__(self, app_key, token) -> None:
-        self.caches: dict[StreamRef, MarketCache | OrderCache] = {}
+        self.caches: dict[StreamRef, MarketSubscriptionCache | OrderSubscriptionCache] = {}
         self.esm = ExchangeStream(app_key, token)
 
     def handle_change_message(self, msg: ChangeMessageType) -> ChangeMessageType:
@@ -155,9 +155,9 @@ class StreamReader:
 
     def subscribe(self, subscription: SubscriptionType) -> bytes:
         if isinstance(subscription, MarketSubscription):
-            self.caches[subscription.id] = MarketCache()
+            self.caches[subscription.id] = MarketSubscriptionCache()
         elif isinstance(subscription, OrderSubscription):
-            self.caches[subscription.id] = OrderCache()
+            self.caches[subscription.id] = OrderSubscriptionCache()
         else:
             raise TypeError("Invalid subscription type")
         return self.esm.subscribe(subscription, self.handle_change_message)

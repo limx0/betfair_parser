@@ -157,8 +157,29 @@ class ChangeCache:
         raise NotImplementedError()
 
 
-class MarketCache(ChangeCache):
+class _DefaultDict(defaultdict):
     """
+    The caches for single markets are supposed to be referenceable from outside the
+    cache via weakrefs. So if the cache gets updated, it doesn't leave data pending.
+    As defaultdict itself can't be referenced with a weakref, let's subclass it.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(type(self).default_factory, **kwargs)
+
+    default_factory = dict
+
+
+class MarketOrderBook(_DefaultDict):
+    """Order book for a single market, collecting a bunch of RunnerOrderBooks."""
+
+    default_factory = RunnerOrderBook  # type: ignore[assignment]
+
+
+class MarketSubscriptionCache(ChangeCache):
+    """
+    Orderbook for all markets of a market change stream.
+
     Market subscriptions are always in the underlying exchange currency - GBP. The default roll-up for GBP
     is £1 for batb / batl and bdatb / bdatl, This means that stakes of less than £1 (or currency
     equivalent) are rolled up to the next available price on the odds ladder. For atb / atl there is
@@ -166,14 +187,12 @@ class MarketCache(ChangeCache):
     """
 
     def __init__(self):
-        self.order_book: defaultdict[str, defaultdict[int, RunnerOrderBook]] = defaultdict(
-            lambda: defaultdict(RunnerOrderBook)
-        )
-        self.market_definitions: dict[str, MarketDefinition] = {}
+        self.order_book: defaultdict[str, MarketOrderBook] = defaultdict(MarketOrderBook)
+        self.definitions: dict[str, MarketDefinition] = {}
 
     def clear(self) -> None:
         self.order_book.clear()
-        self.market_definitions.clear()
+        self.definitions.clear()
 
     def update(self, mcm: MCM) -> None:
         self.update_meta(mcm)
@@ -186,7 +205,7 @@ class MarketCache(ChangeCache):
             if mc.img:
                 self.order_book.pop(mc.id, None)
             if mc.market_definition:
-                self.market_definitions[mc.id] = mc.market_definition
+                self.definitions[mc.id] = mc.market_definition
             if not mc.rc:
                 continue
             for rc in mc.rc:
@@ -235,13 +254,19 @@ class RunnerOrders:
             ladder_update_mo(self.matched_backs, orc.ml)
 
 
-class OrderCache(ChangeCache):
+class MarketOrders(_DefaultDict):
+    """All orders for a single market, collecting a bunch of RunnerOrders."""
+
+    default_factory = RunnerOrders  # type: ignore[assignment]
+
+
+class OrderSubscriptionCache(ChangeCache):
     """
     Order subscriptions are provided in the currency of the account that the orders are placed in.
     """
 
     def __init__(self):
-        self.orders: defaultdict[str, defaultdict[int, RunnerOrders]] = defaultdict(lambda: defaultdict(RunnerOrders))
+        self.orders: defaultdict[str, MarketOrders] = defaultdict(MarketOrders)
 
     def clear(self) -> None:
         self.orders.clear()

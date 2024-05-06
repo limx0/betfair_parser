@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 from requests import Session  # alternatively use httpx.Client
 
@@ -143,15 +145,19 @@ def test_stream_reader(session, iterations=15):
 
     assert sr.caches[ORDER_STREAM_ID].orders is not None  # type: ignore[union-attr]
 
-    market_definitions: dict[str, MarketDefinition] = sr.caches[MARKET_STREAM_ID].market_definitions  # type: ignore[union-attr]
+    market_definitions: dict[str, MarketDefinition] = sr.caches[MARKET_STREAM_ID].definitions  # type: ignore[union-attr]
     assert len(market_definitions) > 20
     assert all(isinstance(key, str) for key in market_definitions)
     assert all(isinstance(md, MarketDefinition) for md in market_definitions.values())
 
+    now = datetime.datetime.utcnow().astimezone(datetime.timezone.utc)
     order_book = sr.caches[MARKET_STREAM_ID].order_book  # type: ignore[union-attr]
     assert len(order_book) == len(market_definitions)
     assert all(isinstance(key, str) for key in order_book)
-    for market_order_book in order_book.values():
+    for market_id, market_order_book in order_book.items():
+        if (market_definitions[market_id].suspend_time - now).seconds > 6 * 60 * 60:  # 6h
+            # data further in the future is likely to be incomplete and leads to errors
+            continue
         for runner_order_book in market_order_book.values():
             assert isinstance(runner_order_book, RunnerOrderBook)
             if not runner_order_book.total_volume:
