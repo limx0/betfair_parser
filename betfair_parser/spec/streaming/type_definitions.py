@@ -353,12 +353,12 @@ class Order(BaseMessage, frozen=True):
         return self.bsp
 
     @property
-    def order_reference(self):
+    def customer_order_ref(self):
         """The customer's order reference for this order (None if one was not set)"""
         return self.rfo
 
     @property
-    def strategy_reference(self):
+    def customer_strategy_ref(self):
         """The customer's strategy reference for this order (empty string if one was not set)"""
         return self.rfs
 
@@ -425,6 +425,13 @@ class Order(BaseMessage, frozen=True):
     def lapse_status_reason_code(self):
         """The reason that some or all of this order has been lapsed (None if no portion of the order is lapsed"""
         return self.lsrc
+
+    @property
+    def bet_id(self):
+        # interchangeability with betting.Order
+        return self.id
+
+    avg_price_matched = average_price_matched  # interchangeability with betting.Order
 
 
 class MatchedOrder(BaseMessage, array_like=True, frozen=True):
