@@ -251,7 +251,7 @@ class RunnerOrders:
         if orc.mb:
             ladder_update_mo(self.matched_backs, orc.mb)
         if orc.ml:
-            ladder_update_mo(self.matched_backs, orc.ml)
+            ladder_update_mo(self.matched_lays, orc.ml)
 
 
 class MarketOrders(_DefaultDict):
@@ -284,6 +284,9 @@ class OrderSubscriptionCache(ChangeCache):
             if oc.closed:
                 # TODO: Call some hooks?
                 self.orders.pop(oc.id, None)
+            if not oc.orc:
+                # on closed markets
+                continue
             for orc in oc.orc:
                 if orc.full_image:
                     self.orders[oc.id].pop(orc.id, None)
