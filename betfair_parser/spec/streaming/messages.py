@@ -2,9 +2,9 @@
 Definition of the betfair streaming API messages as defined in:
 - https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Exchange+Stream+API
 - https://github.com/betfair/stream-api-sample-code/blob/master/ESASwaggerSchema.json
- """
+"""
 
-from typing import Literal, Optional, Union
+from typing import Literal
 
 from betfair_parser.spec.common import BaseMessage, first_lower
 from betfair_parser.spec.streaming.enums import ChangeType, SegmentType, StatusErrorCode
@@ -14,19 +14,20 @@ from betfair_parser.spec.streaming.type_definitions import (
     MarketFilter,
     OrderFilter,
     OrderMarketChange,
+    StreamRef,
 )
 
 
 class _StreamRequest(BaseMessage, tag_field="op", tag=first_lower, frozen=True):
     """Common parent class for any stream request."""
 
-    id: Optional[Union[int, str]] = None  # Client generated unique id to link request with response (like json rpc)
+    id: StreamRef | None = None  # Client generated unique id to link request with response (like json rpc)
 
 
 class _StreamResponse(BaseMessage, tag_field="op", tag=str.lower, frozen=True):
     """Common parent class for any stream response."""
 
-    id: Optional[Union[int, str]] = None  # Client generated unique id to link request with response (like json rpc)
+    id: StreamRef | None = None  # Client generated unique id to link request with response (like json rpc)
 
 
 class Authentication(_StreamRequest, kw_only=True, frozen=True):
@@ -42,10 +43,10 @@ class Authentication(_StreamRequest, kw_only=True, frozen=True):
 class _Subscription(_StreamRequest, kw_only=True, frozen=True):
     """Common parent class for any Subscription request."""
 
-    clk: Optional[str] = None  # Token value delta (received in MarketChangeMessage) for resuming a subscription
-    conflate_ms: Optional[int] = None  # The conflation rate (looped back on initial image: bounds are 0 to 120000)
-    heartbeat_ms: Optional[int] = None  # The heartbeat rate (looped back on initial image: bounds are 500 to 5000)
-    initial_clk: Optional[str] = None  # Token value that should be passed to resume a subscription
+    clk: str | None = None  # Token value delta (received in MarketChangeMessage) for resuming a subscription
+    conflate_ms: int | None = None  # The conflation rate (looped back on initial image: bounds are 0 to 120000)
+    heartbeat_ms: int | None = None  # The heartbeat rate (looped back on initial image: bounds are 500 to 5000)
+    initial_clk: str | None = None  # Token value that should be passed to resume a subscription
     segmentation_enabled: bool = True  # allow server to send large sets of data in segments, instead of a single block
 
 
@@ -83,10 +84,10 @@ class Status(_StreamResponse, kw_only=True, frozen=True):
     """Every request receives a status response with a matching id."""
 
     connection_closed: bool
-    connection_id: Optional[str] = None
-    connections_available: Optional[int] = None  # The number of connections available for this account at this moment
-    error_code: Optional[StatusErrorCode] = None
-    error_message: Optional[str] = None  # Additional message in case of a failure
+    connection_id: str | None = None
+    connections_available: int | None = None  # The number of connections available for this account at this moment
+    error_code: StatusErrorCode | None = None
+    error_message: str | None = None  # Additional message in case of a failure
     status_code: Literal["SUCCESS", "FAILURE"]  # The status of the last request
 
     @property
@@ -97,14 +98,14 @@ class Status(_StreamResponse, kw_only=True, frozen=True):
 class _ChangeMessage(_StreamResponse, kw_only=True, frozen=True):
     """Common parent class for any ChangeMessage."""
 
-    clk: Optional[str] = None  # Token value (non-None) should be stored for resuming in case of a disconnect
-    conflate_ms: Optional[int] = None  # The conflation rate (may differ from that requested if subscription is delayed)
-    ct: Optional[ChangeType] = None
-    heartbeat_ms: Optional[int] = None  # Heartbeat rate (may differ from requested: bounds are 500 to 30000)
-    initial_clk: Optional[str] = None  # Token value (non-None) should be stored for resuming in case of a disconnect
+    clk: str | None = None  # Token value (non-None) should be stored for resuming in case of a disconnect
+    conflate_ms: int | None = None  # The conflation rate (may differ from that requested if subscription is delayed)
+    ct: ChangeType | None = None
+    heartbeat_ms: int | None = None  # Heartbeat rate (may differ from requested: bounds are 500 to 30000)
+    initial_clk: str | None = None  # Token value (non-None) should be stored for resuming in case of a disconnect
     pt: int  # Publish Time
-    segment_type: Optional[SegmentType] = None  # denotes the beginning and end of a segmentation
-    status: Optional[int] = None  # None if the stream is up-to-date and 503 if the services are experiencing latencies
+    segment_type: SegmentType | None = None  # denotes the beginning and end of a segmentation
+    status: int | None = None  # None if the stream is up-to-date and 503 if the services are experiencing latencies
 
     @property
     def is_heartbeat(self):
@@ -131,7 +132,7 @@ class MCM(_ChangeMessage, kw_only=True, frozen=True):
     Market subscriptions are always in the underlying exchange currency - GBP.
     """
 
-    mc: Optional[list[MarketChange]] = None
+    mc: list[MarketChange] | None = None
 
     @property
     def market_changes(self):
@@ -145,7 +146,7 @@ class OCM(_ChangeMessage, kw_only=True, frozen=True):
     Order subscriptions are provided in the currency of the account that the orders are placed in.
     """
 
-    oc: Optional[list[OrderMarketChange]] = None
+    oc: list[OrderMarketChange] | None = None
 
     @property
     def order_market_changes(self):

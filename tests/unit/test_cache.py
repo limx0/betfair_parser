@@ -1,12 +1,24 @@
-from betfair_parser.cache import LPV, MarketCache, OrderCache, ladder_update_lpv
+import weakref
+
+import pytest
+
+from betfair_parser.cache import (
+    LPV,
+    MarketOrderBook,
+    MarketOrders,
+    MarketSubscriptionCache,
+    OrderSubscriptionCache,
+    ladder_update_lpv,
+)
 from betfair_parser.spec.common import decode, encode
-from betfair_parser.spec.streaming import stream_decode
+from betfair_parser.spec.streaming import MCM, stream_decode
 from tests.resources import RESOURCES_DIR
 
 
 def test_runner_order_book_repr():
-    mcm = stream_decode((RESOURCES_DIR / "responses" / "streaming" / "mcm_sub_image_no_market_def.json").read_bytes())
-    cache = MarketCache()
+    raw = (RESOURCES_DIR / "responses" / "streaming" / "mcm_sub_image_no_market_def.json").read_bytes()
+    mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
+    cache = MarketSubscriptionCache()
     cache.update(mcm)
     rob = cache.order_book["1.180737193"][25327214]
     repr_str = repr(rob)
@@ -73,11 +85,11 @@ OCMS_SAMPLE = [
 
 
 def test_order_cache_runner_removal():
-    """OrderCache example including reduction factor from the documentation."""
-    cache = OrderCache()
+    """OrderSubscriptionCache example including reduction factor from the documentation."""
+    cache = OrderSubscriptionCache()
 
     # bet gets placed
-    cache.update(stream_decode(OCMS_SAMPLE[0]))
+    cache.update(stream_decode(OCMS_SAMPLE[0]))  # type: ignore[arg-type]
     assert len(cache.orders) == 1
     assert len(cache.orders["1.102151675"]) == 1
     ro = cache.orders["1.102151675"][6113662]
@@ -94,7 +106,7 @@ def test_order_cache_runner_removal():
     assert not ro.matched_backs
 
     # bet matched
-    cache.update(stream_decode(OCMS_SAMPLE[1]))
+    cache.update(stream_decode(OCMS_SAMPLE[1]))  # type: ignore[arg-type]
     order = ro.executed_orders[10822867886]
     assert order.execution_complete
     assert order.matched_date
@@ -104,8 +116,20 @@ def test_order_cache_runner_removal():
     assert ro.matched_backs[12] == 2
 
     # another runner was removed and the reduction factor was applied to the order
-    cache.update(stream_decode(OCMS_SAMPLE[2]))
+    cache.update(stream_decode(OCMS_SAMPLE[2]))  # type: ignore[arg-type]
     order = ro.executed_orders[10822867886]  # previous order was replaced
     assert order.average_price_matched == 9.47
     assert ro.matched_backs[9.47] == 2
     assert len(ro.matched_backs) == 1
+
+
+@pytest.mark.parametrize("dict_type", (MarketOrders, MarketOrderBook))
+def test_market_caches(dict_type):
+    cache = dict_type()
+    runner_cache = cache[123]
+    r = weakref.ref(cache)
+    assert type(runner_cache).__name__ == type(cache).__name__.replace("Market", "Runner")
+    assert r() is cache
+    del runner_cache
+    del cache
+    assert r() is None

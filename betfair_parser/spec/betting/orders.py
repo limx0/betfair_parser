@@ -1,5 +1,3 @@
-from typing import Optional
-
 import msgspec
 
 from betfair_parser.spec.betting.enums import BetStatus, GroupBy, OrderBy, OrderProjection, Side, SortDir
@@ -41,10 +39,10 @@ class _OrderRequest(Request, frozen=True, tag=betting_tag):
 class _PlaceOrdersParams(Params, frozen=True):
     market_id: str
     instructions: list[PlaceInstruction]
-    customer_ref: Optional[CustomerRef] = None
-    market_version: Optional[MarketVersion] = None
-    customer_strategy_ref: Optional[CustomerStrategyRef] = None
-    async_: Optional[bool] = msgspec.field(name="async", default=False)
+    customer_ref: CustomerRef | None = None
+    market_version: MarketVersion | None = None
+    customer_strategy_ref: CustomerStrategyRef | None = None
+    async_: bool | None = msgspec.field(name="async", default=False)
 
 
 class PlaceOrders(_OrderRequest, kw_only=True, frozen=True):
@@ -63,9 +61,9 @@ class PlaceOrders(_OrderRequest, kw_only=True, frozen=True):
 
 
 class _CancelOrdersParams(Params, frozen=True):
-    market_id: Optional[str] = None
-    instructions: Optional[list[CancelInstruction]] = None
-    customer_ref: Optional[CustomerRef] = None
+    market_id: str | None = None
+    instructions: list[CancelInstruction] | None = None
+    customer_ref: CustomerRef | None = None
 
 
 class CancelOrders(_OrderRequest, kw_only=True, frozen=True):
@@ -81,9 +79,9 @@ class CancelOrders(_OrderRequest, kw_only=True, frozen=True):
 class _ReplaceOrdersParams(Params, frozen=True):
     market_id: str
     instructions: list[ReplaceInstruction]
-    customer_ref: Optional[CustomerRef] = None
-    market_version: Optional[MarketVersion] = None
-    async_: Optional[bool] = msgspec.field(name="async", default=False)
+    customer_ref: CustomerRef | None = None
+    market_version: MarketVersion | None = None
+    async_: bool | None = msgspec.field(name="async", default=False)
 
 
 class ReplaceOrders(_OrderRequest, kw_only=True, frozen=True):
@@ -100,14 +98,14 @@ class ReplaceOrders(_OrderRequest, kw_only=True, frozen=True):
 
 class _ListClearedOrdersParams(Params, frozen=True):
     bet_status: BetStatus  # Restricts the results to the specified status.
-    event_type_ids: Optional[set[EventTypeId]] = None  # Restricts the results to the specified Event Type IDs.
-    event_ids: Optional[set[EventId]] = None  # Restricts the results to the specified Event IDs.
-    market_ids: Optional[set[MarketId]] = None  # Restricts the results to the specified market IDs.
-    runner_ids: Optional[set[RunnerId]] = None  # Restricts the results to the specified Runners.
-    bet_ids: Optional[set[BetId]] = None  # Restricts the results to the specified bet IDs, maximum 1000 betIds
-    customer_order_refs: Optional[set[CustomerOrderRef]] = None
-    customer_strategy_refs: Optional[set[CustomerStrategyRef]] = None
-    side: Optional[Side] = None  # Restricts the results to the specified side.
+    event_type_ids: set[EventTypeId] | None = None  # Restricts the results to the specified Event Type IDs.
+    event_ids: set[EventId] | None = None  # Restricts the results to the specified Event IDs.
+    market_ids: set[MarketId] | None = None  # Restricts the results to the specified market IDs.
+    runner_ids: set[RunnerId] | None = None  # Restricts the results to the specified Runners.
+    bet_ids: set[BetId] | None = None  # Restricts the results to the specified bet IDs, maximum 1000 betIds
+    customer_order_refs: set[CustomerOrderRef] | None = None
+    customer_strategy_refs: set[CustomerStrategyRef] | None = None
+    side: Side | None = None  # Restricts the results to the specified side.
 
     # Optionally restricts the results to be from/to the specified settled date. This date is inclusive,
     # i.e. if an order was cleared on exactly this date (to the millisecond) then it will be included
@@ -115,14 +113,14 @@ class _ListClearedOrdersParams(Params, frozen=True):
     # Please Note: if you have a longer running market that is settled at multiple different times
     # then there is no way to get the returned market rollup to only include bets settled in a certain
     # date range, it will always return the overall position from the market including all settlements.
-    settled_date_range: Optional[TimeRange] = None
+    settled_date_range: TimeRange | None = None
 
     # If not supplied then the lowest level is returned, i.e. bet by bet This is only applicable to SETTLED BetStatus.
-    group_by: Optional[GroupBy] = None
-    include_item_description: Optional[bool] = None
-    locale: Optional[str] = None  # The language used for the itemDescription, defaults to account settings
-    from_record: Optional[int] = None  # Specifies the first record that will be returned. Records start at index zero.
-    record_count: Optional[int] = None  # Number of records from the index position 'fromRecord', maximum 1000
+    group_by: GroupBy | None = None
+    include_item_description: bool | None = None
+    locale: str | None = None  # The language used for the itemDescription, defaults to account settings
+    from_record: int | None = None  # Specifies the first record that will be returned. Records start at index zero.
+    record_count: int | None = None  # Number of records from the index position 'fromRecord', maximum 1000
 
 
 class ListClearedOrders(_OrderRequest, kw_only=True, frozen=True):
@@ -148,17 +146,17 @@ class _ListCurrentOrdersParams(Params, frozen=True):
     Parameters for retrieving a list of current orders.
     """
 
-    bet_ids: Optional[set[BetId]] = None  # Restricts the results to the specified bet IDs
-    market_ids: Optional[set[str]] = None  # Restricts the results to the specified market IDs
-    order_projection: Optional[OrderProjection] = None  # Restricts the results to the specified order status
-    customer_order_refs: Optional[set[CustomerOrderRef]] = None
-    customer_strategy_refs: Optional[set[CustomerStrategyRef]] = None
-    date_range: Optional[TimeRange] = None  # Restricts the results to be from/to the specified date
-    order_by: Optional[OrderBy] = None  # Specifies how the results will be ordered
-    sort_dir: Optional[SortDir] = None  # Specifies the direction the results will be sorted in
-    from_record: Optional[int] = None  # Specifies the first record that will be returned
-    record_count: Optional[int] = None  # Specifies how many records will be returned
-    include_item_description: Optional[bool] = None
+    bet_ids: set[BetId] | None = None  # Restricts the results to the specified bet IDs
+    market_ids: set[str] | None = None  # Restricts the results to the specified market IDs
+    order_projection: OrderProjection | None = None  # Restricts the results to the specified order status
+    customer_order_refs: set[CustomerOrderRef] | None = None
+    customer_strategy_refs: set[CustomerStrategyRef] | None = None
+    date_range: TimeRange | None = None  # Restricts the results to be from/to the specified date
+    order_by: OrderBy | None = None  # Specifies how the results will be ordered
+    sort_dir: SortDir | None = None  # Specifies the direction the results will be sorted in
+    from_record: int | None = None  # Specifies the first record that will be returned
+    record_count: int | None = None  # Specifies how many records will be returned
+    include_item_description: bool | None = None
 
 
 class ListCurrentOrders(_OrderRequest, kw_only=True, frozen=True):
@@ -183,7 +181,7 @@ class ListCurrentOrders(_OrderRequest, kw_only=True, frozen=True):
 class _UpdateOrdersParams(Params, frozen=True):
     market_id: str  # The market id these orders are to be placed on
     instructions: list[UpdateInstruction]  # The limit of update instructions per request is 60
-    customer_ref: Optional[CustomerRef] = None
+    customer_ref: CustomerRef | None = None
 
 
 class UpdateOrders(_OrderRequest, kw_only=True, frozen=True):

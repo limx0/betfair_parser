@@ -1,5 +1,5 @@
 import re
-from typing import Literal, Optional, Union
+from typing import Literal, Union
 
 from betfair_parser.spec.common import BaseMessage, BaseResponse, Date, EndpointType, Request
 
@@ -21,7 +21,7 @@ class Market(BaseMessage, tag=navigation_tag, frozen=True):
     exchange_id: str
     market_type: str
     market_start_time: Date
-    number_of_winners: Union[int, str]
+    number_of_winners: int | str
 
 
 class Event(BaseMessage, tag=navigation_tag, frozen=True):
@@ -38,7 +38,7 @@ class Race(BaseMessage, tag=navigation_tag, frozen=True):
     venue: str
     start_time: Date
     children: list[Market]
-    race_number: Optional[str] = None
+    race_number: str | None = None
 
 
 class Group(BaseMessage, tag=navigation_tag, frozen=True):
@@ -50,7 +50,7 @@ class Group(BaseMessage, tag=navigation_tag, frozen=True):
 class EventType(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
     id: int
-    children: list[Union[Group, Event, Race]]
+    children: list[Group | Event | Race]
 
 
 class Navigation(BaseResponse, frozen=True):
@@ -90,23 +90,23 @@ class Menu(Request, kw_only=True, frozen=True, tag=""):
 class FlattenedMarket(BaseMessage, kw_only=True, frozen=True, rename=None):
     event_type_name: str
     event_type_id: int
-    event_name: Optional[str] = None
-    event_id: Optional[str] = None
-    event_country_code: Optional[str] = None
+    event_name: str | None = None
+    event_id: str | None = None
+    event_country_code: str | None = None
     market_name: str
     market_id: str
     market_exchange_id: str
     market_market_type: str
     market_market_start_time: Date
-    market_number_of_winners: Union[int, str]
-    group_name: Optional[str] = None
-    group_id: Optional[str] = None
-    race_name: Optional[str] = None
-    race_id: Optional[str] = None
-    race_country_code: Optional[str] = None
-    race_venue: Optional[str] = None
-    race_start_time: Optional[Date] = None
-    race_race_number: Optional[str] = None
+    market_number_of_winners: int | str
+    group_name: str | None = None
+    group_id: str | None = None
+    race_name: str | None = None
+    race_id: str | None = None
+    race_country_code: str | None = None
+    race_venue: str | None = None
+    race_start_time: Date | None = None
+    race_race_number: str | None = None
 
 
 def flatten_nav_tree(navigation: Navigation, **filters) -> list[FlattenedMarket]:
@@ -116,7 +116,7 @@ def flatten_nav_tree(navigation: Navigation, **filters) -> list[FlattenedMarket]
 def _filter(k, v):
     if isinstance(v, str):
         return k == v
-    if isinstance(v, (tuple, list)):
+    if isinstance(v, tuple | list):
         return k in v
     raise TypeError
 

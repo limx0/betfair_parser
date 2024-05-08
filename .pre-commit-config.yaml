@@ -5,10 +5,6 @@ repos:
     rev: v4.5.0
     hooks:
       - id: forbid-new-submodules
-      - id: fix-encoding-pragma
-        args: [--remove]
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
       - id: debug-statements
       - id: detect-private-key
       - id: check-builtin-literals
@@ -22,6 +18,12 @@ repos:
       - id: check-yaml
         exclude: (.pre-commit-config\.yaml)
 
+  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+    rev: 0.2.3
+    hooks:
+      - id: yamlfmt
+        args: [--mapping, '2', --sequence, '4', --offset, '2']
+
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
@@ -30,29 +32,14 @@ repos:
         additional_dependencies:
           - tomli
 
-  - repo: https://github.com/psf/black
-    rev: 23.12.0
-    hooks:
-      - id: black
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.1
-    hooks:
-      - id: isort
-
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
+    rev: v1.10.0
     hooks:
       - id: mypy
         additional_dependencies: [msgspec, types-requests]
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.1.8
+    rev: v0.4.2
     hooks:
       - id: ruff
-
-  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-    rev: 0.2.3
-    hooks:
-      - id: yamlfmt
-        args: [--mapping, '2', --sequence, '4', --offset, '2']
+      - id: ruff-format

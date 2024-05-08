@@ -1,4 +1,4 @@
-from typing import Annotated, Literal, Optional
+from typing import Annotated, Literal
 from urllib.parse import quote
 
 import msgspec
@@ -151,13 +151,13 @@ class KeepAliveLogoutResponse(BaseResponse, frozen=True):
 
 
 class KeepAlive(_IdentityRequest, frozen=True):
-    params: Optional[Params] = None
+    params: Params | None = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
 
 
 class Logout(_IdentityRequest, frozen=True):
-    params: Optional[Params] = None
+    params: Params | None = None
     return_type = KeepAliveLogoutResponse
     throws = IdentityError
 
@@ -193,6 +193,5 @@ class CertLogin(_IdentityRequest, kw_only=True, frozen=True, tag=str.lower):
     return_type = CertLoginResponse
     throws = LoginImpossible
 
-    # TODO: remove this type ignore for py3.10+
     headers = staticmethod(Login.headers)  # type: ignore[assignment,unused-ignore]
     body = Login.body

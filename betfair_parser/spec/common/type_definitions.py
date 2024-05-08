@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated, Optional
+from typing import Annotated
 
 import msgspec
 
@@ -33,5 +33,5 @@ CustomerStrategyRef = Annotated[str, msgspec.Meta(title="CustomerStrategyRef")]
 
 
 class TimeRange(BaseMessage, frozen=True):
-    from_: Optional[Date] = msgspec.field(name="from", default=None)
-    to: Optional[Date] = None
+    from_: Date | None = msgspec.field(name="from", default=None)
+    to: Date | None = None

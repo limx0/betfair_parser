@@ -116,7 +116,7 @@ def test_runner_metadata_validation_pass():
         age=3,
     )
     for rmd in (
-        RunnerMetaData(**metadata),  # type: ignore
+        RunnerMetaData(**metadata),  # type: ignore[arg-type]
         RunnerMetaData.parse(msgspec.json.encode({k.upper(): v for k, v in metadata.items()})),
     ):
         assert rmd.weight_value == 100
@@ -140,7 +140,7 @@ def test_runner_metadata_validation_fail():
         age=35,
     )
     for rmd in (
-        RunnerMetaData(**metadata),  # type: ignore
+        RunnerMetaData(**metadata),  # type: ignore[arg-type]
         RunnerMetaData.parse(msgspec.json.encode({k.upper(): v for k, v in metadata.items()})),
     ):
         for field in RunnerMetaData.__struct_fields__:

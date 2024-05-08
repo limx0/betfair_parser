@@ -1,6 +1,5 @@
 from datetime import datetime
 from functools import partial
-from typing import Optional
 
 import msgspec
 
@@ -51,53 +50,53 @@ betting_tag = partial(method_tag, "SportsAPING/v1.0/")
 
 
 class Competition(BaseMessage, frozen=True):
-    id: Optional[CompetitionId] = None
-    name: Optional[str] = None
+    id: CompetitionId | None = None
+    name: str | None = None
 
 
 class CompetitionResult(BaseMessage, frozen=True):
-    competition: Optional[Competition] = None
-    market_count: Optional[int] = None  # Count of markets associated with this competition
-    competition_region: Optional[str] = None  # Region in which this competition is happening
+    competition: Competition | None = None
+    market_count: int | None = None  # Count of markets associated with this competition
+    competition_region: str | None = None  # Region in which this competition is happening
 
 
 class Event(BaseMessage, frozen=True):
-    id: Optional[EventId] = None  # The unique id for the event
-    name: Optional[str] = None  # The name of the event
-    country_code: Optional[CountryCode] = None  # The ISO-2 code for the event, defaults to GB
-    timezone: Optional[str] = None  # The timezone in which the event is taking place
-    venue: Optional[str] = None
-    open_date: Optional[Date] = None  # The scheduled start date and time of the event
+    id: EventId | None = None  # The unique id for the event
+    name: str | None = None  # The name of the event
+    country_code: CountryCode | None = None  # The ISO-2 code for the event, defaults to GB
+    timezone: str | None = None  # The timezone in which the event is taking place
+    venue: str | None = None
+    open_date: Date | None = None  # The scheduled start date and time of the event
 
 
 class EventResult(BaseMessage, frozen=True):
-    event: Optional[Event] = None
-    market_count: Optional[int] = None  # Count of markets associated with this event
+    event: Event | None = None
+    market_count: int | None = None  # Count of markets associated with this event
 
 
 class EventType(BaseMessage, frozen=True):
-    id: Optional[EventTypeId] = None
-    name: Optional[str] = None
+    id: EventTypeId | None = None
+    name: str | None = None
 
 
 class EventTypeResult(BaseMessage, frozen=True):
-    event_type: Optional[EventType] = None  # The ID identifying the Event Type
-    market_count: Optional[int] = None  # Count of markets associated with this eventType
+    event_type: EventType | None = None  # The ID identifying the Event Type
+    market_count: int | None = None  # Count of markets associated with this eventType
 
 
 class MarketTypeResult(BaseMessage, frozen=True):
-    market_type: Optional[str] = None
-    market_count: Optional[int] = None  # Count of markets associated with this marketType
+    market_type: str | None = None
+    market_count: int | None = None  # Count of markets associated with this marketType
 
 
 class CountryCodeResult(BaseMessage, frozen=True):
-    country_code: Optional[CountryCode] = None  # The ISO-2 code for the event
-    market_count: Optional[int] = None  # Count of markets associated with this Country Code
+    country_code: CountryCode | None = None  # The ISO-2 code for the event
+    market_count: int | None = None  # Count of markets associated with this Country Code
 
 
 class VenueResult(BaseMessage, frozen=True):
-    venue: Optional[Venue] = None
-    market_count: Optional[int] = None  # Count of markets associated with this Venue
+    venue: Venue | None = None
+    market_count: int | None = None  # Count of markets associated with this Venue
 
 
 class PriceSize(BaseMessage, frozen=True):
@@ -106,31 +105,31 @@ class PriceSize(BaseMessage, frozen=True):
 
 
 class TimeRangeResult(BaseMessage, frozen=True):
-    time_range: Optional[TimeRange] = None
-    market_count: Optional[int] = None  # Count of markets associated with this TimeRange
+    time_range: TimeRange | None = None
+    market_count: int | None = None  # Count of markets associated with this TimeRange
 
 
 class MarketFilter(BaseMessage, frozen=True):
-    bsp_only: Optional[bool] = None  # Restrict to bsp markets only if True or non-bsp markets if False
-    competition_ids: Optional[set[CompetitionId]] = None  # Restrict markets by the competitions
-    event_ids: Optional[set[EventId]] = None  # Restrict markets by the event id associated with the market
-    event_type_ids: Optional[set[EventTypeId]] = None  # Restrict markets by event type associated with the market
-    exchange_ids: Optional[set[ExchangeId]] = None  # DEPRECATED
+    bsp_only: bool | None = None  # Restrict to bsp markets only if True or non-bsp markets if False
+    competition_ids: set[CompetitionId] | None = None  # Restrict markets by the competitions
+    event_ids: set[EventId] | None = None  # Restrict markets by the event id associated with the market
+    event_type_ids: set[EventTypeId] | None = None  # Restrict markets by event type associated with the market
+    exchange_ids: set[ExchangeId] | None = None  # DEPRECATED
 
     # Restrict to markets that are currently in play if True or are not currently in play if False
-    in_play_only: Optional[bool] = None
-    market_betting_types: Optional[set[MarketBettingType]] = None  # Match the betting type of the market
-    market_countries: Optional[set[CountryCode]] = None  # Match the specified country or countries
-    market_ids: Optional[set[MarketId]] = None  # Restrict markets by the market id associated with the market
-    market_start_time: Optional[TimeRange] = None  # Restrict to markets with a market start time range
-    market_type_codes: Optional[set[str]] = None  # Restrict to markets that match the type of the market
-    race_types: Optional[set[str]] = None  # Restrict by race type
-    text_query: Optional[str] = None  # Restrict markets by any text associated with the Event name
+    in_play_only: bool | None = None
+    market_betting_types: set[MarketBettingType] | None = None  # Match the betting type of the market
+    market_countries: set[CountryCode] | None = None  # Match the specified country or countries
+    market_ids: set[MarketId] | None = None  # Restrict markets by the market id associated with the market
+    market_start_time: TimeRange | None = None  # Restrict to markets with a market start time range
+    market_type_codes: set[str] | None = None  # Restrict to markets that match the type of the market
+    race_types: set[str] | None = None  # Restrict by race type
+    text_query: str | None = None  # Restrict markets by any text associated with the Event name
 
     # Restrict to markets that will turn in play if True or will not turn in play if False
-    turn_in_play_enabled: Optional[bool] = None
-    venues: Optional[set[Venue]] = None  # Restrict markets by the venue associated with the market
-    with_orders: Optional[set[str]] = None  # Markets that have one or more orders of defined OrderStatus
+    turn_in_play_enabled: bool | None = None
+    venues: set[Venue] | None = None  # Restrict markets by the venue associated with the market
+    with_orders: set[str] | None = None  # Markets that have one or more orders of defined OrderStatus
 
 
 class MarketLineRangeInfo(BaseMessage, frozen=True):
@@ -151,19 +150,19 @@ class PriceLadderDescription(BaseMessage, frozen=True):
 class StartingPrices(BaseMessage, frozen=True):
     """Information about the Betfair Starting Price. Only available in BSP markets"""
 
-    near_price: Optional[float] = None  # What the starting price would be if the market was reconciled now
-    far_price: Optional[float] = None  # What the starting price would be if the market was reconciled now
+    near_price: float | None = None  # What the starting price would be if the market was reconciled now
+    far_price: float | None = None  # What the starting price would be if the market was reconciled now
 
     # The total amount of back bets matched at the actual Betfair Starting Price
-    back_stake_taken: Optional[list[PriceSize]] = None
-    lay_liability_taken: Optional[list[PriceSize]] = None  # The lay amount matched at the actual Betfair Starting Price
-    actual_sp: Optional[float] = msgspec.field(name="actualSP", default=None)  # The final BSP price for this runner
+    back_stake_taken: list[PriceSize] | None = None
+    lay_liability_taken: list[PriceSize] | None = None  # The lay amount matched at the actual Betfair Starting Price
+    actual_sp: float | None = msgspec.field(name="actualSP", default=None)  # The final BSP price for this runner
 
 
 class ExchangePrices(BaseMessage, frozen=True):
-    available_to_back: Optional[list[PriceSize]] = None
-    available_to_lay: Optional[list[PriceSize]] = None
-    traded_volume: Optional[list[PriceSize]] = None
+    available_to_back: list[PriceSize] | None = None
+    available_to_lay: list[PriceSize] | None = None
+    traded_volume: list[PriceSize] | None = None
 
 
 class Order(BaseMessage, frozen=True):
@@ -176,14 +175,14 @@ class Order(BaseMessage, frozen=True):
     size: Size
     bsp_liability: Size  # Liability of a given BSP bet
     placed_date: Date  # Date and time the bet was placed
-    avg_price_matched: Optional[Price] = None  # Average price matched at
-    size_matched: Optional[Size] = None  # Current amount of this bet that was matched
-    size_remaining: Optional[Size] = None  # Current amount of this bet that is unmatched
-    size_lapsed: Optional[Size] = None  # Current amount of this bet that was lapsed
-    size_cancelled: Optional[Size] = None  # Current amount of this bet that was cancelled
-    size_voided: Optional[Size] = None  # Current amount of this bet that was voided
-    customer_order_ref: Optional[CustomerOrderRef] = None  # Customer Order Reference
-    customer_strategy_ref: Optional[CustomerStrategyRef] = None  # Customer Strategy Reference
+    avg_price_matched: Price | None = None  # Average price matched at
+    size_matched: Size | None = None  # Current amount of this bet that was matched
+    size_remaining: Size | None = None  # Current amount of this bet that is unmatched
+    size_lapsed: Size | None = None  # Current amount of this bet that was lapsed
+    size_cancelled: Size | None = None  # Current amount of this bet that was cancelled
+    size_voided: Size | None = None  # Current amount of this bet that was voided
+    customer_order_ref: CustomerOrderRef | None = None  # Customer Order Reference
+    customer_strategy_ref: CustomerStrategyRef | None = None  # Customer Strategy Reference
 
 
 class Match(BaseMessage, kw_only=True, frozen=True):
@@ -192,16 +191,16 @@ class Match(BaseMessage, kw_only=True, frozen=True):
     Rollup depends on the requested MatchProjection.
     """
 
-    bet_id: Optional[BetId] = None  # Bet ID (present if no rollup)
-    match_id: Optional[MatchId] = None  # Match ID (present if no rollup)
+    bet_id: BetId | None = None  # Bet ID (present if no rollup)
+    match_id: MatchId | None = None  # Match ID (present if no rollup)
     side: Side  # Side (BACK or LAY)
     price: Price  # Match price
     size: Size  # Size matched at
-    match_date: Optional[Date] = None  # Match date (present if no rollup)
+    match_date: Date | None = None  # Match date (present if no rollup)
 
 
 class MarketVersion(BaseMessage, frozen=True):
-    version: Optional[int] = None  # A non-monotonically increasing number indicating market changes
+    version: int | None = None  # A non-monotonically increasing number indicating market changes
 
 
 class MarketRates(BaseMessage, frozen=True):
@@ -211,31 +210,31 @@ class MarketRates(BaseMessage, frozen=True):
 
 class MarketLicence(BaseMessage, frozen=True):
     wallet: str  # Wallet from which funds will be taken when betting on this market
-    rules: Optional[str] = None
-    rules_has_date: Optional[bool] = None  # Markets start date and time are relevant to the rules
-    clarifications: Optional[str] = None  # Clarifications to the rules for the market
+    rules: str | None = None
+    rules_has_date: bool | None = None  # Markets start date and time are relevant to the rules
+    clarifications: str | None = None  # Clarifications to the rules for the market
 
 
 class MarketDescription(BaseMessage, kw_only=True, frozen=True):
     betting_type: MarketBettingType
     bsp_market: bool  # Indicates if the market supports Betfair SP betting
-    clarifications: Optional[str] = None  # Additional information regarding the market
+    clarifications: str | None = None  # Additional information regarding the market
     discount_allowed: bool  # Indicates whether user's discount rate is taken into account on this
-    each_way_divisor: Optional[float] = None  # Divisor for EACH_WAY market type
-    line_range_info: Optional[MarketLineRangeInfo] = None  # Line range info for line markets
+    each_way_divisor: float | None = None  # Divisor for EACH_WAY market type
+    line_range_info: MarketLineRangeInfo | None = None  # Line range info for line markets
     market_base_rate: float  # Commission rate applicable to the market
     market_time: Date  # Scheduled start time of the market
     market_type: str  # Market base type
     persistence_enabled: bool  # Indicates if the market supports 'Keep' bets if turned in-play
-    price_ladder_description: Optional[PriceLadderDescription] = None  # Details about the price ladder in use
-    race_type: Optional[str] = None  # External identifier of a race type
+    price_ladder_description: PriceLadderDescription | None = None  # Details about the price ladder in use
+    race_type: str | None = None  # External identifier of a race type
     regulator: str  # Market regulator
-    rules: Optional[str] = None  # The market rules
-    rules_has_date: Optional[bool] = None  # Indicates whether rules have a date included
-    settle_time: Optional[Date] = None
+    rules: str | None = None  # The market rules
+    rules_has_date: bool | None = None  # Indicates whether rules have a date included
+    settle_time: Date | None = None
     suspend_time: Date  # Next time the market will be suspended for betting, usually just marketTime
     turn_in_play_enabled: bool  # Indicates if the market is set to turn in-play
-    wallet: Optional[str] = None  # The wallet to which the market belongs
+    wallet: str | None = None  # The wallet to which the market belongs
 
 
 # TODO: Some fields in the meta data should be country codes. Unfortunately, sometimes they contain
@@ -252,38 +251,38 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Additional+Information
     """
 
-    adjusted_rating: Optional[int] = None  # Race-specific ratings that reflect weights allocated in the race
-    age: Optional[int] = None  # The age of the horse
-    bred: Optional[_MetaCountryCode] = None  # The country in which the horse was born
-    cloth_number: Optional[int] = None  # The number on the saddle-cloth
-    cloth_number_alpha: Optional[str] = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
-    colour_type: Optional[str] = None  # The colour of the horse
-    colours_description: Optional[str] = None  # The textual description of the jockey silk
-    colours_filename: Optional[str] = None  # Image representing the jockey silk
-    dam_bred: Optional[_MetaCountryCode] = None  # The country where the horse's mother was born
-    dam_name: Optional[str] = None  # The name of the horse's mother
-    dam_year_born: Optional[int] = None  # The year the horse’s mother's birth
-    damsire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's grandfather was born
-    damsire_name: Optional[str] = None  # The name of the horse's grandfather
-    damsire_year_born: Optional[int] = None  # Year in which the horse's grandfather was born on its mother's side
-    days_since_last_run: Optional[int] = None  # The number of days since the horse last ran
-    forecastprice_denominator: Optional[int] = None  # The forecast price denominator
-    forecastprice_numerator: Optional[int] = None  # The forecast price numerator
-    form: Optional[str] = None  # The horses recent form
-    jockey_claim: Optional[int] = None  # Reduction in the weight that the horse carries for a particular jockey
-    jockey_name: Optional[str] = None  # Name of the jockey. This field will contain 'Reserve' if it's a reserve runner
-    official_rating: Optional[int] = None  # The horses official rating
-    owner_name: Optional[str] = None  # The owner of the horse
-    runner_id: Optional[int] = msgspec.field(name="runnerId", default=None)  # The runnerId for the horse
-    sex_type: Optional[str] = None  # The sex of the horse
-    sire_bred: Optional[_MetaCountryCode] = None  # The country where the horse's father was bred
-    sire_name: Optional[str] = None  # The name of the horse's father
-    sire_year_born: Optional[int] = None  # The year the horse's father was born
-    stall_draw: Optional[int] = None  # The stall number the horse is starting from
-    trainer_name: Optional[str] = None  # The name of the horse's trainer
-    wearing: Optional[str] = None  # Any extra equipment the horse is wearing
-    weight_units: Optional[str] = None  # The unit of weight used.
-    weight_value: Optional[float] = None  # The weight of the horse
+    adjusted_rating: int | None = None  # Race-specific ratings that reflect weights allocated in the race
+    age: int | None = None  # The age of the horse
+    bred: _MetaCountryCode | None = None  # The country in which the horse was born
+    cloth_number: int | None = None  # The number on the saddle-cloth
+    cloth_number_alpha: str | None = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
+    colour_type: str | None = None  # The colour of the horse
+    colours_description: str | None = None  # The textual description of the jockey silk
+    colours_filename: str | None = None  # Image representing the jockey silk
+    dam_bred: _MetaCountryCode | None = None  # The country where the horse's mother was born
+    dam_name: str | None = None  # The name of the horse's mother
+    dam_year_born: int | None = None  # The year the horse’s mother's birth
+    damsire_bred: _MetaCountryCode | None = None  # The country where the horse's grandfather was born
+    damsire_name: str | None = None  # The name of the horse's grandfather
+    damsire_year_born: int | None = None  # Year in which the horse's grandfather was born on its mother's side
+    days_since_last_run: int | None = None  # The number of days since the horse last ran
+    forecastprice_denominator: int | None = None  # The forecast price denominator
+    forecastprice_numerator: int | None = None  # The forecast price numerator
+    form: str | None = None  # The horses recent form
+    jockey_claim: int | None = None  # Reduction in the weight that the horse carries for a particular jockey
+    jockey_name: str | None = None  # Name of the jockey. This field will contain 'Reserve' if it's a reserve runner
+    official_rating: int | None = None  # The horses official rating
+    owner_name: str | None = None  # The owner of the horse
+    runner_id: int | None = msgspec.field(name="runnerId", default=None)  # The runnerId for the horse
+    sex_type: str | None = None  # The sex of the horse
+    sire_bred: _MetaCountryCode | None = None  # The country where the horse's father was bred
+    sire_name: str | None = None  # The name of the horse's father
+    sire_year_born: int | None = None  # The year the horse's father was born
+    stall_draw: int | None = None  # The stall number the horse is starting from
+    trainer_name: str | None = None  # The name of the horse's trainer
+    wearing: str | None = None  # Any extra equipment the horse is wearing
+    weight_units: str | None = None  # The unit of weight used.
+    weight_value: float | None = None  # The weight of the horse
 
     def __post_init__(self):
         force_setattr = msgspec.structs.force_setattr
@@ -324,8 +323,8 @@ class RunnerCatalog(BaseMessage, frozen=True):
     # The handicap applies to market with the MarketBettingType ASIAN_HANDICAP_SINGLE_LINE
     # & ASIAN_HANDICAP_DOUBLE_LINE only
     handicap: Handicap
-    sort_priority: Optional[int] = None  # This is marked as REQUIRED in the API doc, but omitted sometimes
-    metadata: Optional[RunnerMetaData] = None  # Metadata associated with the runner
+    sort_priority: int | None = None  # This is marked as REQUIRED in the API doc, but omitted sometimes
+    metadata: RunnerMetaData | None = None  # Metadata associated with the runner
 
     @property
     def name(self):
@@ -338,27 +337,27 @@ class Runner(BaseMessage, frozen=True):
     selection_id: int  # The unique id of the runner (selection)
     handicap: Handicap
     status: RunnerStatus  # The status of the selection
-    adjustment_factor: Optional[float] = None  # The adjustment factor applied if the selection is removed
-    last_price_traded: Optional[float] = None  # The price of the most recent bet matched on this selection
-    total_matched: Optional[float] = None  # The total amount matched on this runner
-    removal_date: Optional[Date] = None  # If date and time the runner was removed
-    sp: Optional[StartingPrices] = None  # The BSP related prices for this runner
-    ex: Optional[ExchangePrices] = None  # The Exchange prices available for this runner
-    orders: Optional[list[Order]] = None  # List of orders in the market
-    matches: Optional[list[Match]] = None  # List of matches (i.e., orders that have been fully or partially executed)
-    matches_by_strategy: Optional[dict[str, list[Match]]] = None  # All matches for each strategy, sort by matched data
+    adjustment_factor: float | None = None  # The adjustment factor applied if the selection is removed
+    last_price_traded: float | None = None  # The price of the most recent bet matched on this selection
+    total_matched: float | None = None  # The total amount matched on this runner
+    removal_date: Date | None = None  # If date and time the runner was removed
+    sp: StartingPrices | None = None  # The BSP related prices for this runner
+    ex: ExchangePrices | None = None  # The Exchange prices available for this runner
+    orders: list[Order] | None = None  # List of orders in the market
+    matches: list[Match] | None = None  # List of matches (i.e., orders that have been fully or partially executed)
+    matches_by_strategy: dict[str, list[Match]] | None = None  # All matches for each strategy, sort by matched data
 
 
 class MarketCatalogue(BaseMessage, frozen=True):
     market_id: MarketId  # The unique identifier for the market
     market_name: str  # The name of the market
-    market_start_time: Optional[Date] = None  # Only returned when the MARKET_START_TIME enum is requested
-    total_matched: Optional[float] = None  # The total amount of money matched on the market
-    event_type: Optional[EventType] = None  # The Event Type the market is contained within
-    competition: Optional[Competition] = None  # The competition the market is contained within
-    description: Optional[MarketDescription] = None  # Details about the market
-    event: Optional[Event] = None  # The event the market is contained within
-    runners: Optional[list[RunnerCatalog]] = None  # The runners (selections) contained in the market
+    market_start_time: Date | None = None  # Only returned when the MARKET_START_TIME enum is requested
+    total_matched: float | None = None  # The total amount of money matched on the market
+    event_type: EventType | None = None  # The Event Type the market is contained within
+    competition: Competition | None = None  # The competition the market is contained within
+    description: MarketDescription | None = None  # Details about the market
+    event: Event | None = None  # The event the market is contained within
+    runners: list[RunnerCatalog] | None = None  # The runners (selections) contained in the market
 
 
 class KeyLineSelection(BaseMessage, frozen=True):
@@ -379,22 +378,22 @@ class MarketBook(BaseMessage, frozen=True):
 
     market_id: MarketId  # The unique identifier for the market
     is_market_data_delayed: bool  # True if the data returned by listMarketBook will be delayed
-    bet_delay: Optional[int] = None  # The number of seconds an order is held until it is submitted into the market
-    bsp_reconciled: Optional[bool] = None  # True if the market starting price has been reconciled
-    complete: Optional[bool] = None  # If false, runners may be added to the market
-    cross_matching: Optional[bool] = None  # True if cross-matching is enabled for this market
-    inplay: Optional[bool] = None  # True if the market is currently in play
-    key_line_description: Optional[KeyLineDescription] = None  # Description of a market's key line
-    last_match_time: Optional[Date] = None  # The most recent time an order was executed
-    number_of_active_runners: Optional[int] = None  # The number of runners that are currently active
-    number_of_runners: Optional[int] = None  # The number of runners in the market
-    number_of_winners: Optional[int] = None  # The number of selections that could be settled as winners
-    runners_voidable: Optional[bool] = None  # True if runners in the market can be voided
-    status: Optional[MarketStatus] = None  # The status of the market
-    total_available: Optional[float] = None  # The total amount of orders that remain unmatched
-    total_matched: Optional[float] = None  # The total amount matched on the market
-    version: Optional[int] = None  # The version of the market
-    runners: Optional[list[Runner]] = None  # Information about the runners (selections) in the market
+    bet_delay: int | None = None  # The number of seconds an order is held until it is submitted into the market
+    bsp_reconciled: bool | None = None  # True if the market starting price has been reconciled
+    complete: bool | None = None  # If false, runners may be added to the market
+    cross_matching: bool | None = None  # True if cross-matching is enabled for this market
+    inplay: bool | None = None  # True if the market is currently in play
+    key_line_description: KeyLineDescription | None = None  # Description of a market's key line
+    last_match_time: Date | None = None  # The most recent time an order was executed
+    number_of_active_runners: int | None = None  # The number of runners that are currently active
+    number_of_runners: int | None = None  # The number of runners in the market
+    number_of_winners: int | None = None  # The number of selections that could be settled as winners
+    runners_voidable: bool | None = None  # True if runners in the market can be voided
+    status: MarketStatus | None = None  # The status of the market
+    total_available: float | None = None  # The total amount of orders that remain unmatched
+    total_matched: float | None = None  # The total amount matched on the market
+    version: int | None = None  # The version of the market
+    runners: list[Runner] | None = None  # Information about the runners (selections) in the market
 
 
 class ItemDescription(BaseMessage, frozen=True):
@@ -403,43 +402,43 @@ class ItemDescription(BaseMessage, frozen=True):
     It offers no long-term warranty as to the correctness of the text.
     """
 
-    event_type_desc: Optional[str] = None  # The event type name translated into the requested locale
-    event_desc: Optional[str] = None  # The event name or openDate + venue translated into the requested locale
-    market_desc: Optional[str] = None  # The market name or racing market type translated into the requested locale
-    market_type: Optional[str] = None  # The market type e.g. MATCH_ODDS, PLACE, WIN etc.
-    market_start_time: Optional[Date] = None  # The start time of the market in ISO-8601 format, not translated
-    runner_desc: Optional[str] = None  # The runner name translated into the requested locale
-    number_of_winners: Optional[int] = None  # The number of winners on a market
-    each_way_divisor: Optional[float] = None  # The divisor for the EACH_WAY market type
+    event_type_desc: str | None = None  # The event type name translated into the requested locale
+    event_desc: str | None = None  # The event name or openDate + venue translated into the requested locale
+    market_desc: str | None = None  # The market name or racing market type translated into the requested locale
+    market_type: str | None = None  # The market type e.g. MATCH_ODDS, PLACE, WIN etc.
+    market_start_time: Date | None = None  # The start time of the market in ISO-8601 format, not translated
+    runner_desc: str | None = None  # The runner name translated into the requested locale
+    number_of_winners: int | None = None  # The number of winners on a market
+    each_way_divisor: float | None = None  # The divisor for the EACH_WAY market type
 
 
 class ClearedOrderSummary(BaseMessage, frozen=True):
     """Summary of a cleared order"""
 
-    event_type_id: Optional[EventTypeId] = None  # The id of the event type bet on
-    event_id: Optional[EventId] = None  # The id of the event bet on
-    market_id: Optional[MarketId] = None  # The id of the market bet on
-    selection_id: Optional[int] = None  # The id of the selection bet on
-    handicap: Optional[Handicap] = None  # The handicap value for Asian handicap markets
-    bet_id: Optional[BetId] = None  # The id of the bet
-    placed_date: Optional[Date] = None  # The date the bet order was placed by the customer
-    persistence_type: Optional[PersistenceType] = None  # The turn in play persistence state of the order
-    order_type: Optional[OrderType] = None
-    side: Optional[Side] = None  # Whether the bet was a back or lay bet
-    item_description: Optional[ItemDescription] = None  # Container for ancillary data and localized text
-    bet_outcome: Optional[str] = None  # The settlement outcome of the bet
-    price_requested: Optional[Price] = None  # The average requested price across all settled bet orders under this item
-    settled_date: Optional[Date] = None  # The date and time the bet order was settled by Betfair
-    last_matched_date: Optional[Date] = None  # The date and time the last bet order was matched by Betfair
-    bet_count: Optional[int] = None  # The number of actual bets within this grouping
-    commission: Optional[Size] = None  # Cumulative commission paid by the customer across all bets under this item
-    price_matched: Optional[Price] = None  # The average matched price across all settled bets or bet fragments
-    price_reduced: Optional[bool] = None  # Indicates if the matched price was affected by a reduction factor
-    size_settled: Optional[Size] = None  # The cumulative bet size that was settled as matched or voided under this item
-    profit: Optional[float] = None  # The profit or loss gained on this line
-    size_cancelled: Optional[Size] = None  # The amount of the bet that was cancelled
-    customer_order_ref: Optional[CustomerOrderRef] = None  # Defined by the customer for the bet order
-    customer_strategy_ref: Optional[CustomerStrategyRef] = None  # Defined by the customer for the bet order
+    event_type_id: EventTypeId | None = None  # The id of the event type bet on
+    event_id: EventId | None = None  # The id of the event bet on
+    market_id: MarketId | None = None  # The id of the market bet on
+    selection_id: int | None = None  # The id of the selection bet on
+    handicap: Handicap | None = None  # The handicap value for Asian handicap markets
+    bet_id: BetId | None = None  # The id of the bet
+    placed_date: Date | None = None  # The date the bet order was placed by the customer
+    persistence_type: PersistenceType | None = None  # The turn in play persistence state of the order
+    order_type: OrderType | None = None
+    side: Side | None = None  # Whether the bet was a back or lay bet
+    item_description: ItemDescription | None = None  # Container for ancillary data and localized text
+    bet_outcome: str | None = None  # The settlement outcome of the bet
+    price_requested: Price | None = None  # The average requested price across all settled bet orders under this item
+    settled_date: Date | None = None  # The date and time the bet order was settled by Betfair
+    last_matched_date: Date | None = None  # The date and time the last bet order was matched by Betfair
+    bet_count: int | None = None  # The number of actual bets within this grouping
+    commission: Size | None = None  # Cumulative commission paid by the customer across all bets under this item
+    price_matched: Price | None = None  # The average matched price across all settled bets or bet fragments
+    price_reduced: bool | None = None  # Indicates if the matched price was affected by a reduction factor
+    size_settled: Size | None = None  # The cumulative bet size that was settled as matched or voided under this item
+    profit: float | None = None  # The profit or loss gained on this line
+    size_cancelled: Size | None = None  # The amount of the bet that was cancelled
+    customer_order_ref: CustomerOrderRef | None = None  # Defined by the customer for the bet order
+    customer_strategy_ref: CustomerStrategyRef | None = None  # Defined by the customer for the bet order
 
 
 class ClearedOrderSummaryReport(BaseMessage, frozen=True):
@@ -454,7 +453,7 @@ class RunnerId(BaseMessage, frozen=True):
 
     market_id: MarketId  # The id of the market bet on
     selection_id: int  # The id of the selection bet on
-    handicap: Optional[Handicap] = None  # The handicap associated with the runner in case of Asian handicap markets
+    handicap: Handicap | None = None  # The handicap associated with the runner in case of Asian handicap markets
 
 
 class CurrentItemDescription(BaseMessage, frozen=True):
@@ -480,18 +479,18 @@ class CurrentOrderSummary(BaseMessage, frozen=True):
 
     # Date of the last matched bet fragment.
     # Mandatory according to documentation, but optional in reality
-    matched_date: Optional[Date] = None
-    average_price_matched: Optional[Price] = None  # The average price matched at
-    size_matched: Optional[Size] = None
-    size_remaining: Optional[Size] = None
-    size_lapsed: Optional[Size] = None
-    size_cancelled: Optional[Size] = None
-    size_voided: Optional[Size] = None
-    regulator_auth_code: Optional[str] = None
-    regulator_code: Optional[str] = None
-    customer_order_ref: Optional[str] = None  # The order reference defined by the customer for this bet
-    customer_strategy_ref: Optional[str] = None  # The strategy reference defined by the customer for this bet
-    current_item_description: Optional[CurrentItemDescription] = None  # Container for ancillary data for this item
+    matched_date: Date | None = None
+    average_price_matched: Price | None = None  # The average price matched at
+    size_matched: Size | None = None
+    size_remaining: Size | None = None
+    size_lapsed: Size | None = None
+    size_cancelled: Size | None = None
+    size_voided: Size | None = None
+    regulator_auth_code: str | None = None
+    regulator_code: str | None = None
+    customer_order_ref: str | None = None  # The order reference defined by the customer for this bet
+    customer_strategy_ref: str | None = None  # The strategy reference defined by the customer for this bet
+    current_item_description: CurrentItemDescription | None = None  # Container for ancillary data for this item
 
 
 class CurrentOrderSummaryReport(BaseMessage, frozen=True):
@@ -506,11 +505,11 @@ class LimitOrder(BaseMessage, frozen=True):
 
     size: Size
     price: Price
-    persistence_type: Optional[PersistenceType] = None
-    time_in_force: Optional[TimeInForce] = None
-    min_fill_size: Optional[Size] = None
-    bet_target_type: Optional[BetTargetType] = None
-    bet_target_size: Optional[Size] = None
+    persistence_type: PersistenceType | None = None
+    time_in_force: TimeInForce | None = None
+    min_fill_size: Size | None = None
+    bet_target_type: BetTargetType | None = None
+    bet_target_size: Size | None = None
 
 
 class LimitOnCloseOrder(BaseMessage, frozen=True):
@@ -527,37 +526,37 @@ class PlaceInstruction(BaseMessage, kw_only=True, frozen=True):
 
     order_type: OrderType  # The order type
     selection_id: SelectionId  # The selection ID
-    handicap: Optional[Handicap] = None  # The handicap associated with the runner in case of Asian handicap markets
+    handicap: Handicap | None = None  # The handicap associated with the runner in case of Asian handicap markets
     side: Side  # Back or Lay
-    limit_order: Optional[LimitOrder] = None  # A simple exchange bet for immediate execution
+    limit_order: LimitOrder | None = None  # A simple exchange bet for immediate execution
 
     # Bets matched if the returned starting price is better than a specified price
-    limit_on_close_order: Optional[LimitOnCloseOrder] = None
+    limit_on_close_order: LimitOnCloseOrder | None = None
 
     # Bets matched and settled at a price representative of the market at the point it turns in-play
-    market_on_close_order: Optional[MarketOnCloseOrder] = None
-    customer_order_ref: Optional[str] = None  # An optional reference to identify instructions
+    market_on_close_order: MarketOnCloseOrder | None = None
+    customer_order_ref: str | None = None  # An optional reference to identify instructions
 
 
 class PlaceInstructionReport(BaseMessage, kw_only=True, frozen=True):
     """Report for a place instruction"""
 
     status: InstructionReportStatus  # The instruction report status
-    error_code: Optional[InstructionReportErrorCode] = None
-    order_status: Optional[OrderStatus] = None
+    error_code: InstructionReportErrorCode | None = None
+    order_status: OrderStatus | None = None
     instruction: PlaceInstruction  # The place instruction
-    bet_id: Optional[BetId] = None  # The bet ID of the placed order, if successful
-    placed_date: Optional[Date] = None  # The date and time the bet was placed, if successful
-    average_price_matched: Optional[Price] = None  # The average price matched at, if successful
-    size_matched: Optional[Size] = None  # The current amount of the bet that was matched, if successful
+    bet_id: BetId | None = None  # The bet ID of the placed order, if successful
+    placed_date: Date | None = None  # The date and time the bet was placed, if successful
+    average_price_matched: Price | None = None  # The average price matched at, if successful
+    size_matched: Size | None = None  # The current amount of the bet that was matched, if successful
 
 
 class PlaceExecutionReport(BaseMessage, kw_only=True, frozen=True):
-    customer_ref: Optional[CustomerRef] = None  # Echo of the customer reference if passed
+    customer_ref: CustomerRef | None = None  # Echo of the customer reference if passed
     status: ExecutionReportStatus  # The execution report status
-    error_code: Optional[ExecutionReportErrorCode] = None  # The execution report error code
-    market_id: Optional[MarketId] = None  # Echo of the market ID passed
-    instruction_reports: Optional[list[PlaceInstructionReport]] = None  # The list of place instruction reports
+    error_code: ExecutionReportErrorCode | None = None  # The execution report error code
+    market_id: MarketId | None = None  # Echo of the market ID passed
+    instruction_reports: list[PlaceInstructionReport] | None = None  # The list of place instruction reports
 
 
 class CancelInstruction(BaseMessage, frozen=True):
@@ -566,7 +565,7 @@ class CancelInstruction(BaseMessage, frozen=True):
     bet_id: BetId
     # If supplied then this is a partial cancel. Should be set to 'null' if no size
     # reduction is required.
-    size_reduction: Optional[Size] = None
+    size_reduction: Size | None = None
 
 
 class ReplaceInstruction(BaseMessage, frozen=True):
@@ -578,33 +577,33 @@ class ReplaceInstruction(BaseMessage, frozen=True):
 
 class CancelInstructionReport(BaseMessage, kw_only=True, frozen=True):
     status: InstructionReportStatus  # Whether the command succeeded or failed
-    error_code: Optional[InstructionReportErrorCode] = None  # Cause of failure, or null if command succeeds
-    instruction: Optional[CancelInstruction] = None  # The instruction that was requested
-    size_cancelled: Optional[float] = None  # The API states, that this is mandatory, but it's skipped in case of error
-    cancelled_date: Optional[Date] = None  # The API states, that this is mandatory, but it's skipped in case of error
+    error_code: InstructionReportErrorCode | None = None  # Cause of failure, or null if command succeeds
+    instruction: CancelInstruction | None = None  # The instruction that was requested
+    size_cancelled: float | None = None  # The API states, that this is mandatory, but it's skipped in case of error
+    cancelled_date: Date | None = None  # The API states, that this is mandatory, but it's skipped in case of error
 
 
 class CancelExecutionReport(BaseMessage, kw_only=True, frozen=True):
-    customer_ref: Optional[CustomerRef] = None  # Echo of the customerRef if passed
+    customer_ref: CustomerRef | None = None  # Echo of the customerRef if passed
     status: ExecutionReportStatus
-    error_code: Optional[ExecutionReportErrorCode] = None
-    market_id: Optional[MarketId] = None  # Echo of marketId passed
-    instruction_reports: Optional[list[CancelInstructionReport]] = None
+    error_code: ExecutionReportErrorCode | None = None
+    market_id: MarketId | None = None  # Echo of marketId passed
+    instruction_reports: list[CancelInstructionReport] | None = None
 
 
 class ReplaceInstructionReport(BaseMessage, frozen=True):
     status: InstructionReportStatus  # Whether the command succeeded or failed
-    error_code: Optional[InstructionReportErrorCode] = None  # Cause of failure, or null if command succeeds
-    cancel_instruction_report: Optional[CancelInstructionReport] = None  # Cancellation report for the original order
-    place_instruction_report: Optional[PlaceInstructionReport] = None  # Placement report for the new order
+    error_code: InstructionReportErrorCode | None = None  # Cause of failure, or null if command succeeds
+    cancel_instruction_report: CancelInstructionReport | None = None  # Cancellation report for the original order
+    place_instruction_report: PlaceInstructionReport | None = None  # Placement report for the new order
 
 
 class ReplaceExecutionReport(BaseMessage, kw_only=True, frozen=True):
-    customer_ref: Optional[CustomerRef] = None  # Echo of the customerRef if passed.
+    customer_ref: CustomerRef | None = None  # Echo of the customerRef if passed.
     status: ExecutionReportStatus
-    error_code: Optional[ExecutionReportErrorCode] = None
-    market_id: Optional[MarketId] = None  # Echo of marketId passed
-    instruction_reports: Optional[list[ReplaceInstructionReport]] = None
+    error_code: ExecutionReportErrorCode | None = None
+    market_id: MarketId | None = None  # Echo of marketId passed
+    instruction_reports: list[ReplaceInstructionReport] | None = None
 
 
 class UpdateInstruction(BaseMessage, frozen=True):
@@ -616,58 +615,58 @@ class UpdateInstruction(BaseMessage, frozen=True):
 
 class UpdateInstructionReport(BaseMessage, kw_only=True, frozen=True):
     status: InstructionReportStatus  # Whether the command succeeded or failed
-    error_code: Optional[InstructionReportErrorCode] = None  # Cause of failure, or null if command succeeds
+    error_code: InstructionReportErrorCode | None = None  # Cause of failure, or null if command succeeds
     instruction: UpdateInstruction  # The instruction that was requested
 
 
 class UpdateExecutionReport(BaseMessage, frozen=True):
-    customer_ref: Optional[CustomerRef]  # Echo of the customerRef if passed.
+    customer_ref: CustomerRef | None  # Echo of the customerRef if passed.
     status: ExecutionReportStatus
-    error_code: Optional[ExecutionReportErrorCode]
-    market_id: Optional[MarketId]  # Echo of marketId passed
-    instruction_reports: Optional[list[UpdateInstructionReport]]
+    error_code: ExecutionReportErrorCode | None
+    market_id: MarketId | None  # Echo of marketId passed
+    instruction_reports: list[UpdateInstructionReport] | None
 
 
 class ExBestOffersOverrides(BaseMessage, frozen=True):
     """Options to alter the default representation of best offer prices"""
 
-    best_prices_depth: Optional[int] = None  # The maximum number of prices to return on each side for each runner
-    rollup_model: Optional[RollupModel] = None  # The model to use when rolling up available sizes
-    rollup_limit: Optional[int] = None  # The volume limit to use when rolling up returned sizes
-    rollup_liability_threshold: Optional[float] = None  # Only applicable when rollupModel is MANAGED_LIABILITY
-    rollup_liability_factor: Optional[int] = None  # Only applicable when rollupModel is MANAGED_LIABILITY
+    best_prices_depth: int | None = None  # The maximum number of prices to return on each side for each runner
+    rollup_model: RollupModel | None = None  # The model to use when rolling up available sizes
+    rollup_limit: int | None = None  # The volume limit to use when rolling up returned sizes
+    rollup_liability_threshold: float | None = None  # Only applicable when rollupModel is MANAGED_LIABILITY
+    rollup_liability_factor: int | None = None  # Only applicable when rollupModel is MANAGED_LIABILITY
 
 
 class PriceProjection(BaseMessage, frozen=True):
     """Selection criteria of the returning price data"""
 
-    price_data: Optional[set[PriceData]] = None  # The basic price data you want to receive in the response
+    price_data: set[PriceData] | None = None  # The basic price data you want to receive in the response
 
     # Options to alter the default representation of best offer prices
-    ex_best_offers_overrides: Optional[ExBestOffersOverrides] = None
-    virtualise: Optional[bool] = None  # Indicates if the returned prices should include virtual prices
+    ex_best_offers_overrides: ExBestOffersOverrides | None = None
+    virtualise: bool | None = None  # Indicates if the returned prices should include virtual prices
 
     # Indicates if the volume returned at each price point should be the absolute value or a
     # cumulative sum of volumes available at the price and all better prices. If unspecified
     # defaults to false. Applicable to EX_BEST_OFFERS and EX_ALL_OFFERS price projections.
     # Not supported as yet.
-    rollover_stakes: Optional[bool] = None
+    rollover_stakes: bool | None = None
 
 
 class RunnerProfitAndLoss(BaseMessage, frozen=True):
     """Profit and loss if selection wins or loses"""
 
-    selection_id: Optional[SelectionId] = None  # The unique identifier for the selection
-    if_win: Optional[float] = None  # Profit or loss for the market if this selection is the winner
-    if_lose: Optional[float] = None  # Profit or loss for the market if this selection is the loser
+    selection_id: SelectionId | None = None  # The unique identifier for the selection
+    if_win: float | None = None  # Profit or loss for the market if this selection is the winner
+    if_lose: float | None = None  # Profit or loss for the market if this selection is the loser
 
     # Profit or loss for the market if this selection is placed (applies to marketType EACH_WAY only)
-    if_place: Optional[float] = None
+    if_place: float | None = None
 
 
 class MarketProfitAndLoss(BaseMessage, frozen=True):
     """Profit and loss in a market"""
 
-    market_id: Optional[MarketId] = None  # The unique identifier for the market
-    commission_applied: Optional[float] = None  # The commission rate applied to P&L values
-    profit_and_losses: Optional[list[RunnerProfitAndLoss]] = None  # Calculated profit and loss data
+    market_id: MarketId | None = None  # The unique identifier for the market
+    commission_applied: float | None = None  # The commission rate applied to P&L values
+    profit_and_losses: list[RunnerProfitAndLoss] | None = None  # Calculated profit and loss data

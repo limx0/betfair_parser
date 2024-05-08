@@ -254,7 +254,7 @@ def is_param_mandatory(xml_param) -> bool:
 def is_param_optional(xml_param, api_cls) -> bool:
     p_name = param_name(xml_param)
     type_spec_str = str(api_cls.__annotations__[p_name]).replace("typing.", "")
-    return type_spec_str.startswith("Optional")
+    return type_spec_str.startswith("Optional") or type_spec_str.endswith("| None")
 
 
 def py_type_unpack(type_def):
@@ -369,7 +369,7 @@ def compat_type_name(type_def) -> str:
         # class name looks like _UnionGenericAlias, _AnnotatedAlias
         if type_def.__class__.__name__.startswith("_Annotated"):
             return "Annotated"
-        name = type_def.__class__.__name__.lstrip("_").replace("Alias", "").replace("Generic", "")
+        name = type_def.__class__.__name__.lstrip("_").replace("Alias", "").replace("Generic", "").replace("Type", "")
         if name == "Union" and type_def.__args__[-1] is type(None):  # noqa
             # Optional looks just like Union, so we need to distinguish
             return "Optional"

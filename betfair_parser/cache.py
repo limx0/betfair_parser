@@ -10,7 +10,6 @@ Though, there is probably quite some room for further optimizations.
 """
 
 from collections import defaultdict
-from typing import Optional, Union
 
 from betfair_parser.spec.streaming import (
     LPV,
@@ -18,6 +17,7 @@ from betfair_parser.spec.streaming import (
     OCM,
     PV,
     ChangeType,
+    MarketDefinition,
     MatchedOrder,
     Order,
     OrderRunnerChange,
@@ -77,12 +77,12 @@ class RunnerOrderBook:
         self.best_display_available_to_lay: dict[int, LPV] = {}
         self.starting_price_back: dict[float, float] = {}
         self.starting_price_lay: dict[float, float] = {}
-        self.starting_price_near: Optional[float] = None
-        self.starting_price_far: Optional[float] = None
+        self.starting_price_near: float | None = None
+        self.starting_price_far: float | None = None
         self.traded: dict[float, float] = {}
-        self.last_traded_price: Optional[float] = None
-        self.total_volume: Optional[float] = None
-        self.handicap: Optional[float] = None
+        self.last_traded_price: float | None = None
+        self.total_volume: float | None = None
+        self.handicap: float | None = None
 
     def update(self, rc: RunnerChange) -> None:
         if rc.atb:
@@ -135,13 +135,13 @@ class RunnerOrderBook:
 
 
 class ChangeCache:
-    clk: Optional[str] = None
-    initial_clk: Optional[str] = None
-    publish_time: Optional[int] = None
-    stream_unreliable: Optional[bool] = False
-    conflate_ms: Optional[int] = None
+    clk: str | None = None
+    initial_clk: str | None = None
+    publish_time: int | None = None
+    stream_unreliable: bool | None = False
+    conflate_ms: int | None = None
 
-    def update_meta(self, msg: Union[MCM, OCM]) -> None:
+    def update_meta(self, msg: MCM | OCM) -> None:
         if msg.initial_clk:
             self.initial_clk = msg.initial_clk
         if msg.clk:
@@ -154,11 +154,32 @@ class ChangeCache:
             self.clear()
 
     def clear(self) -> None:
-        return
+        raise NotImplementedError()
 
 
-class MarketCache(ChangeCache):
+class _DefaultDict(defaultdict):
     """
+    The caches for single markets are supposed to be referenceable from outside the
+    cache via weakrefs. So if the cache gets updated, it doesn't leave data pending.
+    As defaultdict itself can't be referenced with a weakref, let's subclass it.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(type(self).default_factory, **kwargs)
+
+    default_factory = dict
+
+
+class MarketOrderBook(_DefaultDict):
+    """Order book for a single market, collecting a bunch of RunnerOrderBooks."""
+
+    default_factory = RunnerOrderBook  # type: ignore[assignment]
+
+
+class MarketSubscriptionCache(ChangeCache):
+    """
+    Orderbook for all markets of a market change stream.
+
     Market subscriptions are always in the underlying exchange currency - GBP. The default roll-up for GBP
     is £1 for batb / batl and bdatb / bdatl, This means that stakes of less than £1 (or currency
     equivalent) are rolled up to the next available price on the odds ladder. For atb / atl there is
@@ -166,22 +187,25 @@ class MarketCache(ChangeCache):
     """
 
     def __init__(self):
-        self.order_book: defaultdict[str, defaultdict] = defaultdict(lambda: defaultdict(RunnerOrderBook))
-        self.market_definitions = {}
+        self.order_book: defaultdict[str, MarketOrderBook] = defaultdict(MarketOrderBook)
+        self.definitions: dict[str, MarketDefinition] = {}
 
     def clear(self) -> None:
         self.order_book.clear()
-        self.market_definitions.clear()
+        self.definitions.clear()
 
     def update(self, mcm: MCM) -> None:
         self.update_meta(mcm)
         if mcm.is_heartbeat:
             return
+        if not mcm.mc:
+            return
+
         for mc in mcm.mc:
             if mc.img:
                 self.order_book.pop(mc.id, None)
             if mc.market_definition:
-                self.market_definitions[mc.id] = mc.market_definition
+                self.definitions[mc.id] = mc.market_definition
             if not mc.rc:
                 continue
             for rc in mc.rc:
@@ -212,7 +236,7 @@ class RunnerOrders:
         self.matched_lays: dict[float, float] = {}
         self.unmatched_orders: dict[int, Order] = {}
         self.executed_orders: dict[int, Order] = {}  # Does only contain recently completed orders
-        self.handicap: Optional[float] = None
+        self.handicap: float | None = None
 
     def update(self, orc: OrderRunnerChange) -> None:
         if orc.hc:
@@ -227,16 +251,22 @@ class RunnerOrders:
         if orc.mb:
             ladder_update_mo(self.matched_backs, orc.mb)
         if orc.ml:
-            ladder_update_mo(self.matched_backs, orc.ml)
+            ladder_update_mo(self.matched_lays, orc.ml)
 
 
-class OrderCache(ChangeCache):
+class MarketOrders(_DefaultDict):
+    """All orders for a single market, collecting a bunch of RunnerOrders."""
+
+    default_factory = RunnerOrders  # type: ignore[assignment]
+
+
+class OrderSubscriptionCache(ChangeCache):
     """
     Order subscriptions are provided in the currency of the account that the orders are placed in.
     """
 
     def __init__(self):
-        self.orders: defaultdict[str, defaultdict] = defaultdict(lambda: defaultdict(RunnerOrders))
+        self.orders: defaultdict[str, MarketOrders] = defaultdict(MarketOrders)
 
     def clear(self) -> None:
         self.orders.clear()
@@ -245,6 +275,8 @@ class OrderCache(ChangeCache):
         self.update_meta(ocm)
         if ocm.is_heartbeat:
             return
+        if not ocm.oc:
+            return
 
         for oc in ocm.oc:
             if oc.full_image:
@@ -252,6 +284,9 @@ class OrderCache(ChangeCache):
             if oc.closed:
                 # TODO: Call some hooks?
                 self.orders.pop(oc.id, None)
+            if not oc.orc:
+                # on closed markets
+                continue
             for orc in oc.orc:
                 if orc.full_image:
                     self.orders[oc.id].pop(orc.id, None)

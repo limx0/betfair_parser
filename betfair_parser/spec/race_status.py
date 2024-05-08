@@ -1,5 +1,4 @@
 from functools import partial
-from typing import Optional
 
 from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Params, Request, Response, method_tag
 from betfair_parser.strenums import DocumentedEnum, doc
@@ -45,17 +44,17 @@ class ResponseCode(DocumentedEnum):
 
 class RaceDetails(BaseMessage, kw_only=True, frozen=True):
     # Even as these items are marked as mandatory, they seem to be missing a lot
-    meeting_id: Optional[str] = None  # The unique Id for the meeting as returned by listEvents
-    race_id: Optional[str] = None  # The unique Id for the race in the format meetingId.raceTime (hhmm)
-    race_status: Optional[RaceStatus] = None  # The current status of the race.
-    last_updated: Optional[Date] = None  # This is the time the data was last updated
-    sequence: Optional[int] = None  # This is the unique identifier associated to each update of the data
+    meeting_id: str | None = None  # The unique Id for the meeting as returned by listEvents
+    race_id: str | None = None  # The unique Id for the race in the format meetingId.raceTime (hhmm)
+    race_status: RaceStatus | None = None  # The current status of the race.
+    last_updated: Date | None = None  # This is the time the data was last updated
+    sequence: int | None = None  # This is the unique identifier associated to each update of the data
     response_code: ResponseCode
 
 
 class _ListRaceDetailsParams(Params, frozen=True):
-    meeting_ids: Optional[set[str]] = None  # Restricts the results to the specified meeting IDs.
-    race_ids: Optional[set[str]] = None  # Restricts the results to the specified race IDs.
+    meeting_ids: set[str] | None = None  # Restricts the results to the specified meeting IDs.
+    race_ids: set[str] | None = None  # Restricts the results to the specified race IDs.
 
 
 class ListRaceDetails(Request, kw_only=True, frozen=True, tag=scores_tag):

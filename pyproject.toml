@@ -11,10 +11,9 @@ license = {file = "LICENSE.txt"}
 authors = [
     {name = "Bradley McElroy", email = "bradley.mcelroy@live.com"}
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -61,15 +60,6 @@ requests = "^2.20"
 [tool.poetry.group.dev.dependencies]
 twine = "^4.0.2"
 
-[tool.black]
-line-length = 120
-
-[tool.isort]
-profile = "black"
-line_length = 120
-lines_after_imports = 2
-combine_as_imports = true
-
 [tool.codespell]
 skip = "*.bz2,*.json,*.xml,poetry.lock"
 ignore-regex = ".*codespell-ignore$"
@@ -84,7 +74,17 @@ check_untyped_defs = true
 [tool.ruff]
 fix = false
 line-length = 120
-lint.extend-select = ["UP"]
+lint.extend-select = ["UP", "I"]
+lint.isort.lines-after-imports = 2
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+lines_after_imports = 2
+combine_as_imports = true
