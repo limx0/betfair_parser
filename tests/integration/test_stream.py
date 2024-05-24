@@ -150,7 +150,7 @@ def test_stream_reader(session, iterations=15):
     assert all(isinstance(key, str) for key in market_definitions)
     assert all(isinstance(md, MarketDefinition) for md in market_definitions.values())
 
-    now = datetime.datetime.utcnow().astimezone(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.timezone.utc)
     order_book = sr.caches[MARKET_STREAM_ID].order_book  # type: ignore[union-attr]
     assert len(order_book) == len(market_definitions)
     assert all(isinstance(key, str) for key in order_book)
