@@ -11,7 +11,8 @@ from tests.resources import RESOURCES_DIR
 
 def test_performance(benchmark):
     path = RESOURCES_DIR / "data/27312315.bz2"
-    data = bz2.open(path).read()
+    with bz2.open(path) as f:
+        data = f.read()
     result = benchmark.pedantic(stream_decode_lines, args=(data,))
     assert len(result) == 50854
     for msg in result:
