@@ -85,10 +85,11 @@ LINE_COUNT = {
 def test_archive(path):
     mc = MarketSubscriptionCache()
     i = 0
-    for i, line in enumerate(bz2.open(path), start=1):
-        msg = stream_decode(line)
-        assert isinstance(msg, MCM)
-        mc.update(msg)
+    with bz2.open(path) as f:
+        for i, line in enumerate(f, start=1):
+            msg = stream_decode(line)
+            assert isinstance(msg, MCM)
+            mc.update(msg)
 
     required_count = LINE_COUNT.get(path.name)
     if required_count:
