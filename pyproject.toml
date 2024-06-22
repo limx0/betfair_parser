@@ -61,7 +61,7 @@ requests = "^2.20"
 twine = "^4.0.2"
 
 [tool.codespell]
-skip = "*.bz2,*.json,*.xml,poetry.lock"
+skip = "*.bz2,*.json,*.ndjson,*.xml,poetry.lock"
 ignore-regex = ".*codespell-ignore$"
 
 [tool.mypy]

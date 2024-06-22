@@ -23,6 +23,7 @@ from betfair_parser.spec.streaming import (
 )
 from betfair_parser.stream import AsyncStream, ExchangeStream, StreamReader, changed_markets, create_stream_io
 from tests.integration.test_live import appconfig  # noqa: F401
+from tests.resources import RESOURCES_DIR
 
 
 @pytest.fixture(scope="module")
@@ -172,3 +173,54 @@ def test_stream_reader(session, iterations=15):
                 assert volume
             for volume in runner_order_book.available_to_lay.values():
                 assert volume
+
+
+class TerminatingStream:
+    def __init__(self, path, nlines):
+        self._iter = self.iterator(path, nlines)
+
+    @staticmethod
+    def iterator(path, nlines):
+        yield b"""{"op":"connection","connectionId":"002-051134157842-432409"}"""
+        yield b"""{"op": "status", "id": 1000, "statusCode": "SUCCESS", "connectionClosed": false}"""
+        with open(path, "rb") as f:
+            yield from f.readlines()[:nlines]
+        while True:
+            # simulating the terminated connection
+            yield b""
+
+    def write(self, x):
+        """Ignore any write attempts from the connection handling."""
+
+    def read(self):
+        raise NotImplementedError()
+
+    def readline(self):
+        return next(self._iter)
+
+
+def test_iter_changes_stream_termination(nlines=10):
+    path = RESOURCES_DIR / "responses" / "streaming" / "mcm_samples.ndjson"
+    stream = TerminatingStream(path, nlines)
+    sr = StreamReader(None, None)
+    sr.subscribe(SUBSCRIPTIONS[0])  # type: ignore[arg-type]
+
+    msgs = list(sr.iter_changes(stream))  # type: ignore[arg-type]
+    for msg in msgs:
+        assert isinstance(msg, MCM)
+    assert len(msgs) == nlines
+
+
+def test_iter_changes_stream_and_write_termination(tmp_path, nlines=10):
+    path = RESOURCES_DIR / "responses" / "streaming" / "mcm_samples.ndjson"
+    out_path = tmp_path / "stream.ndjson"
+    stream = TerminatingStream(path, nlines)
+    sr = StreamReader(None, None)
+    sr.subscribe(SUBSCRIPTIONS[0])  # type: ignore[arg-type]
+
+    msgs = list(sr.iter_changes_and_write(stream, out_path))  # type: ignore[arg-type]
+    for msg in msgs:
+        assert isinstance(msg, MCM)
+    assert len(msgs) == nlines
+    with open(out_path) as f:
+        assert len(f.readlines()) == nlines
