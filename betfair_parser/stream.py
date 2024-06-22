@@ -177,6 +177,8 @@ class StreamReader:
 
         while True:
             msg = self.esm.receive(stream)
+            if not msg:
+                return
             if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
                 yield msg
 
@@ -191,6 +193,8 @@ class StreamReader:
         with open(path, "ab") as f:
             while True:
                 raw_msg = stream.readline()
+                if not raw_msg:
+                    return
                 msg = self.esm.receive_bytes(raw_msg)
                 if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
                     yield msg
@@ -268,6 +272,8 @@ class AsyncStreamReader(StreamReader):
 
         while True:
             msg = self.esm.receive_bytes(await stream.readline())
+            if not msg:
+                return
             if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
                 yield msg
 
@@ -283,6 +289,8 @@ class AsyncStreamReader(StreamReader):
         with open(path, "ab") as f:
             while True:
                 raw_msg = await stream.readline()
+                if not raw_msg:
+                    return
                 msg = self.esm.receive_bytes(raw_msg)
                 if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
                     yield msg
