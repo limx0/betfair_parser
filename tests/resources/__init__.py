@@ -1,6 +1,5 @@
 import datetime
 from pathlib import Path
-from typing import Union
 
 import msgspec
 
@@ -18,7 +17,7 @@ def _parse_json_date(datetime_str):
 
 
 def assert_json_equal(x, y):
-    assert type(x) == type(y)
+    assert type(x) is type(y)
     if isinstance(x, dict):
         # can't compare the length, as None values might have been omitted
         assert sum(1 for v in x.values() if v is not None) == sum(1 for v in y.values() if v is not None)

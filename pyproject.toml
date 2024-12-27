@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
@@ -25,7 +26,7 @@ classifiers = [
 ]
 keywords = ["parser", "betfair", "api", "json", "streaming"]
 dependencies = [
-    "msgspec>=0.18.5",
+    "msgspec>=0.19.0",
 ]
 optional-dependencies.dev = [
     "pytest>=7.1",
@@ -49,7 +50,10 @@ authors = ["Bradley McElroy <bradley.mcelroy@live.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-msgspec = ">=0.18.5"
+msgspec = [
+    { version = "0.19.0", python = ">=3.13" },
+    { version = "0.18.5", python = "<3.13" }
+]
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1"
