@@ -49,11 +49,8 @@ readme = "README.md"
 authors = ["Bradley McElroy <bradley.mcelroy@live.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<4.0"
-msgspec = [
-    { version = "0.19.0", python = ">=3.13" },
-    { version = "0.18.5", python = "<3.13" }
-]
+python = ">=3.10,<4.0"
+msgspec =  "0.19.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1"
