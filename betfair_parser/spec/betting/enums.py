@@ -311,6 +311,7 @@ class InstructionReportErrorCode(DocumentedEnum):
         "preferences to accept better odds if you don't want to receive this error."
     )
     INVALID_CUSTOMER_STRATEGY_REF = doc("@Deprecated Defined in XML specification but not in API doc")
+    INVALID_PROFIT_RATIO = doc("The order falls outside the permitted price and size combination.")
 
 
 class RollupModel(DocumentedEnum):
