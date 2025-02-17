@@ -55,7 +55,7 @@ class ExchangeStream:
         return bool(self.connection_id)
 
     def unique_id(self) -> int:
-        return next(self._id_generator)  # type: ignore[call-overload]
+        return next(self._id_generator)  # type: ignore[arg-type]
 
     def handle_connection(self, msg: Connection) -> Connection:
         self._connection_id = msg.connection_id
@@ -179,7 +179,7 @@ class StreamReader:
             msg = self.esm.receive(stream)
             if not msg:
                 return
-            if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
+            if isinstance(msg, ChangeMessageType):
                 yield msg
 
     def iter_changes_and_write(
@@ -196,7 +196,7 @@ class StreamReader:
                 if not raw_msg:
                     return
                 msg = self.esm.receive_bytes(raw_msg)
-                if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
+                if isinstance(msg, ChangeMessageType):
                     yield msg
                 f.write(raw_msg)
 
@@ -274,7 +274,7 @@ class AsyncStreamReader(StreamReader):
             msg = self.esm.receive_bytes(await stream.readline())
             if not msg:
                 return
-            if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
+            if isinstance(msg, ChangeMessageType):
                 yield msg
 
     async def iter_changes_and_write_async(
@@ -292,6 +292,6 @@ class AsyncStreamReader(StreamReader):
                 if not raw_msg:
                     return
                 msg = self.esm.receive_bytes(raw_msg)
-                if isinstance(msg, ChangeMessageType):  # type: ignore[arg-type,misc]
+                if isinstance(msg, ChangeMessageType):
                     yield msg
                 await loop.run_in_executor(None, f.write, raw_msg)

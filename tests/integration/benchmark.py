@@ -16,7 +16,7 @@ def test_performance(benchmark):
     result = benchmark.pedantic(stream_decode_lines, args=(data,))
     assert len(result) == 50854
     for msg in result:
-        assert isinstance(msg, StreamResponseType)  # type: ignore[arg-type,misc]
+        assert isinstance(msg, StreamResponseType)
 
 
 def test_market_update_performance(benchmark):

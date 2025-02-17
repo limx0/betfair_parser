@@ -13,7 +13,7 @@ class StrEnum(str, Enum):
     True
     """
 
-    def _generate_next_value_(key, start, count, last_values):
+    def _generate_next_value_(key, start, count, last_values):  # type: ignore[override]
         return key
 
     def __repr__(self):
@@ -23,7 +23,7 @@ class StrEnum(str, Enum):
 class LowerStrEnum(StrEnum):
     """Like StrEnum, but have lowered values."""
 
-    def _generate_next_value_(key, start, count, last_values):
+    def _generate_next_value_(key, start, count, last_values):  # type: ignore[override]
         return key.lower()
 
 
@@ -81,7 +81,7 @@ class DocumentedEnum(Enum):
             member.__doc__ = None
         return member
 
-    def _generate_next_value_(key, start, count, last_values):
+    def _generate_next_value_(key, start, count, last_values):  # type: ignore[override]
         return key
 
     def __str__(self):

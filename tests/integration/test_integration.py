@@ -34,7 +34,7 @@ def test_requests(path):
     raw = path.read_bytes()
     if "streaming" in str(path):
         data = stream_decode(raw)
-        assert isinstance(data, StreamRequestType)  # type: ignore[arg-type,misc]
+        assert isinstance(data, StreamRequestType)
         return
 
     request_type = op_cls_from_path(path)
@@ -53,9 +53,9 @@ def test_responses(path):
         data = stream_decode(raw)
         if isinstance(data, list):
             for msg in data:
-                assert isinstance(msg, StreamResponseType)  # type: ignore[arg-type,misc]
+                assert isinstance(msg, StreamResponseType)
         else:
-            assert isinstance(data, StreamResponseType)  # type: ignore[arg-type,misc]
+            assert isinstance(data, StreamResponseType)
         return
 
     parse_type = op_cls_from_path(path).return_type
