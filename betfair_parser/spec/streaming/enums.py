@@ -40,8 +40,7 @@ class StatusErrorCode(DocumentedEnum):
         "Customer tried to subscribe to more markets than allowed to - set to 200 markets by default"
     )
     INVALID_CLOCK = doc(
-        "Failure code returned when an invalid clock is provided on re-subscription "
-        "(check initialClk / clk supplied)"
+        "Failure code returned when an invalid clock is provided on re-subscription (check initialClk / clk supplied)"
     )
 
     # General errors which may or may not be linked to specific request id

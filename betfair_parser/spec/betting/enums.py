@@ -137,8 +137,7 @@ class MarketBettingType(DocumentedEnum):
         "Asian Handicap Market - A traditional Asian handicap market. Can be identified by marketType ASIAN_HANDICAP"
     )
     ASIAN_HANDICAP_SINGLE_LINE = doc(
-        "Asian Single Line Market - A market in which there can be 0 or multiple winners. "
-        "e,.g marketType TOTAL_GOALS"
+        "Asian Single Line Market - A market in which there can be 0 or multiple winners. e.g. marketType TOTAL_GOALS"
     )
     FIXED_ODDS = doc(
         "Sportsbook Odds Market. This type is deprecated and will be removed in future releases, when "
