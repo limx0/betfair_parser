@@ -1,5 +1,7 @@
+import msgspec
 from msgspec.json import Decoder
 
+from betfair_parser.exceptions import StreamError
 from betfair_parser.spec.betting.enums import MarketBettingType, MarketStatus, MarketTypeCode, RunnerStatus  # noqa
 from betfair_parser.spec.streaming import enums, type_definitions
 from betfair_parser.spec.streaming.enums import (
@@ -61,8 +63,14 @@ _STREAM_DECODER = Decoder(StreamMessageType, strict=False)
 
 
 def stream_decode(raw: str | bytes) -> StreamMessageType:
-    return _STREAM_DECODER.decode(raw)
+    try:
+        return _STREAM_DECODER.decode(raw)
+    except msgspec.DecodeError as e:
+        raise StreamError(str(e))
 
 
 def stream_decode_lines(raw: str | bytes) -> list[StreamMessageType]:
-    return _STREAM_DECODER.decode_lines(raw)
+    try:
+        return _STREAM_DECODER.decode_lines(raw)
+    except msgspec.DecodeError as e:
+        raise StreamError(str(e))
