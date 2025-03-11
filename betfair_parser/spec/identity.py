@@ -163,8 +163,8 @@ class Logout(_IdentityRequest, frozen=True):
 
 
 class CertLoginResponse(BaseResponse, frozen=True):
-    session_token: str
     login_status: LoginStatusCode
+    session_token: str = ""
 
     # Behave like LoginResponse
     @property
