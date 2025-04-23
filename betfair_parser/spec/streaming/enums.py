@@ -13,12 +13,6 @@ class SegmentType(StrEnum):
     SEG_END = auto()
 
 
-class PriceLadderDefinitionType(StrEnum):
-    CLASSIC = auto()
-    FINES = auto()
-    LINE_RANGE = auto()
-
-
 class StatusErrorCode(DocumentedEnum):
     # General errors not sent with id linking to specific request (as no request context)
     INVALID_INPUT = doc("Failure code returned when an invalid input is provided (could not deserialize the message)")

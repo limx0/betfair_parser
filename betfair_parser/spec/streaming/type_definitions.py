@@ -2,7 +2,13 @@ from typing import Annotated, Literal
 
 import msgspec
 
-from betfair_parser.spec.betting.enums import MarketBettingType, MarketStatus, MarketTypeCode, RunnerStatus
+from betfair_parser.spec.betting.enums import (
+    MarketBettingType,
+    MarketStatus,
+    MarketTypeCode,
+    PriceLadderType,
+    RunnerStatus,
+)
 from betfair_parser.spec.common import (
     BaseMessage,
     BetId,
@@ -18,7 +24,7 @@ from betfair_parser.spec.common import (
     Size,
     Venue,
 )
-from betfair_parser.spec.streaming.enums import LapseStatusReasonCode, MarketDataFilterFields, PriceLadderDefinitionType
+from betfair_parser.spec.streaming.enums import LapseStatusReasonCode, MarketDataFilterFields
 
 
 StreamRef = int | str
@@ -86,7 +92,7 @@ class KeyLineDefinition(BaseMessage, frozen=True):
 
 
 class PriceLadderDefinition(BaseMessage, frozen=True):
-    type: PriceLadderDefinitionType
+    type: PriceLadderType
 
 
 class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
@@ -126,7 +132,7 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     number_of_winners: int
     open_date: Date | None = None
     persistence_enabled: bool
-    price_ladder_definition: PriceLadderDefinition | PriceLadderDefinitionType | None = None
+    price_ladder_definition: PriceLadderDefinition | PriceLadderType | None = None
     race_type: str | None = None
     regulators: list[RegulatorCode]
     runners: list[RunnerDefinition]

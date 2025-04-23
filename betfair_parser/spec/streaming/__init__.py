@@ -8,7 +8,6 @@ from betfair_parser.spec.streaming.enums import (
     ChangeType,
     LapseStatusReasonCode,
     MarketDataFilterFields,
-    PriceLadderDefinitionType,
     SegmentType,
     StatusErrorCode,
 )
@@ -42,7 +41,6 @@ from betfair_parser.spec.streaming.type_definitions import (
     OrderFilter,
     OrderMarketChange,
     OrderRunnerChange,
-    PriceLadderDefinition,
     RunnerChange,
     RunnerDefinition,
     StartingPriceBack,
