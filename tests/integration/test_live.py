@@ -55,6 +55,7 @@ def test_keep_alive(session: Session):
 @skip_not_logged_in
 def test_account_details(session: Session):
     resp = client.request(session, accounts.GetAccountDetails.with_params())
+    assert isinstance(resp, accounts.AccountDetailsResponse)
     assert 0 <= resp.discount_rate < 0.3
     assert resp.currency_code
     assert resp.region
@@ -88,35 +89,67 @@ def test_account_funds_fail(session: Session):
 
 @skip_not_logged_in
 def test_event_types(session: Session):
-    resp = client.request(
+    resp: list[betting.EventTypeResult] = client.request(
         session, betting.ListEventTypes.with_params(filter=betting.MarketFilter(text_query="Horse Racing"))
     )
     assert len(resp) == 1
-    assert resp[0].event_type.id == 7
-    assert resp[0].event_type.name == "Horse Racing"
+    horse_racing = resp[0]
+    assert horse_racing.event_type.id == 7
+    assert horse_racing.event_type.name == "Horse Racing"
+    assert horse_racing.market_count > 100
+    print(f"Found {horse_racing.market_count} horse racing markets")
+
+
+@skip_not_logged_in
+def test_countries(session: Session):
+    resp: list[betting.CountryCodeResult] = client.request(
+        session,
+        betting.ListCountries.with_params(filter=betting.MarketFilter(event_type_ids={betting.EventTypeIdCode.SOCCER})),
+    )
+    assert len(resp), "No countries found"
+    assert len(resp) > 10
+    print(f"Found {len(resp)} countries with soccer markets")
+
+    for result in sorted(resp, key=lambda r: r.market_count, reverse=True):
+        assert isinstance(result.country_code, str)
+        assert isinstance(result.market_count, int)
+        print(result)
 
 
 @skip_not_logged_in
 def test_competitions(session: Session):
-    resp = client.request(
-        session, betting.ListCompetitions.with_params(filter=betting.MarketFilter(text_query="Football"))
+    resp: list[betting.CompetitionResult] = client.request(
+        session,
+        betting.ListCompetitions.with_params(
+            filter=betting.MarketFilter(event_type_ids={betting.EventTypeIdCode.SOCCER})
+        ),
     )
     assert len(resp), "No football competitions found"
-    for cr in resp:
-        assert isinstance(cr, betting.CompetitionResult)
-        assert cr.market_count
-        assert isinstance(cr.competition, betting.Competition)
-        assert cr.competition.id
-        assert cr.competition.name
+    print(f"Found {len(resp)} soccer competitions")
+
+    for result in sorted(resp, key=lambda r: r.market_count, reverse=True):
+        assert isinstance(result, betting.CompetitionResult)
+        assert result.market_count
+        assert isinstance(result.competition, betting.Competition)
+        assert result.competition.id
+        assert result.competition.name
+        print(result)
 
 
 @skip_not_logged_in
 def test_events(session: Session):
-    resp = client.request(
-        session, betting.ListEvents.with_params(filter=betting.MarketFilter(text_query="Horse Racing"))
+    resp: list[betting.EventResult] = client.request(
+        session,
+        betting.ListEvents.with_params(
+            filter=betting.MarketFilter(event_type_ids={betting.EventTypeIdCode.HORSE_RACING})
+        ),
     )
     assert len(resp) > 10
-    assert all(isinstance(item, betting.EventResult) for item in resp)
+    print(f"Found {len(resp)} UK horse racing events")
+    for result in sorted(resp, key=lambda r: r.event.open_date):
+        assert isinstance(result.event, betting.Event)
+        assert result.event.name
+        print(result.event)
 
 
 @skip_not_logged_in
@@ -141,6 +174,7 @@ def test_market_catalogue(session: Session):
     )
 
     assert len(resp) <= 100
+    print(resp[0])
     for runner in resp[0].runners:
         assert runner.name
         assert runner.metadata
@@ -151,7 +185,7 @@ def test_market_catalogue(session: Session):
 
 @skip_not_logged_in
 def test_current_orders(session: Session):
-    resp = client.request(session, betting.ListCurrentOrders.with_params())
+    resp: betting.CurrentOrderSummaryReport = client.request(session, betting.ListCurrentOrders.with_params())
     assert not resp.more_available
     if len(resp.current_orders):
         for order in resp.current_orders:
@@ -167,6 +201,7 @@ def test_current_orders(session: Session):
 @skip_not_logged_in
 def test_navigation(session: Session):
     menu = client.request(session, navigation.Menu())
+    assert isinstance(menu, navigation.Navigation)
     flattened = navigation.flatten_nav_tree(menu)
     assert len(flattened) > 5000
 
@@ -191,6 +226,7 @@ def test_race_status(session: Session):
     details = client.request(session, race_status.ListRaceDetails.with_params(meeting_ids=event_ids))
     assert len(details) >= len(event_ids)  # There are more than one details / race_ids per event_id
     for d in details:
+        assert isinstance(d, race_status.RaceDetails)
         assert d.meeting_id or d.race_id
         assert d.response_code
         if d.response_code == race_status.ResponseCode.OK:

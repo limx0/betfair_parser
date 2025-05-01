@@ -62,6 +62,7 @@ from betfair_parser.spec.betting.type_definitions import (
     Event,
     EventResult,
     EventType,
+    EventTypeResult,
     ExBestOffersOverrides,
     ExchangePrices,
     ItemDescription,
