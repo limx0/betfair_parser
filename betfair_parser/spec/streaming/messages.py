@@ -64,7 +64,7 @@ class MarketSubscription(_Subscription, kw_only=True, frozen=True):
 class OrderSubscription(_Subscription, kw_only=True, frozen=True):
     """This subscription type is used to receive order changes."""
 
-    order_filter: OrderFilter  # Optional filter applied to order subscription
+    order_filter: OrderFilter | None = None  # Optional filter applied to order subscription
 
 
 class Heartbeat(_StreamRequest, frozen=True):

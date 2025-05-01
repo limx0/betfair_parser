@@ -69,7 +69,7 @@ class OrderFilter(BaseMessage, frozen=True):
 class RunnerDefinition(BaseMessage, frozen=True):
     sort_priority: int
     id: SelectionId
-    name: str | None = None  # Undefined, but partly present
+    name: str | None = None
     hc: Handicap | None = None
     status: RunnerStatus | None = None
     adjustment_factor: float | None = None
@@ -122,8 +122,8 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     # For Handicap and Line markets, the minimum value for the outcome, in market units for this market (eg 0 runs).
     line_min_unit: float | None = None
 
-    market_base_rate: float | None
-    market_id: MarketId | None = None
+    market_base_rate: float | None = None
+    market_id: MarketId | None = None  # Undocumented, but occasionally present
     market_name: str | None = None
     market_time: Date
     market_type: str

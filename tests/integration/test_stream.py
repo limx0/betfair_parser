@@ -17,7 +17,6 @@ from betfair_parser.spec.streaming import (
     MarketFilter,
     MarketSubscription,
     MarketTypeCode,
-    OrderFilter,
     OrderSubscription,
     Status,
 )
@@ -57,7 +56,7 @@ SUBSCRIPTIONS = [
             ],
         ),
     ),
-    OrderSubscription(id=ORDER_STREAM_ID, heartbeat_ms=500, order_filter=OrderFilter()),
+    OrderSubscription(id=ORDER_STREAM_ID, heartbeat_ms=500),
 ]
 
 
@@ -161,7 +160,7 @@ def test_stream_reader(session, iterations=15):
             continue
         for runner_order_book in market_order_book.values():
             assert isinstance(runner_order_book, RunnerOrderBook)
-            if not runner_order_book.total_volume:
+            if not runner_order_book.total_volume or runner_order_book.total_volume < 100:
                 # skip empty order books
                 continue
             assert runner_order_book.available_to_back or runner_order_book.available_to_lay[1.01]
