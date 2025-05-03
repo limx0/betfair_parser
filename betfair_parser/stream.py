@@ -17,7 +17,6 @@ from betfair_parser.spec.streaming import (
     Authentication,
     ChangeMessageType,
     Connection,
-    Heartbeat,
     MarketSubscription,
     OrderSubscription,
     Status,
@@ -61,9 +60,6 @@ class ExchangeStream:
         self._connection_id = msg.connection_id
         return msg
 
-    def handle_heartbeat(self, msg: Heartbeat) -> Heartbeat:  # noqa
-        return msg
-
     def handle_status(self, msg: Status) -> Status:
         if msg.is_error or msg.connection_closed:
             raise StreamError(
@@ -73,8 +69,6 @@ class ExchangeStream:
 
     def handle_msg(self, msg: StreamResponseType) -> Any:
         match msg:
-            case Heartbeat():
-                return self.handle_heartbeat(msg)
             case Status():
                 return self.handle_status(msg)
             case Connection():
