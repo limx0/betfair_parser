@@ -1,6 +1,6 @@
 from functools import partial
 
-from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Params, Request, Response, method_tag
+from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Params, Request, Response, Set, method_tag
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
@@ -53,8 +53,8 @@ class RaceDetails(BaseMessage, kw_only=True, frozen=True):
 
 
 class _ListRaceDetailsParams(Params, frozen=True):
-    meeting_ids: set[str] | None = None  # Restricts the results to the specified meeting IDs.
-    race_ids: set[str] | None = None  # Restricts the results to the specified race IDs.
+    meeting_ids: Set[str] | None = None  # Restricts the results to the specified meeting IDs.
+    race_ids: Set[str] | None = None  # Restricts the results to the specified race IDs.
 
 
 class ListRaceDetails(Request, kw_only=True, frozen=True, tag=scores_tag):

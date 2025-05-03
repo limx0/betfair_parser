@@ -15,12 +15,14 @@ from betfair_parser.spec.common import (
     CompetitionId,
     Date,
     EventId,
+    EventTypeId,
     EventTypeIdCode,
     Handicap,
     MarketId,
     Price,
     RegulatorCode,
     SelectionId,
+    Set,
     Size,
     Venue,
 )
@@ -33,26 +35,26 @@ StreamRef = int | str
 
 
 class MarketFilter(BaseMessage, frozen=True):
-    betting_types: list[MarketBettingType] | None = None  # Match the betting type of the market
+    betting_types: Set[MarketBettingType] | None = None  # Match the betting type of the market
     bsp_market: bool | None = None  # If set, restrict to BSP or non-BSP markets only. If unset, return both
-    country_codes: list[str] | None = None  # Restrict to specified country or countries. Defaults to 'GB' on error
-    event_ids: list[EventId] | None = None  # Restrict markets by the event id associated with the market
-    event_type_ids: list[EventTypeIdCode] | None = None  # Restrict markets by event type associated with the market
-    market_ids: list[MarketId] | None = None  # If no marketIds passed user will be subscribed to all markets
-    market_types: list[MarketTypeCode] | None = None  # Restrict to markets that match the type of the market
-    race_types: list[str] | None = None  # Harness, Flat, Hurdle, Chase, Bumper, NH Flat, Steeple or NO_VALUE
+    country_codes: Set[str] | None = None  # Restrict to specified country or countries. Defaults to 'GB' on error
+    event_ids: Set[EventId] | None = None  # Restrict markets by the event id associated with the market
+    event_type_ids: Set[EventTypeId] | None = None  # Restrict markets by event type associated with the market
+    market_ids: Set[MarketId] | None = None  # If no marketIds passed user will be subscribed to all markets
+    market_types: Set[MarketTypeCode] | None = None  # Restrict to markets that match the type of the market
+    race_types: Set[str] | None = None  # Harness, Flat, Hurdle, Chase, Bumper, NH Flat, Steeple or NO_VALUE
     turn_in_play_enabled: bool | None = None  # If set, restrict to turn-inplay or non-inplay markets. Both if unset
-    venues: list[Venue] | None = None  # Restrict by the venue associated with the market. Only for horse racing
+    venues: Set[Venue] | None = None  # Restrict by the venue associated with the market. Only for horse racing
 
 
 class MarketDataFilter(BaseMessage, frozen=True):
-    fields: list[MarketDataFilterFields] | None = None
+    fields: Set[MarketDataFilterFields] | None = None
     ladder_levels: int | None = None
 
 
 class OrderFilter(BaseMessage, frozen=True):
     include_overall_position: bool = True  # Return overall position (See: OrderRunnerChange.mb / OrderRunnerChange.ml)
-    customer_strategy_refs: list[str] | None = None  # Restricts to specified customerStrategyRefs
+    customer_strategy_refs: Set[str] | None = None  # Restricts to specified customerStrategyRefs
 
     # Returns strategy positions (See: OrderRunnerChange.smc=Map<customerStrategyRef, StrategyMatchChange>)
     # these are sent in delta format as per overall position
@@ -60,7 +62,7 @@ class OrderFilter(BaseMessage, frozen=True):
 
     # Internal use only & should not be set on your filter (your subscription is already locked to your account).
     # If set subscription will fail.
-    account_ids: list[int] | None = None
+    account_ids: Set[int] | None = None
 
 
 # Response objects

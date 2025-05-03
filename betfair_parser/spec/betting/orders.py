@@ -28,6 +28,7 @@ from betfair_parser.spec.common import (
     Params,
     Request,
     Response,
+    Set,
     TimeRange,
 )
 
@@ -98,13 +99,13 @@ class ReplaceOrders(_OrderRequest, kw_only=True, frozen=True):
 
 class _ListClearedOrdersParams(Params, frozen=True):
     bet_status: BetStatus  # Restricts the results to the specified status.
-    event_type_ids: set[EventTypeId] | None = None  # Restricts the results to the specified Event Type IDs.
-    event_ids: set[EventId] | None = None  # Restricts the results to the specified Event IDs.
-    market_ids: set[MarketId] | None = None  # Restricts the results to the specified market IDs.
-    runner_ids: set[RunnerId] | None = None  # Restricts the results to the specified Runners.
-    bet_ids: set[BetId] | None = None  # Restricts the results to the specified bet IDs, maximum 1000 betIds
-    customer_order_refs: set[CustomerOrderRef] | None = None
-    customer_strategy_refs: set[CustomerStrategyRef] | None = None
+    event_type_ids: Set[EventTypeId] | None = None  # Restricts the results to the specified Event Type IDs.
+    event_ids: Set[EventId] | None = None  # Restricts the results to the specified Event IDs.
+    market_ids: Set[MarketId] | None = None  # Restricts the results to the specified market IDs.
+    runner_ids: Set[RunnerId] | None = None  # Restricts the results to the specified Runners.
+    bet_ids: Set[BetId] | None = None  # Restricts the results to the specified bet IDs, maximum 1000 betIds
+    customer_order_refs: Set[CustomerOrderRef] | None = None
+    customer_strategy_refs: Set[CustomerStrategyRef] | None = None
     side: Side | None = None  # Restricts the results to the specified side.
 
     # Optionally restricts the results to be from/to the specified settled date. This date is inclusive,
@@ -146,11 +147,11 @@ class _ListCurrentOrdersParams(Params, frozen=True):
     Parameters for retrieving a list of current orders.
     """
 
-    bet_ids: set[BetId] | None = None  # Restricts the results to the specified bet IDs
-    market_ids: set[str] | None = None  # Restricts the results to the specified market IDs
+    bet_ids: Set[BetId] | None = None  # Restricts the results to the specified bet IDs
+    market_ids: Set[MarketId] | None = None  # Restricts the results to the specified market IDs
     order_projection: OrderProjection | None = None  # Restricts the results to the specified order status
-    customer_order_refs: set[CustomerOrderRef] | None = None
-    customer_strategy_refs: set[CustomerStrategyRef] | None = None
+    customer_order_refs: Set[CustomerOrderRef] | None = None
+    customer_strategy_refs: Set[CustomerStrategyRef] | None = None
     date_range: TimeRange | None = None  # Restricts the results to be from/to the specified date
     order_by: OrderBy | None = None  # Specifies how the results will be ordered
     sort_dir: SortDir | None = None  # Specifies the direction the results will be sorted in

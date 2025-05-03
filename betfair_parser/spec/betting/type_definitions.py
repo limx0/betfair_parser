@@ -12,6 +12,7 @@ from betfair_parser.spec.betting.enums import (
     InstructionReportStatus,
     MarketBettingType,
     MarketStatus,
+    MarketTypeCode,
     PersistenceType,
     PriceData,
     PriceLadderType,
@@ -39,6 +40,7 @@ from betfair_parser.spec.common import (
     OrderType,
     Price,
     SelectionId,
+    Set,
     Size,
     TimeRange,
     Venue,
@@ -111,25 +113,25 @@ class TimeRangeResult(BaseMessage, frozen=True):
 
 class MarketFilter(BaseMessage, frozen=True):
     bsp_only: bool | None = None  # Restrict to bsp markets only if True or non-bsp markets if False
-    competition_ids: set[CompetitionId] | None = None  # Restrict markets by the competitions
-    event_ids: set[EventId] | None = None  # Restrict markets by the event id associated with the market
-    event_type_ids: set[EventTypeId] | None = None  # Restrict markets by event type associated with the market
-    exchange_ids: set[ExchangeId] | None = None  # DEPRECATED
+    competition_ids: Set[CompetitionId] | None = None  # Restrict markets by the competitions
+    event_ids: Set[EventId] | None = None  # Restrict markets by the event id associated with the market
+    event_type_ids: Set[EventTypeId] | None = None  # Restrict markets by event type associated with the market
+    exchange_ids: Set[ExchangeId] | None = None  # DEPRECATED
 
     # Restrict to markets that are currently in play if True or are not currently in play if False
     in_play_only: bool | None = None
-    market_betting_types: set[MarketBettingType] | None = None  # Match the betting type of the market
-    market_countries: set[CountryCode] | None = None  # Match the specified country or countries
-    market_ids: set[MarketId] | None = None  # Restrict markets by the market id associated with the market
+    market_betting_types: Set[MarketBettingType] | None = None  # Match the betting type of the market
+    market_countries: Set[CountryCode] | None = None  # Match the specified country or countries
+    market_ids: Set[MarketId] | None = None  # Restrict markets by the market id associated with the market
     market_start_time: TimeRange | None = None  # Restrict to markets with a market start time range
-    market_type_codes: set[str] | None = None  # Restrict to markets that match the type of the market
-    race_types: set[str] | None = None  # Restrict by race type
+    market_type_codes: Set[MarketTypeCode] | None = None  # Restrict to markets that match the type of the market
+    race_types: Set[str] | None = None  # Restrict by race type
     text_query: str | None = None  # Restrict markets by any text associated with the Event name
 
     # Restrict to markets that will turn in play if True or will not turn in play if False
     turn_in_play_enabled: bool | None = None
-    venues: set[Venue] | None = None  # Restrict markets by the venue associated with the market
-    with_orders: set[str] | None = None  # Markets that have one or more orders of defined OrderStatus
+    venues: Set[Venue] | None = None  # Restrict markets by the venue associated with the market
+    with_orders: Set[str] | None = None  # Markets that have one or more orders of defined OrderStatus
 
 
 class MarketLineRangeInfo(BaseMessage, frozen=True):
@@ -640,7 +642,7 @@ class ExBestOffersOverrides(BaseMessage, frozen=True):
 class PriceProjection(BaseMessage, frozen=True):
     """Selection criteria of the returning price data"""
 
-    price_data: set[PriceData] | None = None  # The basic price data you want to receive in the response
+    price_data: Set[PriceData] | None = None  # The basic price data you want to receive in the response
 
     # Options to alter the default representation of best offer prices
     ex_best_offers_overrides: ExBestOffersOverrides | None = None

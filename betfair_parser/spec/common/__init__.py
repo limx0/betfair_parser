@@ -41,6 +41,7 @@ from betfair_parser.spec.common.type_definitions import (
     MatchId,
     Price,
     SelectionId,
+    Set,
     Size,
     TimeRange,
     Venue,

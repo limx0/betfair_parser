@@ -124,6 +124,7 @@ DOCUMENTATION_ERRORS = {
     },
     "CurrentOrderSummary": {"matched_date": "Marked as mandatory, but is occasionally missing in real data"},
     "ClearedOrderSummary": {"profit": "Profit is not a size, it's just a float"},
+    "listMarketBook": {"market_ids": "Should be set instead of list, just like all other market_ids"},
 }
 
 
@@ -308,6 +309,7 @@ PY_TYPE_NAME_REPLACEMENTS = {
     "MatchId": "int",
     "IDType": "int",
     "EventTypeId": "int",
+    "MarketTypeCode": "str",
 }
 
 XML_TYPE_NAME_REPLACEMENTS = {
@@ -327,6 +329,7 @@ XML_TYPE_NAME_REPLACEMENTS = {
     "OrderStatus": "str",  # inconsistently used
     "Side": "str",  # inconsistently used
     "MarketBettingType": "str",  # inconsistently used
+    "MarketTypeCode": "str",
     "Wallet": "str",  # inconsistently used
     "Matches": "list[Match]",
     "(": "[",

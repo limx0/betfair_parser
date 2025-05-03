@@ -6,6 +6,7 @@ import pytest
 
 from betfair_parser.spec.betting import (
     CancelOrders,
+    MarketFilter,
     OrderType,
     PlaceInstruction,
     PlaceOrders,
@@ -174,3 +175,11 @@ def test_omit_defaults(obj):
 )
 def test_repr_omit_default(obj):
     assert "None" not in repr(obj)
+
+
+def test_set_list_compatibility():
+    filters_set = MarketFilter(competition_ids={1, 2, 3}, event_type_ids={4, 5, 6})
+    assert filters_set.validate()
+    filters_list = MarketFilter(competition_ids=[1, 2, 3], event_type_ids=[4, 5, 6])  # type: ignore[arg-type]
+    assert filters_list.validate()
+    assert encode(filters_set) == encode(filters_list)

@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated
+from typing import Annotated, TypeAlias
 
 import msgspec
 
@@ -10,6 +10,13 @@ Date = Annotated[datetime.datetime, msgspec.Meta(title="Date", tz=True)]
 IDType = Annotated[
     int, msgspec.Meta(title="IDType", description="integer data, but defined and encoded as string", ge=0)
 ]
+
+# Betfair defines several input fields as set. Nevertheless, the JSON data is encoded as list. For convenience,
+# these data fields should accept a set or a list as input. But currently, there seems to be no good
+# solution, to satisfy as well the type checkers as the restrictions of msgspec. Sticking with set
+# seems to be the most correct option for now.
+
+Set: TypeAlias = set
 
 # Type aliases as defined within the XML specification with minimalistic validation added.
 

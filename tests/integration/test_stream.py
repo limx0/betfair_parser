@@ -37,26 +37,28 @@ def session(appconfig) -> Session:  # noqa
 
 MARKET_STREAM_ID = 1
 ORDER_STREAM_ID = 2
+_HEARTBEAT = 5000
+
 SUBSCRIPTIONS = [
     MarketSubscription(
         id=MARKET_STREAM_ID,
-        heartbeat_ms=500,
+        heartbeat_ms=_HEARTBEAT,
         market_filter=MarketFilter(
-            betting_types=[MarketBettingType.ODDS],
-            event_type_ids=[EventTypeIdCode.HORSE_RACING],
-            country_codes=["GB", "IE"],
-            market_types=[MarketTypeCode.WIN],
+            betting_types={MarketBettingType.ODDS},
+            event_type_ids={EventTypeIdCode.HORSE_RACING},
+            country_codes={"GB", "IE"},
+            market_types={MarketTypeCode.WIN},
         ),
         market_data_filter=MarketDataFilter(
-            fields=[
+            fields={
                 MarketDataFilterFields.EX_MARKET_DEF,
                 MarketDataFilterFields.EX_ALL_OFFERS,
                 MarketDataFilterFields.EX_LTP,
                 MarketDataFilterFields.EX_TRADED_VOL,
-            ],
+            },
         ),
     ),
-    OrderSubscription(id=ORDER_STREAM_ID, heartbeat_ms=500),
+    OrderSubscription(id=ORDER_STREAM_ID, heartbeat_ms=_HEARTBEAT),
 ]
 
 

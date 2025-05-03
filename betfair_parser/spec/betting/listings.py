@@ -30,6 +30,7 @@ from betfair_parser.spec.common import (
     Request,
     Response,
     SelectionId,
+    Set,
 )
 
 
@@ -105,17 +106,17 @@ class ListVenues(_ListingRequest, kw_only=True, frozen=True):
 
 
 class _ListMarketBookParams(Params, frozen=True):
-    market_ids: list[str]  # One or more market ids
+    market_ids: Set[MarketId]  # NOTE: This is documented as list, but defined as set here for consistency
     price_projection: PriceProjection | None = None  # The desired projection of price data
     order_projection: OrderProjection | None = None  # The orders you want to receive in the response
     match_projection: MatchProjection | None = None  # If you ask for orders, specifies the representation of matches
     include_overall_position: bool | None = None  # If you ask for orders, returns matches for each selection
     partition_matched_by_strategy_ref: bool | None = None  # Breakdown of matches by strategy for each selection
-    customer_strategy_refs: set[str] | None = None
+    customer_strategy_refs: Set[str] | None = None
     currency_code: str | None = None  # A Betfair standard currency code
     locale: str | None = None  # The language used for the response
     matched_since: Date | None = None  # Only orders with at least one fragment matched since the specified date
-    bet_ids: set[BetId] | None = None  # Only orders with the specified bet IDs
+    bet_ids: Set[BetId] | None = None  # Only orders with the specified bet IDs
 
 
 class ListMarketBook(_ListingRequest, kw_only=True, frozen=True):
@@ -144,7 +145,7 @@ class ListMarketBook(_ListingRequest, kw_only=True, frozen=True):
 
 class _ListMarketCatalogueParams(Params, kw_only=True, frozen=True):
     filter: MarketFilter  # The filter to select desired markets
-    market_projection: set[MarketProjection] | None = None  # The type and amount of data returned about the market
+    market_projection: Set[MarketProjection] | None = None  # The type and amount of data returned about the market
     sort: MarketSort | None = None  # The order of the results, defaults to RANK
     max_results: int = 1000  # Limit on the total number of results returned
     locale: str | None = None  # The language used for the response
@@ -168,7 +169,7 @@ ListMarketCatalog = ListMarketCatalogue  # allow both spellings
 
 
 class _ListMarketProfitAndLossParams(Params, frozen=True):
-    market_ids: set[MarketId]  # List of markets to calculate profit and loss
+    market_ids: Set[MarketId]  # List of markets to calculate profit and loss
     include_settled_bets: bool | None = False  # Option to include settled bets (partially settled markets only)
     include_bsp_bets: bool | None = False  # Option to include BSP bets
     net_of_commission: bool | None = False  # Option to return profit and loss net of users current commission rate
@@ -190,11 +191,11 @@ class _ListRunnerBookParams(Params, frozen=True):
     match_projection: MatchProjection | None = None  # If you ask for orders, specifies the representation of matches
     include_overall_position: bool | None = None  # If you ask for orders, returns matches for each selection
     partition_matched_by_strategy_ref: bool | None = None  # Return a breakdown of matches by strategy
-    customer_strategy_refs: set[str] | None = None
+    customer_strategy_refs: Set[str] | None = None
     currency_code: str | None = None  # A Betfair standard currency code
     locale: str | None = None  # The language used for the response
     matched_since: Date | None = None  # Restricts to orders with at least one fragment matched since specified date
-    bet_ids: set[BetId] | None = None  # Restricts to orders with the specified bet IDs
+    bet_ids: Set[BetId] | None = None  # Restricts to orders with the specified bet IDs
 
 
 class ListRunnerBook(_ListingRequest, kw_only=True, frozen=True):
