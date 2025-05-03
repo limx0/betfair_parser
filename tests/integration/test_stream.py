@@ -74,6 +74,8 @@ def test_stream(session, subscription, iterations=3):
         print(esm.receive(stream))  # read connection
         stream.write(esm.connect())  # send auth
         print(esm.receive(stream))
+        assert esm.is_connected
+        assert esm.connections_available > 0
 
         stream.write(esm.subscribe(subscription))
         msg: Status = esm.receive(stream)

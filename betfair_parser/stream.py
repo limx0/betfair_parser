@@ -44,6 +44,7 @@ class ExchangeStream:
         self.handlers: dict[StreamRef, Callable] = {}
         self._id_generator = id_generator if id_generator is not None else itertools.count(1000)
         self._connection_id: str | None = None
+        self._connections_available: int = 0
 
     @property
     def connection_id(self) -> str | None:
@@ -52,6 +53,10 @@ class ExchangeStream:
     @property
     def is_connected(self) -> bool:
         return bool(self.connection_id)
+
+    @property
+    def connections_available(self) -> int:
+        return self._connections_available
 
     def unique_id(self) -> int:
         return next(self._id_generator)  # type: ignore[arg-type]
@@ -65,6 +70,8 @@ class ExchangeStream:
             raise StreamError(
                 f"Connection {self.connection_id} to stream {msg.id} failed: {msg.error_code}: {msg.error_message}"
             )
+        if msg.connections_available is not None:
+            self._connections_available = msg.connections_available
         return msg
 
     def handle_msg(self, msg: StreamResponseType) -> Any:
