@@ -161,6 +161,7 @@ def test_market_catalogue(session: Session):
                 event_type_ids={betting.EventTypeIdCode.HORSE_RACING},
                 market_type_codes={betting.MarketTypeCode.WIN},
                 market_betting_types={betting.MarketBettingType.ODDS},
+                market_countries={"GB", "IE"},
             ),
             market_projection=[
                 betting.MarketProjection.EVENT,
