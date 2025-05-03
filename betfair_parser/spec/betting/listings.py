@@ -146,7 +146,7 @@ class _ListMarketCatalogueParams(Params, kw_only=True, frozen=True):
     filter: MarketFilter  # The filter to select desired markets
     market_projection: set[MarketProjection] | None = None  # The type and amount of data returned about the market
     sort: MarketSort | None = None  # The order of the results, defaults to RANK
-    max_results: int  # Limit on the total number of results returned
+    max_results: int = 1000  # Limit on the total number of results returned
     locale: str | None = None  # The language used for the response
 
 
