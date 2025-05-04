@@ -309,6 +309,7 @@ PY_TYPE_NAME_REPLACEMENTS = {
     "MatchId": "int",
     "IDType": "int",
     "EventTypeId": "int",
+    "MarketType": "str",
     "MarketTypeCode": "str",
 }
 

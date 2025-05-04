@@ -1,7 +1,16 @@
 import re
 from typing import Literal, Union
 
-from betfair_parser.spec.common import BaseMessage, BaseResponse, Date, EndpointType, Request
+from betfair_parser.spec.common import (
+    BaseMessage,
+    BaseResponse,
+    Date,
+    EndpointType,
+    EventId,
+    EventTypeId,
+    MarketId,
+    Request,
+)
 
 
 def navigation_tag(class_name: str):
@@ -17,7 +26,7 @@ def navigation_tag(class_name: str):
 
 class Market(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
-    id: str
+    id: MarketId
     exchange_id: str
     market_type: str
     market_start_time: Date
@@ -26,7 +35,7 @@ class Market(BaseMessage, tag=navigation_tag, frozen=True):
 
 class Event(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
-    id: int
+    id: EventId
     country_code: str
     children: list[Union["Group", "Event", Market]]
 
@@ -49,7 +58,7 @@ class Group(BaseMessage, tag=navigation_tag, frozen=True):
 
 class EventType(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
-    id: int
+    id: EventTypeId
     children: list[Group | Event | Race]
 
 
@@ -89,12 +98,12 @@ class Menu(Request, kw_only=True, frozen=True, tag=""):
 
 class FlattenedMarket(BaseMessage, kw_only=True, frozen=True, rename=None):
     event_type_name: str
-    event_type_id: int
+    event_type_id: EventTypeId
     event_name: str | None = None
-    event_id: str | None = None
+    event_id: EventId | None = None
     event_country_code: str | None = None
     market_name: str
-    market_id: str
+    market_id: MarketId
     market_exchange_id: str
     market_market_type: str
     market_market_start_time: Date

@@ -35,6 +35,7 @@ from betfair_parser.spec.common import (
     ExchangeId,
     Handicap,
     MarketId,
+    MarketType,
     MatchId,
     OrderStatus,
     OrderType,
@@ -306,20 +307,21 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
 
     @property
     def colours_url(self):
-        if self.colours_filename:
-            return SILKS + self.colours_filename
+        if not self.colours_filename:
+            return None
+        return SILKS + self.colours_filename
 
     @property
     def forecastprice_decimal(self):
         if not self.forecastprice_numerator or not self.forecastprice_denominator:
-            return
+            return None
         return self.forecastprice_numerator / self.forecastprice_denominator + 1
 
 
 class RunnerCatalog(BaseMessage, frozen=True):
     """Information about the Runners (selections) in a market"""
 
-    selection_id: int  # The unique id for the selection
+    selection_id: SelectionId  # The unique id for the selection
     runner_name: str  # The name of the runner
 
     # The handicap applies to market with the MarketBettingType ASIAN_HANDICAP_SINGLE_LINE
@@ -336,7 +338,7 @@ class RunnerCatalog(BaseMessage, frozen=True):
 class Runner(BaseMessage, frozen=True):
     """The dynamic data about runners in a market"""
 
-    selection_id: int  # The unique id of the runner (selection)
+    selection_id: SelectionId  # The unique id of the runner (selection)
     handicap: Handicap
     status: RunnerStatus  # The status of the selection
     adjustment_factor: float | None = None  # The adjustment factor applied if the selection is removed
@@ -407,7 +409,7 @@ class ItemDescription(BaseMessage, frozen=True):
     event_type_desc: str | None = None  # The event type name translated into the requested locale
     event_desc: str | None = None  # The event name or openDate + venue translated into the requested locale
     market_desc: str | None = None  # The market name or racing market type translated into the requested locale
-    market_type: str | None = None  # The market type e.g. MATCH_ODDS, PLACE, WIN etc.
+    market_type: MarketType | None = None  # The market type e.g. MATCH_ODDS, PLACE, WIN etc.
     market_start_time: Date | None = None  # The start time of the market in ISO-8601 format, not translated
     runner_desc: str | None = None  # The runner name translated into the requested locale
     number_of_winners: int | None = None  # The number of winners on a market
@@ -420,7 +422,7 @@ class ClearedOrderSummary(BaseMessage, frozen=True):
     event_type_id: EventTypeId | None = None  # The id of the event type bet on
     event_id: EventId | None = None  # The id of the event bet on
     market_id: MarketId | None = None  # The id of the market bet on
-    selection_id: int | None = None  # The id of the selection bet on
+    selection_id: SelectionId | None = None  # The id of the selection bet on
     handicap: Handicap | None = None  # The handicap value for Asian handicap markets
     bet_id: BetId | None = None  # The id of the bet
     placed_date: Date | None = None  # The date the bet order was placed by the customer
@@ -454,7 +456,7 @@ class RunnerId(BaseMessage, frozen=True):
     """Unique identifier for a runner"""
 
     market_id: MarketId  # The id of the market bet on
-    selection_id: int  # The id of the selection bet on
+    selection_id: SelectionId  # The id of the selection bet on
     handicap: Handicap | None = None  # The handicap associated with the runner in case of Asian handicap markets
 
 
@@ -469,7 +471,7 @@ class CurrentOrderSummary(BaseMessage, frozen=True):
 
     bet_id: BetId  # The bet ID of the original place order
     market_id: MarketId  # The market ID the order is for
-    selection_id: int  # The selection ID the order is for
+    selection_id: SelectionId  # The selection ID the order is for
     handicap: Handicap  # The handicap associated with the runner in case of Asian handicap markets
     price_size: PriceSize  # The price and size of the bet
     bsp_liability: Size  # The liability of a given BSP bet

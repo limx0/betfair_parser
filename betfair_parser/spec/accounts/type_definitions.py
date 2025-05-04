@@ -6,7 +6,7 @@ from betfair_parser.spec.accounts.enums import (
     Wallet,
     WinLose,
 )
-from betfair_parser.spec.common import BaseMessage, Date
+from betfair_parser.spec.common import BaseMessage, Date, EventId, EventTypeId, MarketType, SelectionId
 
 
 class ApplicationSubscription(BaseMessage, frozen=True):
@@ -137,8 +137,8 @@ class StatementLegacyData(BaseMessage, frozen=True):
     bet_type: str | None = None  # Back or lay
     bet_category_type: str | None = None  # Exchange, Market on Close SP bet, or Limit on Close SP bet.
     commission_rate: str | None = None  # Commission rate on market
-    event_id: int | None = None  # Please note: this is the Id of the market without the associated exchangeId
-    event_type_id: int | None = None
+    event_id: EventId | None = None  # Please note: this is the Id of the market without the associated exchangeId
+    event_type_id: EventTypeId | None = None
 
     # Full Market Name. For card payment items, this field contains the card name
     full_market_name: str | None = None
@@ -149,11 +149,11 @@ class StatementLegacyData(BaseMessage, frozen=True):
     market_name: str | None = None
 
     # Market type. For account deposits and withdrawals, marketType is set to NOT_APPLICABLE.
-    market_type: str | None = None
+    market_type: MarketType | None = None
     placed_date: Date | None = None  # Date and time of bet placement
 
     # Id of the selection (this will be the same for the same selection across markets)
-    selection_id: int | None = None
+    selection_id: SelectionId | None = None
     selection_name: str | None = None  # Name of the selection
     start_date: Date | None = None  # Date and time at the bet portion was settled
     transaction_type: str | None = None  # Debit or credit
