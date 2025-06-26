@@ -10,7 +10,7 @@ Though, there is probably quite some room for further optimizations.
 """
 
 from collections import defaultdict
-from typing import NamedTuple
+from typing import Generic, NamedTuple, TypeAlias, TypeVar
 
 from betfair_parser.spec.streaming import (
     LPV,
@@ -59,6 +59,47 @@ class RunnerChangeKey(NamedTuple):
 def rc_key(runner_change: RunnerChange | OrderRunnerChange) -> RunnerChangeKey:
     """Asian handicap markets use a combined key to represent all selections in a market."""
     return RunnerChangeKey(runner_change.id, runner_change.hc or 0.0)
+
+
+V = TypeVar("V")
+RunnerChangeKeyTypes: TypeAlias = int | tuple[int, float] | RunnerChangeKey
+
+
+class SelectionHandicapDict(defaultdict[RunnerChangeKey, V], Generic[V]):
+    """
+    A defaultdict whose real key type is RunnerChangeKey,
+    but which also lets you do d[5] or d[(5,1.0)].
+    """
+
+    default_factory: type[V]
+
+    def __init__(self) -> None:
+        super().__init__(self.default_factory)
+
+    @staticmethod
+    def _normalize(key: RunnerChangeKeyTypes) -> RunnerChangeKey:
+        if isinstance(key, RunnerChangeKey):
+            return key
+        if isinstance(key, tuple):
+            return RunnerChangeKey(*key)
+        if isinstance(key, int):
+            return RunnerChangeKey(key, 0.0)
+        raise TypeError(f"Invalid key type: {type(key).__name__}")
+
+    def __getitem__(self, key: RunnerChangeKeyTypes) -> V:
+        return super().__getitem__(self._normalize(key))
+
+    def __contains__(self, key: RunnerChangeKeyTypes) -> bool:  # type: ignore[override]
+        return super().__contains__(self._normalize(key))
+
+    def __setitem__(self, key: RunnerChangeKeyTypes, value: V) -> None:
+        return super().__setitem__(self._normalize(key), value)
+
+    def __delitem__(self, key: RunnerChangeKeyTypes) -> None:
+        return super().__delitem__(self._normalize(key))
+
+    def get(self, key: RunnerChangeKeyTypes, default: V | None = None) -> V | None:  # type: ignore[override]
+        return super().get(self._normalize(key), default)
 
 
 class RunnerOrderBook:
@@ -164,23 +205,10 @@ class ChangeCache:
         raise NotImplementedError()
 
 
-class _DefaultDict(defaultdict):
-    """
-    The caches for single markets are supposed to be referenceable from outside the
-    cache via weakrefs. So if the cache gets updated, it doesn't leave data pending.
-    As defaultdict itself can't be referenced with a weakref, let's subclass it.
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(type(self).default_factory, **kwargs)
-
-    default_factory = dict
-
-
-class MarketOrderBook(_DefaultDict):
+class MarketOrderBook(SelectionHandicapDict[RunnerOrderBook]):
     """Order book for a single market, collecting a bunch of RunnerOrderBooks."""
 
-    default_factory = RunnerOrderBook  # type: ignore[assignment]
+    default_factory: type = RunnerOrderBook
 
 
 class MarketSubscriptionCache(ChangeCache):
@@ -194,7 +222,7 @@ class MarketSubscriptionCache(ChangeCache):
     """
 
     def __init__(self):
-        self.order_book: defaultdict[str, defaultdict[RunnerChangeKey, RunnerOrderBook]] = defaultdict(MarketOrderBook)
+        self.order_book: defaultdict[str, MarketOrderBook] = defaultdict(MarketOrderBook)
         self.definitions: dict[str, MarketDefinition] = {}
 
     def clear(self) -> None:
@@ -258,10 +286,10 @@ class RunnerOrders:
             ladder_update_mo(self.matched_lays, orc.ml)
 
 
-class MarketOrders(_DefaultDict):
+class MarketOrders(SelectionHandicapDict[RunnerOrders]):
     """All orders for a single market, collecting a bunch of RunnerOrders."""
 
-    default_factory = RunnerOrders  # type: ignore[assignment]
+    default_factory: type = RunnerOrders
 
 
 class OrderSubscriptionCache(ChangeCache):
@@ -270,7 +298,7 @@ class OrderSubscriptionCache(ChangeCache):
     """
 
     def __init__(self):
-        self.orders: defaultdict[str, defaultdict[RunnerChangeKey, RunnerOrders]] = defaultdict(MarketOrders)
+        self.orders: defaultdict[str, MarketOrders] = defaultdict(MarketOrders)
 
     def clear(self) -> None:
         self.orders.clear()

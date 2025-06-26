@@ -20,7 +20,7 @@ def test_runner_order_book_repr():
     mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
     cache = MarketSubscriptionCache()
     cache.update(mcm)
-    rob = cache.order_book["1.180737193"][(25327214, 0.0)]  # type: ignore[index]
+    rob = cache.order_book["1.180737193"][25327214]
     repr_str = repr(rob)
     assert repr_str.startswith("<RunnerOrderBook best_display_available_to_back=[")
     assert repr_str.endswith("], total_volume=0.02>")
@@ -92,7 +92,7 @@ def test_order_cache_runner_removal():
     cache.update(stream_decode(OCMS_SAMPLE[0]))  # type: ignore[arg-type]
     assert len(cache.orders) == 1
     assert len(cache.orders["1.102151675"]) == 1
-    ro = cache.orders["1.102151675"][(6113662, 0.0)]  # type: ignore[index]
+    ro = cache.orders["1.102151675"][6113662]
     assert len(ro.unmatched_orders) == 1
     assert not ro.matched_backs
     assert not ro.matched_lays
@@ -124,9 +124,34 @@ def test_order_cache_runner_removal():
 
 
 @pytest.mark.parametrize("dict_type", (MarketOrders, MarketOrderBook))
-def test_market_caches(dict_type):
+def test_selection_handicap_dict(dict_type):
     cache = dict_type()
     runner_cache = cache[123]
+    assert runner_cache == cache[(123, 0)]
+    assert runner_cache == cache.get((123, 0.0))
+
+    assert (123, 1.0) not in cache
+    assert cache.get((123, 1.0)) is None
+
+    assert len(cache) == 1
+    assert list(cache.keys()) == [(123, 0.0)]
+
+    assert list(cache.keys())[0].selection_id == 123
+    assert list(cache.keys())[0].handicap == 0.0
+
+    _ = cache[321], cache[456, 0.0]
+    assert len(cache) == 3
+    assert 321 in cache
+    assert (456, 0.0) in cache
+
+    assert cache.get(555) is None
+    assert 555 not in cache
+    assert len(cache) == 3
+
+    del cache[321]
+    del cache[456, 0.0]
+    assert len(cache) == 1
+
     r = weakref.ref(cache)
     assert type(runner_cache).__name__ == type(cache).__name__.replace("Market", "Runner")
     assert r() is cache
