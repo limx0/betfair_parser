@@ -10,6 +10,7 @@ Though, there is probably quite some room for further optimizations.
 """
 
 from collections import defaultdict
+from typing import NamedTuple
 
 from betfair_parser.spec.streaming import (
     LPV,
@@ -50,6 +51,16 @@ def ladder_update_mo(ladder: dict[float, float], mos: list[MatchedOrder]) -> Non
             ladder[mo.price] = mo.size
 
 
+class RunnerChangeKey(NamedTuple):
+    selection_id: int
+    handicap: float
+
+
+def rc_key(runner_change: RunnerChange | OrderRunnerChange) -> RunnerChangeKey:
+    """Asian handicap markets use a combined key to represent all selections in a market."""
+    return RunnerChangeKey(runner_change.id, runner_change.hc or 0.0)
+
+
 class RunnerOrderBook:
     __slots__ = (
         "available_to_back",
@@ -65,7 +76,6 @@ class RunnerOrderBook:
         "traded",
         "last_traded_price",
         "total_volume",
-        "handicap",
     )
 
     def __init__(self) -> None:
@@ -82,7 +92,6 @@ class RunnerOrderBook:
         self.traded: dict[float, float] = {}
         self.last_traded_price: float | None = None
         self.total_volume: float | None = None
-        self.handicap: float | None = None
 
     def update(self, rc: RunnerChange) -> None:
         if rc.atb:
@@ -111,8 +120,6 @@ class RunnerOrderBook:
             self.last_traded_price = rc.ltp
         if rc.tv:
             self.total_volume = rc.tv
-        if rc.hc:
-            self.handicap = rc.hc
 
     def __repr__(self) -> str:
         data = {}
@@ -187,7 +194,7 @@ class MarketSubscriptionCache(ChangeCache):
     """
 
     def __init__(self):
-        self.order_book: defaultdict[str, MarketOrderBook] = defaultdict(MarketOrderBook)
+        self.order_book: defaultdict[str, defaultdict[RunnerChangeKey, RunnerOrderBook]] = defaultdict(MarketOrderBook)
         self.definitions: dict[str, MarketDefinition] = {}
 
     def clear(self) -> None:
@@ -209,7 +216,7 @@ class MarketSubscriptionCache(ChangeCache):
             if not mc.rc:
                 continue
             for rc in mc.rc:
-                self.order_book[mc.id][rc.id].update(rc)
+                self.order_book[mc.id][rc_key(rc)].update(rc)
 
 
 class RunnerOrders:
@@ -236,11 +243,8 @@ class RunnerOrders:
         self.matched_lays: dict[float, float] = {}
         self.unmatched_orders: dict[int, Order] = {}
         self.executed_orders: dict[int, Order] = {}  # Does only contain recently completed orders
-        self.handicap: float | None = None
 
     def update(self, orc: OrderRunnerChange) -> None:
-        if orc.hc:
-            self.handicap = orc.hc
         if orc.uo:
             for uo in orc.uo:
                 if uo.execution_complete:
@@ -266,7 +270,7 @@ class OrderSubscriptionCache(ChangeCache):
     """
 
     def __init__(self):
-        self.orders: defaultdict[str, MarketOrders] = defaultdict(MarketOrders)
+        self.orders: defaultdict[str, defaultdict[RunnerChangeKey, RunnerOrders]] = defaultdict(MarketOrders)
 
     def clear(self) -> None:
         self.orders.clear()
@@ -288,6 +292,7 @@ class OrderSubscriptionCache(ChangeCache):
                 # on closed markets
                 continue
             for orc in oc.orc:
+                orc_key = rc_key(orc)
                 if orc.full_image:
-                    self.orders[oc.id].pop(orc.id, None)
-                self.orders[oc.id][orc.id].update(orc)
+                    self.orders[oc.id].pop(orc_key, None)
+                self.orders[oc.id][orc_key].update(orc)

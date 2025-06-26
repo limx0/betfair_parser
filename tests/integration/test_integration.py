@@ -99,7 +99,10 @@ def test_archive(path):
         assert i > 100
 
     assert len(mc.order_book)
-    for mkt_order_book in mc.order_book.values():
+    for mkt_id, mkt_order_book in mc.order_book.items():
         assert len(mkt_order_book)
-        for runner_order_book in mkt_order_book.values():
+        for rc_key, runner_order_book in mkt_order_book.items():
             assert isinstance(runner_order_book, RunnerOrderBook)
+            assert isinstance(rc_key, tuple)
+            assert isinstance(rc_key.selection_id, int)
+            assert isinstance(rc_key.handicap, float)

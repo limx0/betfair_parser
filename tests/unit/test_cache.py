@@ -20,7 +20,7 @@ def test_runner_order_book_repr():
     mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
     cache = MarketSubscriptionCache()
     cache.update(mcm)
-    rob = cache.order_book["1.180737193"][25327214]
+    rob = cache.order_book["1.180737193"][(25327214, 0.0)]  # type: ignore[index]
     repr_str = repr(rob)
     assert repr_str.startswith("<RunnerOrderBook best_display_available_to_back=[")
     assert repr_str.endswith("], total_volume=0.02>")
@@ -92,7 +92,7 @@ def test_order_cache_runner_removal():
     cache.update(stream_decode(OCMS_SAMPLE[0]))  # type: ignore[arg-type]
     assert len(cache.orders) == 1
     assert len(cache.orders["1.102151675"]) == 1
-    ro = cache.orders["1.102151675"][6113662]
+    ro = cache.orders["1.102151675"][(6113662, 0.0)]  # type: ignore[index]
     assert len(ro.unmatched_orders) == 1
     assert not ro.matched_backs
     assert not ro.matched_lays
