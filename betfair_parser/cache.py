@@ -10,6 +10,7 @@ Though, there is probably quite some room for further optimizations.
 """
 
 from collections import defaultdict
+from dataclasses import dataclass, field
 from typing import Generic, NamedTuple, TypeAlias, TypeVar
 
 from betfair_parser.spec.streaming import (
@@ -25,30 +26,6 @@ from betfair_parser.spec.streaming import (
     RunnerChange,
     SegmentType,
 )
-
-
-def ladder_update_lpv(ladder: dict[int, LPV], lpvs: list[LPV]) -> None:
-    for lpv in lpvs:
-        if not lpv.volume:
-            ladder.pop(lpv.level, None)
-        else:
-            ladder[lpv.level] = lpv
-
-
-def ladder_update_pv(ladder: dict[float, float], pvs: list[PV]) -> None:
-    for pv in pvs:
-        if not pv.volume:
-            ladder.pop(pv.price, None)
-        else:
-            ladder[pv.price] = pv.volume
-
-
-def ladder_update_mo(ladder: dict[float, float], mos: list[MatchedOrder]) -> None:
-    for mo in mos:
-        if not mo.size:
-            ladder.pop(mo.price, None)
-        else:
-            ladder[mo.price] = mo.size
 
 
 class RunnerChangeKey(NamedTuple):
@@ -102,37 +79,67 @@ class SelectionHandicapDict(defaultdict[RunnerChangeKey, V], Generic[V]):
         return super().get(self._normalize(key), default)
 
 
-class RunnerOrderBook:
-    __slots__ = (
-        "available_to_back",
-        "available_to_lay",
-        "best_available_to_back",
-        "best_available_to_lay",
-        "best_display_available_to_back",
-        "best_display_available_to_lay",
-        "starting_price_back",
-        "starting_price_lay",
-        "starting_price_near",
-        "starting_price_far",
-        "traded",
-        "last_traded_price",
-        "total_volume",
-    )
+PriceVolumeMap: TypeAlias = dict[float, float]
+LadderPriceVolumeMap: TypeAlias = dict[int, LPV]
 
-    def __init__(self) -> None:
-        self.available_to_back: dict[float, float] = {}
-        self.available_to_lay: dict[float, float] = {}
-        self.best_available_to_back: dict[int, LPV] = {}
-        self.best_available_to_lay: dict[int, LPV] = {}
-        self.best_display_available_to_back: dict[int, LPV] = {}
-        self.best_display_available_to_lay: dict[int, LPV] = {}
-        self.starting_price_back: dict[float, float] = {}
-        self.starting_price_lay: dict[float, float] = {}
-        self.starting_price_near: float | None = None
-        self.starting_price_far: float | None = None
-        self.traded: dict[float, float] = {}
-        self.last_traded_price: float | None = None
-        self.total_volume: float | None = None
+
+def ladder_update_lpv(ladder: LadderPriceVolumeMap, lpvs: list[LPV]) -> None:
+    for lpv in lpvs:
+        if not lpv.volume:
+            ladder.pop(lpv.level, None)
+        else:
+            ladder[lpv.level] = lpv
+
+
+def ladder_update_pv(ladder: PriceVolumeMap, pvs: list[PV]) -> None:
+    for pv in pvs:
+        if not pv.volume:
+            ladder.pop(pv.price, None)
+        else:
+            ladder[pv.price] = pv.volume
+
+
+def ladder_update_mo(ladder: PriceVolumeMap, mos: list[MatchedOrder]) -> None:
+    for mo in mos:
+        if not mo.size:
+            ladder.pop(mo.price, None)
+        else:
+            ladder[mo.price] = mo.size
+
+
+class BestPriceVolume(NamedTuple):
+    back_price: float
+    back_volume: float
+    lay_price: float
+    lay_volume: float
+
+
+_NO_PRICE = 0.0  # should this be None?
+_NO_PRICE_LPV = LPV(0, _NO_PRICE, 0.0)
+
+
+@dataclass(slots=True)
+class RunnerOrderBook:
+    """Order book for a runner with all relevant price and volume levels."""
+
+    available_to_back: PriceVolumeMap = field(default_factory=dict)
+    available_to_lay: PriceVolumeMap = field(default_factory=dict)
+
+    best_available_to_back: LadderPriceVolumeMap = field(default_factory=dict)
+    best_available_to_lay: LadderPriceVolumeMap = field(default_factory=dict)
+
+    best_display_available_to_back: LadderPriceVolumeMap = field(default_factory=dict)
+    best_display_available_to_lay: LadderPriceVolumeMap = field(default_factory=dict)
+
+    starting_price_back: PriceVolumeMap = field(default_factory=dict)
+    starting_price_lay: PriceVolumeMap = field(default_factory=dict)
+
+    starting_price_near: float | None = None
+    starting_price_far: float | None = None
+
+    traded: PriceVolumeMap = field(default_factory=dict)
+    last_traded_price: float | None = None
+    total_volume: float | None = None
 
     def update(self, rc: RunnerChange) -> None:
         if rc.atb:
@@ -162,24 +169,51 @@ class RunnerOrderBook:
         if rc.tv:
             self.total_volume = rc.tv
 
+    def best_prices(self) -> BestPriceVolume:
+        """Extract the best available prices."""
+
+        if self.available_to_back or self.available_to_lay:
+            back_price = max(self.available_to_back) if self.available_to_back else _NO_PRICE
+            back_volume = self.available_to_back[back_price] if back_price else 0.0
+            lay_price = min(self.available_to_lay) if self.available_to_lay else _NO_PRICE
+            lay_volume = self.available_to_lay[lay_price] if lay_price else 0.0
+            return BestPriceVolume(back_price, back_volume, lay_price, lay_volume)
+
+        if self.best_available_to_back or self.best_available_to_lay:
+            blpv = self.best_available_to_back.get(0, _NO_PRICE_LPV)
+            llpv = self.best_available_to_lay.get(0, _NO_PRICE_LPV)
+            return BestPriceVolume(blpv.price, blpv.volume, llpv.price, llpv.volume)
+
+        if self.best_display_available_to_back or self.best_display_available_to_lay:
+            blpv = self.best_display_available_to_back.get(0, _NO_PRICE_LPV)
+            llpv = self.best_display_available_to_lay.get(0, _NO_PRICE_LPV)
+            return BestPriceVolume(blpv.price, blpv.volume, llpv.price, llpv.volume)
+
+        return BestPriceVolume(_NO_PRICE, 0.0, _NO_PRICE, 0.0)
+
     def __repr__(self) -> str:
-        data = {}
-        for key in self.__slots__:
-            val = getattr(self, key, None)
+        data: dict[str, str] = {}
+        for key in self.__dataclass_fields__:
+            val = getattr(self, key)
             if not val:
                 continue
+
             if isinstance(val, dict):
                 if key in ("available_to_back", "available_to_lay"):
-                    val = "[" + ", ".join(f"{price:.4g}:{volume:.2f}" for price, volume in sorted(val.items())) + "]"
+                    formatted = ", ".join(f"{price:.4g}:{volume:.2f}" for price, volume in sorted(val.items()))
                 else:
-                    val = "[" + ", ".join(f"{lpv.price:.4g}:{lpv.volume:.2f}" for _, lpv in sorted(val.items())) + "]"
+                    formatted = ", ".join(f"{lpv.price:.4g}:{lpv.volume:.2f}" for _, lpv in sorted(val.items()))
+                val_str = f"[{formatted}]"
             elif isinstance(val, float):
-                val = f"{val:.2f}"
+                val_str = f"{val:.2f}"
             else:
-                val = str(val)
-            data[key] = val
-        fields = ", ".join(f"{key}={val}" for key, val in sorted(data.items()))
-        return f"<{type(self).__name__}{' ' if fields else ''}{fields}>"
+                val_str = str(val)
+
+            data[key] = val_str
+
+        fields_str = ", ".join(f"{k}={v}" for k, v in sorted(data.items()))
+        space = " " if fields_str else ""
+        return f"<{type(self).__name__}{space}{fields_str}>"
 
 
 class ChangeCache:
@@ -314,7 +348,6 @@ class OrderSubscriptionCache(ChangeCache):
             if oc.full_image:
                 self.orders.pop(oc.id, None)
             if oc.closed:
-                # TODO: Call some hooks?
                 self.orders.pop(oc.id, None)
             if not oc.orc:
                 # on closed markets

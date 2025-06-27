@@ -100,15 +100,32 @@ def test_archive(path):
 
     assert len(mc.order_book)
     for mkt_id, mkt_order_book in mc.order_book.items():
-        betting_type = mc.definitions[mkt_id].betting_type
+        mkt_def = mc.definitions[mkt_id]
+        betting_type = mkt_def.betting_type
+        is_handicap_betting = betting_type in (
+            betting.MarketBettingType.ASIAN_HANDICAP_DOUBLE_LINE,
+            betting.MarketBettingType.ASIAN_HANDICAP_SINGLE_LINE,
+        )
         assert len(mkt_order_book)
         for rc_key, runner_order_book in mkt_order_book.items():
             assert isinstance(runner_order_book, RunnerOrderBook)
             assert isinstance(rc_key, RunnerChangeKey)
             assert isinstance(rc_key.selection_id, int)
             assert isinstance(rc_key.handicap, float)
-            if betting_type not in (
-                betting.MarketBettingType.ASIAN_HANDICAP_DOUBLE_LINE,
-                betting.MarketBettingType.ASIAN_HANDICAP_SINGLE_LINE,
-            ):
+            if not is_handicap_betting:
                 assert rc_key.handicap == 0.0
+
+            best_prices = runner_order_book.best_prices()
+            if not best_prices.back_price:
+                assert best_prices.back_volume == 0
+            else:
+                assert 1 < best_prices.back_price < 1001
+                assert best_prices.back_volume > 0
+            if not best_prices.lay_price:
+                assert best_prices.lay_volume == 0
+            else:
+                assert 1 < best_prices.lay_price < 1001
+                assert best_prices.lay_volume > 0
+
+            if best_prices.back_price and best_prices.lay_price and not mkt_def.complete:
+                assert best_prices.back_price < best_prices.lay_price, "Back price must be smaller than lay price"
