@@ -142,6 +142,7 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     settled_time: Date | None = None
     status: MarketStatus
     suspend_time: Date
+    suspend_reason: str | None = None
     timezone: str | None = None
     turn_in_play_enabled: bool
     venue: str | None = None
