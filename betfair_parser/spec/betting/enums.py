@@ -373,6 +373,13 @@ class PriceLadderType(DocumentedEnum):
     LINE_RANGE = doc("Price ladder used for LINE markets. Refer to MarketLineRangeInfo for more details.")
 
 
+class BetDelayModel(DocumentedEnum):
+    PASSIVE = doc(
+        "For in-play markets where betDelay > 0, orders that are guaranteed not to match "
+        "immediately are accepted straight away, bypassing the bet delay wait."
+    )
+
+
 class MarketTypeCode(StrEnum):
     """This is not a complete list, but only a selection of some popular options for direct access.
 

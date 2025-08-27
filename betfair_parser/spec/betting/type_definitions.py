@@ -5,6 +5,7 @@ import msgspec
 
 from betfair_parser.endpoints import SILKS
 from betfair_parser.spec.betting.enums import (
+    BetDelayModel,
     BetTargetType,
     ExecutionReportErrorCode,
     ExecutionReportStatus,
@@ -398,6 +399,7 @@ class MarketBook(BaseMessage, frozen=True):
     total_matched: float | None = None  # The total amount matched on the market
     version: int | None = None  # The version of the market
     runners: list[Runner] | None = None  # Information about the runners (selections) in the market
+    bet_delay_models: list[BetDelayModel] | None = None  # Indicates which bet delay models are applied to a market
 
 
 class ItemDescription(BaseMessage, frozen=True):
