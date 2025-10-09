@@ -378,6 +378,10 @@ class BetDelayModel(DocumentedEnum):
         "For in-play markets where betDelay > 0, orders that are guaranteed not to match "
         "immediately are accepted straight away, bypassing the bet delay wait."
     )
+    DYNAMIC = doc(
+        "The DYNAMIC model indicates that a market is subject to dynamic in-play bet delays, "
+        "meaning the in-play betDelay value will change while the market is live."
+    )
 
 
 class MarketTypeCode(StrEnum):
