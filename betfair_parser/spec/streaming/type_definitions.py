@@ -71,12 +71,16 @@ class OrderFilter(BaseMessage, frozen=True):
 class RunnerDefinition(BaseMessage, frozen=True):
     sort_priority: int
     id: SelectionId
-    name: str | None = None
     hc: Handicap | None = None
+    name: str | None = None
     status: RunnerStatus | None = None
     adjustment_factor: float | None = None
     bsp: float | None = None
     removal_date: Date | None = None
+
+    @property
+    def selection_id(self):
+        return self.id
 
     @property
     def handicap(self):
@@ -85,8 +89,17 @@ class RunnerDefinition(BaseMessage, frozen=True):
 
 
 class KeyLineSelection(BaseMessage, frozen=True):
-    id: int
-    hc: float
+    id: SelectionId
+    hc: Handicap
+
+    @property
+    def selection_id(self):
+        return self.id
+
+    @property
+    def handicap(self):
+        """The handicap of the runner (selection) (None if not applicable)"""
+        return self.hc
 
 
 class KeyLineDefinition(BaseMessage, frozen=True):
@@ -181,6 +194,7 @@ Trade = Annotated[PV, msgspec.Meta(title="Trade")]
 
 class RunnerChange(BaseMessage, frozen=True):
     id: SelectionId
+    hc: Handicap | None = None
     atb: list[AvailableToBack] | None = None
     atl: list[AvailableToLay] | None = None
     batb: list[BestAvailableToBack] | None = None
@@ -194,7 +208,15 @@ class RunnerChange(BaseMessage, frozen=True):
     trd: list[Trade] | None = None  # Traded
     ltp: float | None = None  # Last Traded Price
     tv: float | None = None  # Total Volume
-    hc: Handicap | None = None
+
+    @property
+    def selection_id(self):
+        return self.id
+
+    @property
+    def handicap(self):
+        """The handicap of the runner (selection) (None if not applicable)"""
+        return self.hc
 
     @property
     def available_to_back(self):
@@ -261,11 +283,6 @@ class RunnerChange(BaseMessage, frozen=True):
         """The total amount matched. This value is truncated at 2dp."""
         return self.tv
 
-    @property
-    def handicap(self):
-        """The handicap of the runner (selection) (None if not applicable)"""
-        return self.hc
-
 
 class MarketChange(BaseMessage, kw_only=True, frozen=True):
     id: MarketId
@@ -298,8 +315,8 @@ class MarketChange(BaseMessage, kw_only=True, frozen=True):
 
 class Order(BaseMessage, frozen=True):
     id: BetId
-    p: float  # Price
-    s: float  # Size
+    p: Price
+    s: Size
     # Side of the order. For Line markets a 'B' bet refers to a SELL line and an 'L' bet refers to a BUY line.
     side: Literal["B", "L"]
     status: Literal["E", "EC"]  # Status of the order (E = EXECUTABLE, EC = EXECUTION_COMPLETE)
@@ -315,13 +332,18 @@ class Order(BaseMessage, frozen=True):
     md: int | None = None  # Matched Date
     cd: int | None = None  # Cancelled Date
     ld: int | None = None  # Lapsed Date
-    avp: float | None = None  # Average Price Matched
-    sm: float | None = None  # Size Matched
-    sr: float | None = None  # Size Remaining
-    sl: float | None = None  # Size Lapsed
-    sc: float | None = None  # Size Cancelled
-    sv: float | None = None  # Size Voided
+    avp: Price | None = None  # Average Price Matched
+    sm: Size | None = None  # Size Matched
+    sr: Size | None = None  # Size Remaining
+    sl: Size | None = None  # Size Lapsed
+    sc: Size | None = None  # Size Cancelled
+    sv: Size | None = None  # Size Voided
     lsrc: LapseStatusReasonCode | None = None
+
+    @property
+    def bet_id(self):
+        # interchangeability with betting.Order
+        return self.id
 
     @property
     def execution_complete(self) -> bool:
@@ -405,6 +427,8 @@ class Order(BaseMessage, frozen=True):
         """
         return self.avp
 
+    avg_price_matched = average_price_matched  # interchangeability with betting.Order
+
     @property
     def size_matched(self):
         """The amount of the order that has been matched"""
@@ -435,13 +459,6 @@ class Order(BaseMessage, frozen=True):
         """The reason that some or all of this order has been lapsed (None if no portion of the order is lapsed"""
         return self.lsrc
 
-    @property
-    def bet_id(self):
-        # interchangeability with betting.Order
-        return self.id
-
-    avg_price_matched = average_price_matched  # interchangeability with betting.Order
-
 
 class MatchedOrder(BaseMessage, array_like=True, frozen=True):
     price: Price
@@ -471,6 +488,10 @@ class OrderRunnerChange(BaseMessage, frozen=True):
     ml: list[MatchedOrder] | None = None  # Matched Lays
     smc: dict[str, StrategyMatchChange] | None = None  # Strategy Matches
     uo: list[Order] | None = None  # Unmatched Orders
+
+    @property
+    def selection_id(self):
+        return self.id
 
     @property
     def handicap(self):
