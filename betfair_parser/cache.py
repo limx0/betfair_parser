@@ -24,27 +24,28 @@ from betfair_parser.spec.streaming import (
     Order,
     OrderRunnerChange,
     RunnerChange,
+    RunnerDefinition,
     SegmentType,
 )
 
 
-class RunnerChangeKey(NamedTuple):
+class SelectionKey(NamedTuple):
     selection_id: int
     handicap: float
 
 
-def rc_key(runner_change: RunnerChange | OrderRunnerChange) -> RunnerChangeKey:
+def get_selection_key(selection: RunnerChange | OrderRunnerChange | RunnerDefinition) -> SelectionKey:
     """Asian handicap markets use a combined key to represent all selections in a market."""
-    return RunnerChangeKey(runner_change.id, runner_change.hc or 0.0)
+    return SelectionKey(selection.id, selection.hc or 0.0)
 
 
 V = TypeVar("V")
-RunnerChangeKeyTypes: TypeAlias = int | tuple[int, float] | RunnerChangeKey
+SelectionKeyTypes: TypeAlias = int | tuple[int, float] | SelectionKey
 
 
-class SelectionHandicapDict(defaultdict[RunnerChangeKey, V], Generic[V]):
+class SelectionDict(defaultdict[SelectionKey, V], Generic[V]):
     """
-    A defaultdict whose real key type is RunnerChangeKey,
+    A defaultdict whose real key type is SelectionKey,
     but which also lets you do d[5] or d[(5,1.0)].
     """
 
@@ -54,28 +55,28 @@ class SelectionHandicapDict(defaultdict[RunnerChangeKey, V], Generic[V]):
         super().__init__(self.default_factory)
 
     @staticmethod
-    def _normalize(key: RunnerChangeKeyTypes) -> RunnerChangeKey:
-        if isinstance(key, RunnerChangeKey):
+    def _normalize(key: SelectionKeyTypes) -> SelectionKey:
+        if isinstance(key, SelectionKey):
             return key
         if isinstance(key, tuple):
-            return RunnerChangeKey(*key)
+            return SelectionKey(*key)
         if isinstance(key, int):
-            return RunnerChangeKey(key, 0.0)
+            return SelectionKey(key, 0.0)
         raise TypeError(f"Invalid key type: {type(key).__name__}")
 
-    def __getitem__(self, key: RunnerChangeKeyTypes) -> V:
+    def __getitem__(self, key: SelectionKeyTypes) -> V:
         return super().__getitem__(self._normalize(key))
 
-    def __contains__(self, key: RunnerChangeKeyTypes) -> bool:  # type: ignore[override]
+    def __contains__(self, key: SelectionKeyTypes) -> bool:  # type: ignore[override]
         return super().__contains__(self._normalize(key))
 
-    def __setitem__(self, key: RunnerChangeKeyTypes, value: V) -> None:
+    def __setitem__(self, key: SelectionKeyTypes, value: V) -> None:
         return super().__setitem__(self._normalize(key), value)
 
-    def __delitem__(self, key: RunnerChangeKeyTypes) -> None:
+    def __delitem__(self, key: SelectionKeyTypes) -> None:
         return super().__delitem__(self._normalize(key))
 
-    def get(self, key: RunnerChangeKeyTypes, default: V | None = None) -> V | None:  # type: ignore[override]
+    def get(self, key: SelectionKeyTypes, default: V | None = None) -> V | None:  # type: ignore[override]
         return super().get(self._normalize(key), default)
 
 
@@ -239,7 +240,7 @@ class ChangeCache:
         raise NotImplementedError()
 
 
-class MarketOrderBook(SelectionHandicapDict[RunnerOrderBook]):
+class MarketOrderBook(SelectionDict[RunnerOrderBook]):
     """Order book for a single market, collecting a bunch of RunnerOrderBooks."""
 
     default_factory: type = RunnerOrderBook
@@ -278,7 +279,7 @@ class MarketSubscriptionCache(ChangeCache):
             if not mc.rc:
                 continue
             for rc in mc.rc:
-                self.order_book[mc.id][rc_key(rc)].update(rc)
+                self.order_book[mc.id][get_selection_key(rc)].update(rc)
 
 
 class RunnerOrders:
@@ -320,7 +321,7 @@ class RunnerOrders:
             ladder_update_mo(self.matched_lays, orc.ml)
 
 
-class MarketOrders(SelectionHandicapDict[RunnerOrders]):
+class MarketOrders(SelectionDict[RunnerOrders]):
     """All orders for a single market, collecting a bunch of RunnerOrders."""
 
     default_factory: type = RunnerOrders
@@ -353,7 +354,7 @@ class OrderSubscriptionCache(ChangeCache):
                 # on closed markets
                 continue
             for orc in oc.orc:
-                orc_key = rc_key(orc)
+                orc_key = get_selection_key(orc)
                 if orc.full_image:
                     self.orders[oc.id].pop(orc_key, None)
                 self.orders[oc.id][orc_key].update(orc)

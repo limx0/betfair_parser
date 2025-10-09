@@ -4,7 +4,7 @@ import bz2
 
 import pytest
 
-from betfair_parser.cache import MarketSubscriptionCache, RunnerChangeKey, RunnerOrderBook
+from betfair_parser.cache import MarketSubscriptionCache, RunnerOrderBook, SelectionKey
 from betfair_parser.spec import accounts, betting
 from betfair_parser.spec.common import decode
 from betfair_parser.spec.streaming import MCM, StreamRequestType, StreamResponseType, stream_decode
@@ -107,13 +107,13 @@ def test_archive(path):
             betting.MarketBettingType.ASIAN_HANDICAP_SINGLE_LINE,
         )
         assert len(mkt_order_book)
-        for rc_key, runner_order_book in mkt_order_book.items():
+        for selection_key, runner_order_book in mkt_order_book.items():
             assert isinstance(runner_order_book, RunnerOrderBook)
-            assert isinstance(rc_key, RunnerChangeKey)
-            assert isinstance(rc_key.selection_id, int)
-            assert isinstance(rc_key.handicap, float)
+            assert isinstance(selection_key, SelectionKey)
+            assert isinstance(selection_key.selection_id, int)
+            assert isinstance(selection_key.handicap, float)
             if not is_handicap_betting:
-                assert rc_key.handicap == 0.0
+                assert selection_key.handicap == 0.0
 
             best_prices = runner_order_book.best_prices()
             if not best_prices.back_price:
