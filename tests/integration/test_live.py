@@ -101,6 +101,21 @@ def test_event_types(session: Session):
 
 
 @skip_not_logged_in
+def test_market_types(session: Session):
+    resp: list[betting.MarketTypeResult] = client.request(
+        session,
+        betting.ListMarketTypes.with_params(
+            filter=betting.MarketFilter(event_type_ids={betting.EventTypeIdCode.SOCCER})
+        ),
+    )
+    assert len(resp), "No market types found"
+    assert len(resp) > 20
+    print(f"Found {len(resp)} soccer market types")
+    market_types = [result.market_type for result in resp]
+    print(market_types)
+
+
+@skip_not_logged_in
 def test_countries(session: Session):
     resp: list[betting.CountryCodeResult] = client.request(
         session,
