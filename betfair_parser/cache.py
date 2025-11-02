@@ -13,12 +13,14 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Generic, NamedTuple, TypeAlias, TypeVar
 
+from betfair_parser.spec import betting
 from betfair_parser.spec.streaming import (
     LPV,
     MCM,
     OCM,
     PV,
     ChangeType,
+    KeyLineSelection,
     MarketDefinition,
     MatchedOrder,
     Order,
@@ -33,9 +35,33 @@ class SelectionKey(NamedTuple):
     selection_id: int
     handicap: float
 
+    def __str__(self) -> str:
+        return f"{self.selection_id}{self.handicap:+}"
 
-def get_selection_key(selection: RunnerChange | OrderRunnerChange | RunnerDefinition) -> SelectionKey:
-    """Asian handicap markets use a combined key to represent all selections in a market."""
+
+def get_selection_key(
+    selection: RunnerChange
+    | OrderRunnerChange
+    | RunnerDefinition
+    | KeyLineSelection
+    | betting.RunnerCatalog
+    | betting.Runner
+    | betting.KeyLineSelection,
+) -> SelectionKey:
+    """Get the compound selection_id / handicap SelectionKey from any relevant API object."""
+    if isinstance(selection, (RunnerChange | OrderRunnerChange | RunnerDefinition | KeyLineSelection)):
+        return SelectionKey(selection.id, selection.hc or 0.0)
+    return SelectionKey(selection.selection_id, selection.handicap or 0.0)
+
+
+def get_selection_key_streaming(
+    selection: RunnerChange | OrderRunnerChange | RunnerDefinition | KeyLineSelection,
+) -> SelectionKey:
+    """
+    Get the compound selection_id / handicap SelectionKey from a streaming object.
+    Avoid any isinstance check or attribute lookup overhead as good as possible.
+    If in doubt, just use get_selection_key instead.
+    """
     return SelectionKey(selection.id, selection.hc or 0.0)
 
 
@@ -279,7 +305,7 @@ class MarketSubscriptionCache(ChangeCache):
             if not mc.rc:
                 continue
             for rc in mc.rc:
-                self.order_book[mc.id][get_selection_key(rc)].update(rc)
+                self.order_book[mc.id][get_selection_key_streaming(rc)].update(rc)
 
 
 class RunnerOrders:
@@ -354,7 +380,7 @@ class OrderSubscriptionCache(ChangeCache):
                 # on closed markets
                 continue
             for orc in oc.orc:
-                orc_key = get_selection_key(orc)
+                orc_key = get_selection_key_streaming(orc)
                 if orc.full_image:
                     self.orders[oc.id].pop(orc_key, None)
                 self.orders[oc.id][orc_key].update(orc)
