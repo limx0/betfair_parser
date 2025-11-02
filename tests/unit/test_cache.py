@@ -8,10 +8,13 @@ from betfair_parser.cache import (
     MarketOrders,
     MarketSubscriptionCache,
     OrderSubscriptionCache,
+    SelectionKey,
+    get_selection_key,
+    get_selection_key_streaming,
     ladder_update_lpv,
 )
 from betfair_parser.spec.common import decode, encode
-from betfair_parser.spec.streaming import MCM, stream_decode
+from betfair_parser.spec.streaming import MCM, OCM, stream_decode
 from tests.resources import RESOURCES_DIR
 
 
@@ -124,7 +127,7 @@ def test_order_cache_runner_removal():
 
 
 @pytest.mark.parametrize("dict_type", (MarketOrders, MarketOrderBook))
-def test_selection_handicap_dict(dict_type):
+def test_selection_dict(dict_type):
     cache = dict_type()
     runner_cache = cache[123]
     assert runner_cache == cache[(123, 0)]
@@ -158,3 +161,28 @@ def test_selection_handicap_dict(dict_type):
     del runner_cache
     del cache
     assert r() is None
+
+
+def test_selection_key():
+    assert str(SelectionKey(123, 0)) == "123+0.0"
+    assert str(SelectionKey(123, -0.5)) == "123-0.5"
+    assert str(SelectionKey(123, 1.5)) == "123+1.5"
+
+
+def test_get_selection_key():
+    raw = (RESOURCES_DIR / "responses" / "streaming" / "mcm_sub_image_no_market_def.json").read_bytes()
+    mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
+    for mc in mcm.market_changes:
+        for rc in mc.runner_changes:
+            selection_key = get_selection_key(rc)
+            assert selection_key == get_selection_key_streaming(rc)
+            assert selection_key.selection_id in (25327214, 10727442, 41364, 41365, 6393482, 6393483)
+            assert selection_key.handicap == 0.0
+    for ocm_sample in OCMS_SAMPLE:
+        ocm: OCM = stream_decode(ocm_sample)  # type: ignore[assignment]
+        for omc in ocm.order_market_changes:
+            for orc in omc.order_runner_changes:
+                selection_key = get_selection_key(orc)
+                assert selection_key == get_selection_key_streaming(orc)
+                assert selection_key.selection_id == 6113662
+                assert selection_key.handicap == 0.0

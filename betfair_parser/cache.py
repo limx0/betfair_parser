@@ -36,7 +36,7 @@ class SelectionKey(NamedTuple):
     handicap: float
 
     def __str__(self) -> str:
-        return f"{self.selection_id}{self.handicap:+}"
+        return f"{self.selection_id}{self.handicap:+.1f}"
 
 
 def get_selection_key(
@@ -49,8 +49,6 @@ def get_selection_key(
     | betting.KeyLineSelection,
 ) -> SelectionKey:
     """Get the compound selection_id / handicap SelectionKey from any relevant API object."""
-    if isinstance(selection, (RunnerChange | OrderRunnerChange | RunnerDefinition | KeyLineSelection)):
-        return SelectionKey(selection.id, selection.hc or 0.0)
     return SelectionKey(selection.selection_id, selection.handicap or 0.0)
 
 
