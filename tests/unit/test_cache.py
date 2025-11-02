@@ -163,10 +163,18 @@ def test_selection_dict(dict_type):
     assert r() is None
 
 
-def test_selection_key():
-    assert str(SelectionKey(123, 0)) == "123+0.0"
-    assert str(SelectionKey(123, -0.5)) == "123-0.5"
-    assert str(SelectionKey(123, 1.5)) == "123+1.5"
+@pytest.mark.parametrize(
+    ["selection_id", "handicap", "expected"],
+    [
+        (123, 0.0, "123+0"),
+        (123, -0.5, "123-0.5"),
+        (123, 1.5, "123+1.5"),
+        (123, 1.25, "123+1.25"),
+        (123, -1.75, "123-1.75"),
+    ],
+)
+def test_selection_key(selection_id, handicap, expected):
+    assert str(SelectionKey(selection_id, handicap)) == expected
 
 
 def test_get_selection_key():

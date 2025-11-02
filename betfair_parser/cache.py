@@ -36,7 +36,7 @@ class SelectionKey(NamedTuple):
     handicap: float
 
     def __str__(self) -> str:
-        return f"{self.selection_id}{self.handicap:+.1f}"
+        return f"{self.selection_id}{self.handicap:+.2f}".rstrip("0").rstrip(".")
 
 
 def get_selection_key(
