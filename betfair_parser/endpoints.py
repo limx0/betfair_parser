@@ -7,7 +7,6 @@ BETTING = "https://api.betfair.com/exchange/betting/json-rpc/v1/"
 SCORES = "https://api.betfair.com/exchange/scores/json-rpc/v1/"
 STREAM = "ndjson://stream-api.betfair.com:443"
 STREAM_INTEGRATION = "ndjson://stream-api-integration.betfair.com:443"
-SILKS = "https://content-cache.cdnppb.net/feeds_images/Horses/SilkColours/"
 
 _IDENTITY = "https://identitysso.betfair{tld}/api/"
 _IDENTITY_CERT = "https://identitysso-cert.betfair{tld}/api/"

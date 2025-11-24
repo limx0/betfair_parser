@@ -3,7 +3,6 @@ from functools import partial
 
 import msgspec
 
-from betfair_parser.endpoints import SILKS
 from betfair_parser.spec.betting.enums import (
     BetDelayModel,
     BetTargetType,
@@ -252,7 +251,7 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     # Yes, this is the only type definition, that has (mostly) upper-case key names
     """
     Runner metadata as defined in the API as additional information.
-    https://docs.developer.betfair.com/display/1smk3cen4v3lu3yomq5qye0ni/Additional+Information
+    https://betfair-developer-docs.atlassian.net/wiki/spaces/1smk3cen4v3lu3yomq5qye0ni/pages/2686993/Additional+Information#AdditionalInformation-RunnerMetadataDescription
     """
 
     adjusted_rating: int | None = None  # Race-specific ratings that reflect weights allocated in the race
@@ -263,6 +262,7 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     colour_type: str | None = None  # The colour of the horse
     colours_description: str | None = None  # The textual description of the jockey silk
     colours_filename: str | None = None  # Image representing the jockey silk
+    colours_filename_url: str | None = None  # The full URL to an image file corresponding to the jockey silk
     dam_bred: _MetaCountryCode | None = None  # The country where the horse's mother was born
     dam_name: str | None = None  # The name of the horse's mother
     dam_year_born: int | None = None  # The year the horse’s mother's birth
@@ -308,9 +308,7 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
 
     @property
     def colours_url(self):
-        if not self.colours_filename:
-            return None
-        return SILKS + self.colours_filename
+        return self.colours_filename_url
 
     @property
     def forecastprice_decimal(self):
