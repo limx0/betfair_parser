@@ -7,7 +7,7 @@ This includes checking of all parameters of operations and type definitions.
 import keyword
 import re
 import xml.etree.ElementTree as etree  # noqa
-from typing import get_type_hints
+from typing import get_args, get_origin, get_type_hints
 
 import pytest
 
@@ -199,7 +199,7 @@ def test_operations(spec, node):
         return
 
     params_cls_name = compat_type_name(params_cls)
-    if params_cls_name == "Optional":
+    if params_cls_name in ("Optional", "Union"):
         # for GetAccountDetails, GetAccountFunds
         params_cls = py_type_unpack(params_cls)
         params_cls_name = compat_type_name(params_cls)
@@ -259,7 +259,7 @@ def is_param_optional(xml_param, api_cls) -> bool:
 
 
 def py_type_unpack(type_def):
-    return type_def.__args__[0]
+    return get_args(type_def)[0]
 
 
 def py_type_unpack_annotated(type_def):
@@ -274,7 +274,7 @@ def py_type_format(type_def) -> str:
         return py_type_replace(type_def.__metadata__[-1].title)
     if not hasattr(type_def, "__args__"):
         return py_type_replace(type_def_name)
-    args = type_def.__args__ if type_def_name != "Optional" else type_def.__args__[:-1]
+    args = get_args(type_def) if type_def_name != "Optional" else get_args(type_def)[:-1]
     args_fmt = ",".join(py_type_format(arg) for arg in args)
     return f"{py_type_replace(type_def_name)}[{args_fmt}]"
 
@@ -374,13 +374,13 @@ def compat_type_name(type_def) -> str:
         if type_def.__class__.__name__.startswith("_Annotated"):
             return "Annotated"
         name = type_def.__class__.__name__.lstrip("_").replace("Alias", "").replace("Generic", "").replace("Type", "")
-        if name == "Union" and type_def.__args__[-1] is type(None):  # noqa
+        if name == "Union" and get_args(type_def)[-1] is type(None):  # noqa
             # Optional looks just like Union, so we need to distinguish
             return "Optional"
         if not name:
             # Probably an enum
             try:
-                return type_def.__origin__.__name__
+                return get_origin(type_def).__name__
             except AttributeError:
                 pass
         return name
