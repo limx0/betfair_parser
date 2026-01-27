@@ -168,7 +168,7 @@ def test_events(session: Session):
 
 
 @skip_not_logged_in
-def test_market_catalogue(session: Session):
+def test_market_catalogue_horseracing(session: Session):
     resp: list[betting.MarketCatalogue] = client.request(
         session,
         betting.ListMarketCatalogue.with_params(
@@ -197,6 +197,40 @@ def test_market_catalogue(session: Session):
         assert runner.metadata
         assert runner.metadata.cloth_number
         assert runner.metadata.colours_description
+
+
+@skip_not_logged_in
+def test_market_catalogue_football(session: Session):
+    resp: list[betting.MarketCatalogue] = client.request(
+        session,
+        betting.ListMarketCatalogue.with_params(
+            filter=betting.MarketFilter(
+                event_type_ids={betting.EventTypeIdCode.SOCCER},
+                market_type_codes={betting.MarketTypeCode.MATCH_ODDS, betting.MarketTypeCode.ASIAN_HANDICAP},
+                market_betting_types={
+                    betting.MarketBettingType.ODDS,
+                    betting.MarketBettingType.ASIAN_HANDICAP_DOUBLE_LINE,
+                },
+                market_countries={"GB", "IE"},
+                bet_delay_models={betting.BetDelayModel.PASSIVE},
+            ),
+            market_projection=[
+                betting.MarketProjection.EVENT,
+                betting.MarketProjection.MARKET_DESCRIPTION,
+                betting.MarketProjection.RUNNER_DESCRIPTION,
+            ],
+            sort=betting.MarketSort.FIRST_TO_START,
+            max_results=100,
+        ),
+    )
+
+    assert len(resp) <= 100
+    print(resp[0])
+    for runner in resp[0].runners:
+        assert runner.name
+    for market in resp:
+        if market.description.bet_delay_models:
+            assert market.description.bet_delay_models
 
 
 @skip_not_logged_in

@@ -1,5 +1,6 @@
 from betfair_parser.spec.betting import enums, operations, type_definitions
 from betfair_parser.spec.betting.enums import (
+    BetDelayModel,
     BetStatus,
     BetTargetType,
     ExecutionReportErrorCode,

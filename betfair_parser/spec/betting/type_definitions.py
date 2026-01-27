@@ -113,6 +113,7 @@ class TimeRangeResult(BaseMessage, frozen=True):
 
 
 class MarketFilter(BaseMessage, frozen=True):
+    bet_delay_models: Set[BetDelayModel] | None = None  # Indicates which bet delay models are applied to a market
     bsp_only: bool | None = None  # Restrict to bsp markets only if True or non-bsp markets if False
     competition_ids: Set[CompetitionId] | None = None  # Restrict markets by the competitions
     event_ids: Set[EventId] | None = None  # Restrict markets by the event id associated with the market
@@ -219,6 +220,7 @@ class MarketLicence(BaseMessage, frozen=True):
 
 
 class MarketDescription(BaseMessage, kw_only=True, frozen=True):
+    bet_delay_models: list[BetDelayModel] | None = None  # Indicates which bet delay models are applied to a market
     betting_type: MarketBettingType
     bsp_market: bool  # Indicates if the market supports Betfair SP betting
     clarifications: str | None = None  # Additional information regarding the market
