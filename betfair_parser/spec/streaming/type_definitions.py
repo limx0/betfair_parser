@@ -3,6 +3,7 @@ from typing import Annotated, Literal
 import msgspec
 
 from betfair_parser.spec.betting.enums import (
+    BetDelayModel,
     MarketBettingType,
     MarketStatus,
     MarketTypeCode,
@@ -35,6 +36,7 @@ StreamRef = int | str
 
 
 class MarketFilter(BaseMessage, frozen=True):
+    bet_delay_models: Set[BetDelayModel] | None = None  # Indicates which bet delay models are applied to a market
     betting_types: Set[MarketBettingType] | None = None  # Match the betting type of the market
     bsp_market: bool | None = None  # If set, restrict to BSP or non-BSP markets only. If unset, return both
     country_codes: Set[str] | None = None  # Restrict to specified country or countries. Defaults to 'GB' on error
@@ -112,6 +114,7 @@ class PriceLadderDefinition(BaseMessage, frozen=True):
 
 class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     bet_delay: int
+    bet_delay_models: list[BetDelayModel] | None = None  # Indicates which bet delay models are applied to a market
     betting_type: MarketBettingType
     bsp_market: bool
     bsp_reconciled: bool

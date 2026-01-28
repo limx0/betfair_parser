@@ -7,6 +7,7 @@ from betfair_parser import client
 from betfair_parser.cache import MarketDefinition, RunnerOrderBook
 from betfair_parser.endpoints import STREAM_INTEGRATION
 from betfair_parser.exceptions import BetfairError
+from betfair_parser.spec.betting.enums import BetDelayModel
 from betfair_parser.spec.common import EventTypeIdCode
 from betfair_parser.spec.streaming import (
     MCM,
@@ -39,35 +40,54 @@ MARKET_STREAM_ID = 1
 ORDER_STREAM_ID = 2
 _HEARTBEAT = 5000
 
-SUBSCRIPTIONS = [
-    MarketSubscription(
-        id=MARKET_STREAM_ID,
-        heartbeat_ms=_HEARTBEAT,
-        market_filter=MarketFilter(
-            betting_types={MarketBettingType.ODDS},
-            event_type_ids={EventTypeIdCode.HORSE_RACING},
-            country_codes={"GB", "IE"},
-            market_types={MarketTypeCode.WIN},
-        ),
-        market_data_filter=MarketDataFilter(
-            fields={
-                MarketDataFilterFields.EX_MARKET_DEF,
-                MarketDataFilterFields.EX_ALL_OFFERS,
-                MarketDataFilterFields.EX_LTP,
-                MarketDataFilterFields.EX_TRADED_VOL,
-            },
-        ),
+SUBSCRIPTION_HORSERACING = MarketSubscription(
+    id=MARKET_STREAM_ID,
+    heartbeat_ms=_HEARTBEAT,
+    market_filter=MarketFilter(
+        betting_types={MarketBettingType.ODDS},
+        event_type_ids={EventTypeIdCode.HORSE_RACING},
+        country_codes={"GB", "IE"},
+        market_types={MarketTypeCode.WIN},
     ),
-    OrderSubscription(id=ORDER_STREAM_ID, heartbeat_ms=_HEARTBEAT),
-]
-
-
-@pytest.mark.parametrize(
-    "subscription",
-    SUBSCRIPTIONS,
-    ids=lambda x: type(x).__name__,
+    market_data_filter=MarketDataFilter(
+        fields={
+            MarketDataFilterFields.EX_MARKET_DEF,
+            MarketDataFilterFields.EX_ALL_OFFERS,
+            MarketDataFilterFields.EX_LTP,
+            MarketDataFilterFields.EX_TRADED_VOL,
+        },
+    ),
 )
-def test_stream(session, subscription, iterations=3):
+
+SUBSCRIPTION_FOOTBALL = MarketSubscription(
+    id=MARKET_STREAM_ID,
+    heartbeat_ms=_HEARTBEAT,
+    market_filter=MarketFilter(
+        betting_types={MarketBettingType.ODDS},
+        event_type_ids={EventTypeIdCode.SOCCER},
+        country_codes={"GB", "IE"},
+        market_types={MarketTypeCode.MATCH_ODDS, MarketTypeCode.ASIAN_HANDICAP},
+        bet_delay_models={BetDelayModel.PASSIVE},
+    ),
+    market_data_filter=MarketDataFilter(
+        fields={
+            MarketDataFilterFields.EX_MARKET_DEF,
+            MarketDataFilterFields.EX_BEST_OFFERS,
+        },
+    ),
+)
+
+SUBSCRIPTION_ORDERS = OrderSubscription(id=ORDER_STREAM_ID, heartbeat_ms=_HEARTBEAT)
+
+SUBSCRIPTIONS = {
+    "horseracing": SUBSCRIPTION_HORSERACING,
+    "football": SUBSCRIPTION_FOOTBALL,
+    "orders": SUBSCRIPTION_ORDERS,
+}
+
+
+@pytest.mark.parametrize("subscription", SUBSCRIPTIONS.values(), ids=SUBSCRIPTIONS.keys())
+def test_stream(session, subscription: MarketSubscription | OrderSubscription, iterations=3):
     app_key = session.headers.get("X-Application")
     token = session.headers.get("X-Authentication")
     esm = ExchangeStream(app_key, token)
@@ -96,13 +116,9 @@ def test_stream(session, subscription, iterations=3):
             print(msg)
 
 
-@pytest.mark.parametrize(
-    "subscription",
-    SUBSCRIPTIONS,
-    ids=lambda x: type(x).__name__,
-)
+@pytest.mark.parametrize("subscription", SUBSCRIPTIONS.values(), ids=SUBSCRIPTIONS.keys())
 @pytest.mark.asyncio
-async def test_stream_async(session, subscription, iterations=3):
+async def test_stream_async(session, subscription: MarketSubscription | OrderSubscription, iterations=3):
     token = session.headers.get("X-Authentication")
     app_key = session.headers.get("X-Application")
     esm = ExchangeStream(app_key, token)
@@ -134,8 +150,8 @@ def test_stream_reader(session, iterations=15):
     token = session.headers.get("X-Authentication")
 
     sr = StreamReader(app_key, token)
-    for subscription in SUBSCRIPTIONS:
-        sr.subscribe(subscription)  # type: ignore[arg-type]
+    for subscription in (SUBSCRIPTION_HORSERACING, SUBSCRIPTION_ORDERS):
+        sr.subscribe(subscription)
 
     with create_stream_io(STREAM_INTEGRATION) as stream:
         for i, change_msg in enumerate(sr.iter_changes(stream)):
@@ -206,7 +222,7 @@ def test_iter_changes_stream_termination(nlines=10):
     path = RESOURCES_DIR / "responses" / "streaming" / "mcm_samples.ndjson"
     stream = TerminatingStream(path, nlines)
     sr = StreamReader(None, None)
-    sr.subscribe(SUBSCRIPTIONS[0])  # type: ignore[arg-type]
+    sr.subscribe(SUBSCRIPTION_HORSERACING)
 
     msgs = list(sr.iter_changes(stream))  # type: ignore[arg-type]
     for msg in msgs:
@@ -219,7 +235,7 @@ def test_iter_changes_stream_and_write_termination(tmp_path, nlines=10):
     out_path = tmp_path / "stream.ndjson"
     stream = TerminatingStream(path, nlines)
     sr = StreamReader(None, None)
-    sr.subscribe(SUBSCRIPTIONS[0])  # type: ignore[arg-type]
+    sr.subscribe(SUBSCRIPTION_HORSERACING)
 
     msgs = list(sr.iter_changes_and_write(stream, out_path))  # type: ignore[arg-type]
     for msg in msgs:
