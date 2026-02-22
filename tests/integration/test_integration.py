@@ -72,6 +72,16 @@ def test_responses(path):
         assert not resp.error
         assert resp.result
 
+    if isinstance(resp.result, list) and isinstance(resp.result[0], betting.MarketCatalogue):
+        for mc in resp.result:
+            for runner in mc.runners:
+                metadata = runner.metadata
+                if not metadata:
+                    continue
+                assert isinstance(metadata.cloth_number, int)
+                assert isinstance(metadata.cloth_number_alpha, str)
+                assert metadata.cloth_number_alpha.startswith(str(metadata.cloth_number))
+
 
 LINE_COUNT = {
     "1.164917629.bz2": 298,

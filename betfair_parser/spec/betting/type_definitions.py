@@ -2,6 +2,7 @@ from datetime import datetime
 from functools import partial
 
 import msgspec
+from msgspec.structs import force_setattr
 
 from betfair_parser.spec.betting.enums import (
     BetDelayModel,
@@ -259,7 +260,7 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     adjusted_rating: int | None = None  # Race-specific ratings that reflect weights allocated in the race
     age: int | None = None  # The age of the horse
     bred: _MetaCountryCode | None = None  # The country in which the horse was born
-    cloth_number: int | None = None  # The number on the saddle-cloth
+    cloth_number: int | str | None = None  # The number on the saddle-cloth
     cloth_number_alpha: str | None = None  # The number on the saddle cloth for US paired runners, e.g. "1A"
     colour_type: str | None = None  # The colour of the horse
     colours_description: str | None = None  # The textual description of the jockey silk
@@ -291,7 +292,6 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     weight_value: float | None = None  # The weight of the horse
 
     def __post_init__(self):
-        force_setattr = msgspec.structs.force_setattr
         cur_year = datetime.now().year
         if self.weight_value is not None and self.weight_value <= 0:
             force_setattr(self, "weight_value", None)
@@ -303,10 +303,16 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
             force_setattr(self, "dam_year_born", None)
         if self.damsire_year_born is not None and not cur_year - 60 < self.damsire_year_born < cur_year:
             force_setattr(self, "damsire_year_born", None)
-        if self.cloth_number is not None and not 0 < self.cloth_number < 50:
-            force_setattr(self, "cloth_number", None)
         if self.age is not None and not 1 < self.age < 30:
             force_setattr(self, "age", None)
+        if isinstance(self.cloth_number, str):
+            try:
+                cloth_number = int("".join(filter(str.isdigit, self.cloth_number)))
+            except ValueError:
+                cloth_number = None
+            force_setattr(self, "cloth_number", cloth_number)
+        if self.cloth_number is not None and not 0 < self.cloth_number < 50:  # type: ignore[operator]
+            force_setattr(self, "cloth_number", None)
 
     @property
     def colours_url(self):
