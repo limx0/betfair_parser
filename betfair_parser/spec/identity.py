@@ -78,10 +78,12 @@ class LoginExceptionCode(DocumentedEnum):
     SELF_EXCLUDED = doc("the account has been self-excluded")
     SPAIN_MIGRATION_REQUIRED = doc("Spain migration required")
     SPANISH_TERMS_ACCEPTANCE_REQUIRED = doc("The latest Spanish terms and conditions version must be accepted")
-    STRONG_AUTH_CODE_REQUIRED = doc("2 Step Authentication code is required.")
+    STRONG_AUTH_CODE_REQUIRED = doc("2 Step Authentication code is required.")  # deprecated ?
     SUSPENDED = doc("the account is suspended")
-    SWEDEN_BANK_ID_VERIFICATION_REQUIRED = doc("Swedish bank id for Betfair.se not provided.")
-    SWEDEN_NATIONAL_IDENTIFIER_REQUIRED = doc("Swedish National identifier for Betfair.se not provided.")
+    SWEDEN_BANK_ID_VERIFICATION_REQUIRED = doc("Swedish bank id for Betfair.se not provided.")  # deprecated ?
+    SWEDEN_NATIONAL_IDENTIFIER_REQUIRED = doc(
+        "Swedish National identifier for Betfair.se not provided."
+    )  # deprecated ?
     TELBET_TERMS_CONDITIONS_NA = doc("Telbet terms and conditions rejected")
     TEMPORARY_BAN_TOO_MANY_REQUESTS = doc(
         "The limit for successful login requests per minute has been exceeded. "
@@ -89,6 +91,31 @@ class LoginExceptionCode(DocumentedEnum):
     )
     TRADING_MASTER = doc("Trading Master Account")
     TRADING_MASTER_SUSPENDED = doc("Suspended Trading Master Account")
+
+    # These codes were recently added
+    MIGRATION_REQUIRED = doc(
+        "Brazil customers only - you must login to betfair.bet.br to migrate your account (from 1st January 2025)"
+    )
+    TERMS_AND_CONDITIONS = doc(
+        "Brazil customers only - you must login to betfair.bet.br to accept the new terms and conditions (from 1st January 2025)."
+    )
+    CONTACT_VERIFICATION_REQUIRED = doc(
+        "You must login via Betfair website (https://www.betfair.com) and complete KYC document verification. "
+        "Please Note: Reconfirmation of these details may also be required every 12 months from the initial account open date."
+    )
+    MULTI_FACTOR_AUTHENTICATION_REQUIRED = doc(
+        "Status received if the last successful login date is more than 7 days (Brazil users only)"
+    )
+    AUTHORIZED_ONLY_FOR_DOMAIN = doc("You must migrate your Betfair account to betfair.bet.br (Brazil users only).")
+    STRONG_CODE_FAIL = doc(
+        "Returned when login requires 2 Step Authentication code - when the code the user input was already used or is incorrect."
+    )
+
+    # further mentioned error codes without detailed explanation
+    FORBIDDEN = doc("Forbidden")
+    NO_SESSION = doc("No session")
+    INVALID_PIN = doc("Invalid PIN")
+    INVALID_PIN_LOGIN_REQUEST = doc("Invalid PIN login request")
 
     # In case of a successful login, the error field is an empty string. To express this, either a
     # Union[LoginExceptionCode, Literal[""]] or a subclass of this enum, extending the fields, would
@@ -108,6 +135,7 @@ class LoginResponse(BaseResponse, frozen=True):
     product: str  # application key
     status: LoginStatus
     error: LoginExceptionCode
+    last_login_date: str | None = None  # format: "dd/MM/yyyy HH:mm:ss"
 
     @property
     def is_error(self):
