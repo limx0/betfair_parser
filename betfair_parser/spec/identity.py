@@ -3,7 +3,7 @@ from urllib.parse import quote
 
 import msgspec
 
-from betfair_parser.exceptions import IdentityError, LoginImpossible
+from betfair_parser.exceptions import IdentityError, LoginError
 from betfair_parser.spec.common import BaseResponse, EndpointType, Params, Request, decode
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
@@ -14,7 +14,7 @@ class _IdentityRequest(Request, frozen=True):
     def parse_response(self, response, raise_errors=True):
         resp = decode(response, type=self.return_type)
         if resp.is_error and raise_errors:
-            raise self.throws(str(resp.error), response=resp, request=self)
+            raise self.throws(str(resp.error), response=resp, request=self, code=resp.error)
         return resp
 
     def body(self):
@@ -153,7 +153,7 @@ class _LoginParams(Params, frozen=True):
 class Login(_IdentityRequest, kw_only=True, frozen=True):
     params: _LoginParams
     return_type = LoginResponse
-    throws = LoginImpossible
+    throws = LoginError
 
     @staticmethod
     def headers() -> dict[str, str]:
@@ -219,7 +219,7 @@ class CertLogin(_IdentityRequest, kw_only=True, frozen=True, tag=str.lower):
     endpoint_type = EndpointType.IDENTITY_CERT
     params: _LoginParams
     return_type = CertLoginResponse
-    throws = LoginImpossible
+    throws = LoginError
 
     headers = staticmethod(Login.headers)  # type: ignore[assignment,unused-ignore]
     body = Login.body

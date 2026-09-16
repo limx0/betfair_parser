@@ -1,0 +1,15 @@
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32099,
+    "message": "AANGX-0011",
+    "data": {
+      "exceptionname": "AccountAPINGException",
+      "AccountAPINGException": {
+        "errorCode": "INVALID_SESSION_INFORMATION",
+        "errorDetails": "The session token hasn't been provided, is invalid or has expired. You must login again to create a new session token."
+      }
+    }
+  },
+  "id": 1
+}

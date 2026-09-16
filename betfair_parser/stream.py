@@ -9,7 +9,7 @@ from collections.abc import AsyncGenerator, Callable, Iterable
 from typing import Any
 
 from betfair_parser.cache import MarketSubscriptionCache, OrderSubscriptionCache
-from betfair_parser.exceptions import StreamError
+from betfair_parser.exceptions import StreamAuthenticationError, StreamError
 from betfair_parser.spec.common import encode
 from betfair_parser.spec.streaming import (
     MCM,
@@ -45,6 +45,7 @@ class ExchangeStream:
         self._id_generator = id_generator if id_generator is not None else itertools.count(1000)
         self._connection_id: str | None = None
         self._connections_available: int = 0
+        self.authenticated = False
 
     @property
     def connection_id(self) -> str | None:
@@ -67,8 +68,11 @@ class ExchangeStream:
 
     def handle_status(self, msg: Status) -> Status:
         if msg.is_error or msg.connection_closed:
-            raise StreamError(
-                f"Connection {self.connection_id} to stream {msg.id} failed: {msg.error_code}: {msg.error_message}"
+            # errors before the authentication handshake completed are auth errors
+            error_cls = StreamError if self.authenticated else StreamAuthenticationError
+            raise error_cls(
+                f"Connection {self.connection_id} to stream {msg.id} failed: {msg.error_code}: {msg.error_message}",
+                code=msg.error_code,
             )
         if msg.connections_available is not None:
             self._connections_available = msg.connections_available
@@ -169,7 +173,8 @@ class StreamReader:
     def connect(self, stream: io.RawIOBase) -> None:
         self.esm.receive(stream)  # read connection
         stream.write(self.esm.connect())  # send auth
-        self.esm.receive(stream)
+        self.esm.receive(stream)  # read auth response
+        self.esm.authenticated = True
 
     def iter_changes(self, stream: io.RawIOBase) -> Iterable[ChangeMessageType]:
         """Iterate over the stream, yielding market and order change messages."""
@@ -265,7 +270,8 @@ class AsyncStreamReader(StreamReader):
     async def connect_async(self, stream: AsyncStream) -> None:
         self.esm.receive_bytes(await stream.readline())  # read connection
         await stream.write(self.esm.connect())  # send auth
-        self.esm.receive_bytes(await stream.readline())
+        self.esm.receive_bytes(await stream.readline())  # read auth response
+        self.esm.authenticated = True
 
     async def iter_changes_async(self, stream: AsyncStream) -> AsyncGenerator[ChangeMessageType, None]:
         if not self.esm.is_connected:
