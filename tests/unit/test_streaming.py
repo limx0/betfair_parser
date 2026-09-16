@@ -139,7 +139,7 @@ def test_mcm_no_missing_fields():
 
 
 def test_mcm_no_clk():
-    raw = b'{"op": "mcm", "clk": null, "pt": 1576840503572, "mc": []}'  # noqa
+    raw = b'{"op": "mcm", "clk": null, "pt": 1576840503572, "mc": []}'
     mcm: MCM = stream_decode(raw)  # type: ignore[assignment]
     assert mcm.clk is None
 

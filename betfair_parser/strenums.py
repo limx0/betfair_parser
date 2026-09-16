@@ -1,4 +1,4 @@
-from enum import Enum, _auto_null, auto  # noqa
+from enum import Enum, _auto_null, auto
 from functools import total_ordering
 from typing import Any
 

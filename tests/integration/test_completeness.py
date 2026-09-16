@@ -6,7 +6,7 @@ This includes checking of all parameters of operations and type definitions.
 
 import keyword
 import re
-import xml.etree.ElementTree as etree  # noqa
+import xml.etree.ElementTree as etree
 from typing import get_args, get_origin, get_type_hints
 
 import pytest
@@ -20,7 +20,7 @@ XML_FILES = [RESOURCES_DIR / "documents" / f"{apidef}.xml" for apidef in XML_DEF
 
 
 def xml_nodes(path, xml_type):
-    tree = etree.parse(path)  # noqa
+    tree = etree.parse(path)
     return sorted(tree.findall(f".//{xml_type}"), key=lambda node: node.get("name"))
 
 
@@ -71,7 +71,7 @@ def test_enum(spec, node):
         pytest.skip("Not defined in documentation")
 
     datatype_cls = get_definition(spec, xml_typename)
-    valid_values = list(node.iter("validValues"))[0]
+    valid_values = next(iter(node.iter("validValues")))
     min_values = 1 if xml_typename in ("Status", "ItemClass", "TokenType", "TimeInForce") else 2
     assert len(valid_values) >= min_values
     assert node.get("type") == "string"
@@ -374,7 +374,7 @@ def compat_type_name(type_def) -> str:
         if type_def.__class__.__name__.startswith("_Annotated"):
             return "Annotated"
         name = type_def.__class__.__name__.lstrip("_").replace("Alias", "").replace("Generic", "").replace("Type", "")
-        if name == "Union" and get_args(type_def)[-1] is type(None):  # noqa
+        if name == "Union" and get_args(type_def)[-1] is type(None):
             # Optional looks just like Union, so we need to distinguish
             return "Optional"
         if not name:

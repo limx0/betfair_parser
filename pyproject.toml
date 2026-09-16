@@ -47,6 +47,7 @@ Documentation = "https://limx0.github.io/betfair_parser/"
 [tool.codespell]
 skip = "*.bz2,*.json,*.ndjson,*.xml,uv.lock"
 ignore-regex = ".*codespell-ignore$"
+ignore-words-list = "ot"
 
 [tool.mypy]
 strict_optional = false
@@ -59,6 +60,7 @@ check_untyped_defs = true
 fix = false
 line-length = 120
 lint.extend-select = ["UP", "I"]
+lint.ignore = ["DTZ005", "ASYNC230"]
 lint.isort.lines-after-imports = 2
 
 [tool.ruff.lint.per-file-ignores]

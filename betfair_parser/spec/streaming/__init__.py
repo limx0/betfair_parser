@@ -2,14 +2,14 @@ import msgspec
 from msgspec.json import Decoder
 
 from betfair_parser.exceptions import StreamError
-from betfair_parser.spec.betting.enums import (  # noqa for reimport
+from betfair_parser.spec.betting.enums import (
     BetDelayModel,
     MarketBettingType,
     MarketStatus,
     MarketTypeCode,
     RunnerStatus,
 )
-from betfair_parser.spec.common import EventTypeIdCode  # noqa for reimport
+from betfair_parser.spec.common import EventTypeIdCode
 from betfair_parser.spec.streaming import enums, type_definitions
 from betfair_parser.spec.streaming.enums import (
     ChangeType,

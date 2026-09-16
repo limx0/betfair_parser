@@ -36,4 +36,4 @@ from betfair_parser.spec.accounts.type_definitions import (
     VendorAccessTokenInfo,
     VendorDetails,
 )
-from betfair_parser.spec.common import TimeRange  # noqa
+from betfair_parser.spec.common import TimeRange

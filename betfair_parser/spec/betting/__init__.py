@@ -100,4 +100,4 @@ from betfair_parser.spec.betting.type_definitions import (
     UpdateInstruction,
     VenueResult,
 )
-from betfair_parser.spec.common import EventTypeIdCode, OrderStatus, OrderType, TimeRange  # noqa for reimport
+from betfair_parser.spec.common import EventTypeIdCode, OrderStatus, OrderType, TimeRange

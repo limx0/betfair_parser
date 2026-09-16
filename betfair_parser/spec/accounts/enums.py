@@ -75,6 +75,6 @@ class MarketType(DocumentedEnum):
 
     A = doc("Asian Handicap")
     L = doc("Line market")
-    O = doc("Odds market")  # noqa
+    O = doc("Odds market")
     R = doc("Range market.")
     NOT_APPLICABLE = doc("The market does not have an applicable marketType.")

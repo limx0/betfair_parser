@@ -317,7 +317,7 @@ class RunnerOrders:
     using listCurrentOrders/listMarketBook using orderProjections.
     """
 
-    __slots__ = (
+    __slots__ = (  # noqa: RUF023 - keep the order in which orders transit through the cache
         "matched_backs",
         "matched_lays",
         "unmatched_orders",

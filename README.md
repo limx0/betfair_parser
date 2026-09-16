@@ -51,6 +51,7 @@ client.request(session, betting.ListCurrentOrders.with_params())
 
 # Support for other countries
 from betfair_parser.endpoints import endpoint
+
 endpoint_cfg = endpoint("ITA")  # alpha-3 code
 client.login(session, "username", "password", "app_key", endpoints=endpoint_cfg)
 ```

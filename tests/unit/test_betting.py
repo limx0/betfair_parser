@@ -107,15 +107,15 @@ def test_replace_order_response(filename):
 
 def test_runner_metadata_validation_pass():
     cur_year = datetime.now().year
-    metadata = dict(
-        weight_value=100,
-        stall_draw=10,
-        sire_year_born=cur_year - 25,
-        dam_year_born=cur_year - 15,
-        damsire_year_born=cur_year - 35,
-        cloth_number=13,
-        age=3,
-    )
+    metadata = {
+        "weight_value": 100,
+        "stall_draw": 10,
+        "sire_year_born": cur_year - 25,
+        "dam_year_born": cur_year - 15,
+        "damsire_year_born": cur_year - 35,
+        "cloth_number": 13,
+        "age": 3,
+    }
     for rmd in (
         RunnerMetaData(**metadata),  # type: ignore[arg-type]
         RunnerMetaData.parse(msgspec.json.encode({k.upper(): v for k, v in metadata.items()})),
@@ -131,15 +131,15 @@ def test_runner_metadata_validation_pass():
 
 def test_runner_metadata_validation_fail():
     cur_year = datetime.now().year
-    metadata = dict(
-        weight_value=-1,
-        stall_draw=100,
-        sire_year_born=cur_year + 1,
-        dam_year_born=cur_year - 75,
-        damsire_year_born=cur_year - 90,
-        cloth_number=-1,
-        age=35,
-    )
+    metadata = {
+        "weight_value": -1,
+        "stall_draw": 100,
+        "sire_year_born": cur_year + 1,
+        "dam_year_born": cur_year - 75,
+        "damsire_year_born": cur_year - 90,
+        "cloth_number": -1,
+        "age": 35,
+    }
     for rmd in (
         RunnerMetaData(**metadata),  # type: ignore[arg-type]
         RunnerMetaData.parse(msgspec.json.encode({k.upper(): v for k, v in metadata.items()})),
