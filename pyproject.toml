@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
@@ -7,7 +7,7 @@ name = "betfair_parser"
 version = "0.0.0"
 description = "A betfair parser"
 readme = "README.md"
-license = {file = "LICENSE.txt"}
+license = "BSD-3-Clause"
 authors = [
     {name = "Bradley McElroy", email = "bradley.mcelroy@live.com"}
 ]
@@ -19,7 +19,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
     "Topic :: File Formats :: JSON",
@@ -30,12 +29,11 @@ dependencies = [
     "msgspec>=0.20.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=7.1",
     "pytest-asyncio>=0.21.0",
     "pytest-benchmark>=4.0",
-    "twine>=4.0.2",
     "requests>=2.20.0",
 ]
 
