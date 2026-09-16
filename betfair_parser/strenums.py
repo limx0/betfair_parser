@@ -1,4 +1,6 @@
 from enum import Enum, _auto_null, auto  # noqa
+from functools import total_ordering
+from typing import Any
 
 
 class StrEnum(str, Enum):
@@ -6,9 +8,8 @@ class StrEnum(str, Enum):
 
     Unlike in python 3.11 StrEnum, the fieldnames are not lowered.
 
-    class MyEnum(BaseEnum):
-        FIELD = auto()
-
+    >>> class MyEnum(StrEnum):
+    ...     FIELD = auto()
     >>> MyEnum.FIELD.value == "FIELD"
     True
     """
@@ -57,17 +58,32 @@ class doc(auto):
         self._value = val
 
 
+@total_ordering
 class DocumentedEnum(Enum):
     """Enum with documentation strings.
 
-    class DocEnum(DocumentedEnum):
-        FIELD = doc("This is a docstring")
-        FIELD2 = auto()
+    Members compare, hash and sort like their values, no matter if these
+    are strings or numbers:
 
+    >>> class DocEnum(DocumentedEnum):
+    ...     FIELD = doc("This is a docstring")
+    ...     FIELD2 = auto()
     >>> DocEnum.FIELD == "FIELD"
     True
+    >>> DocEnum.FIELD == DocEnum.FIELD2
+    False
+    >>> DocEnum.FIELD in ("FIELD", "OTHER")
+    True
+    >>> hash(DocEnum.FIELD) == hash("FIELD")
+    True
     >>> DocEnum.FIELD.__doc__
-    "This is a docstring"
+    'This is a docstring'
+    >>> DocEnum.FIELD2.value
+    'FIELD2'
+    >>> str(DocEnum.FIELD)
+    'FIELD: This is a docstring'
+    >>> repr(DocEnum.FIELD)
+    'DocEnum.FIELD'
     """
 
     def __new__(cls, val):
@@ -91,3 +107,20 @@ class DocumentedEnum(Enum):
 
     def __repr__(self):
         return f"{type(self).__name__}.{self.name}"
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, DocumentedEnum):
+            return self.value == other.value
+        if isinstance(other, type(self.value)):
+            return self.value == other
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(self.value)
+
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, DocumentedEnum):
+            return self.value < other.value
+        if isinstance(other, type(self.value)):
+            return self.value < other
+        return NotImplemented
