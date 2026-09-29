@@ -302,14 +302,6 @@ class AsyncStream:
     async def close(self) -> None:
         self._reader = None  # does not need to be closed explicitly
         if self._writer:
-            await self._writer.drain()
-
-            # Abort the underlying transport (equivalent to socket.shutdown())
-            transport = self._writer.transport
-            if transport:
-                transport.abort()
-
-            # Close the writer (which should in turn close the underlying transport)
             self._writer.close()
             await self._writer.wait_closed()
         self._writer = None

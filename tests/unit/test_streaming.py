@@ -1,3 +1,4 @@
+import asyncio
 import socket
 import threading
 
@@ -367,3 +368,21 @@ async def test_iter_changes_async_without_path():
 
     assert len(msgs) == len(samples)
     assert all(isinstance(msg, ChangeMessageType) for msg in msgs)
+
+
+@pytest.mark.asyncio
+async def test_async_stream_close_is_graceful():
+    """AsyncStream.close shuts the writer down gracefully and clears reader and writer."""
+    peer, sock = socket.socketpair()
+    reader, writer = await asyncio.open_connection(sock=sock)
+    stream = AsyncStream("fake")
+    stream._reader = reader
+    stream._writer = writer
+
+    await stream.close()
+
+    assert stream._reader is None
+    assert stream._writer is None
+    assert writer.is_closing()
+    sock.close()
+    peer.close()
