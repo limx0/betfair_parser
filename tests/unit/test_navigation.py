@@ -48,7 +48,7 @@ def test_navigation_flatten(navigation_root):
         "market_id": "1.180709069",
         "market_exchange_id": "1",
         "market_market_type": "WIN",
-        "market_market_start_time": datetime.datetime(2021, 3, 17, 19, 56, tzinfo=datetime.timezone.utc),
+        "market_market_start_time": datetime.datetime(2021, 3, 17, 19, 56, tzinfo=datetime.UTC),
         "market_number_of_winners": 1,
         "group_name": None,
         "group_id": None,
@@ -56,7 +56,7 @@ def test_navigation_flatten(navigation_root):
         "race_id": "30360080.1956",
         "race_country_code": "GB",
         "race_venue": "Doncaster",
-        "race_start_time": datetime.datetime(2021, 3, 17, 19, 56, tzinfo=datetime.timezone.utc),
+        "race_start_time": datetime.datetime(2021, 3, 17, 19, 56, tzinfo=datetime.UTC),
         "race_race_number": None,
     }
     assert market == expected
