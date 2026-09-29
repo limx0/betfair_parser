@@ -1,3 +1,4 @@
+import json
 import weakref
 
 import pytest
@@ -124,6 +125,83 @@ def test_order_cache_runner_removal():
     assert order.average_price_matched == 9.47
     assert ro.matched_backs[9.47] == 2
     assert len(ro.matched_backs) == 1
+
+
+def _mcm(ct=None, segment_type=None, market_id="1.1"):
+    msg: dict = {"op": "mcm", "id": 1, "pt": 1467219304831}
+    if ct:
+        msg["ct"] = ct
+    if segment_type:
+        msg["segmentType"] = segment_type
+    msg["mc"] = [{"id": market_id, "rc": [{"id": 10, "atb": [[2.0, 100.0]]}]}]
+    return stream_decode(json.dumps(msg))
+
+
+@pytest.mark.parametrize(
+    ["ct", "segment_type", "cleared"],
+    [
+        ("SUB_IMAGE", None, True),
+        ("SUB_IMAGE", "SEG_START", True),
+        ("SUB_IMAGE", "SEG", False),
+        ("SUB_IMAGE", "SEG_END", False),
+        ("RESUB_DELTA", "SEG_START", False),
+        # A real heartbeat carries no mc payload (the helper attaches one anyway): update_meta
+        # runs before the is_heartbeat early return, so this case purely guards that a segment
+        # start never clears for a non-image ct.
+        ("HEARTBEAT", "SEG_START", False),
+        (None, "SEG_START", False),
+    ],
+)
+def test_update_meta_image_clear(ct, segment_type, cleared):
+    """Only the start of a (possibly segmented) subscription image clears the cache.
+
+    Exchange Stream API docs: "ct=ChangeType.SUB_IMAGE and segmentType=null or
+    SegmentType.SEG_START indicates the start of a new image" - segments of other
+    change types (e.g. a large, segmented RESUB_DELTA patching the cache after a
+    reconnect) must never discard the existing state.
+    """
+    cache = MarketSubscriptionCache()
+    cache.update(_mcm(ct="SUB_IMAGE", market_id="1.1"))
+    cache.update(_mcm(ct=ct, segment_type=segment_type, market_id="1.2"))
+    if cleared:
+        assert "1.1" not in cache.order_book
+        assert "1.2" in cache.order_book
+    else:
+        assert "1.1" in cache.order_book
+        rob = cache.order_book["1.1"][10]
+        assert rob.available_to_back[2.0] == 100.0
+
+
+def _ocm(ct=None, segment_type=None, market_id="1.102151675"):
+    msg: dict = {"op": "ocm", "id": 2, "pt": 1467219304831}
+    if ct:
+        msg["ct"] = ct
+    if segment_type:
+        msg["segmentType"] = segment_type
+    order = {
+        "id": "10822867886",
+        "p": 12,
+        "s": 2,
+        "side": "B",
+        "status": "E",
+        "pt": "L",
+        "ot": "L",
+        "pd": 1467219304000,
+    }
+    msg["oc"] = [{"id": market_id, "orc": [{"id": 6113662, "uo": [order]}]}]
+    return stream_decode(json.dumps(msg))
+
+
+def test_order_update_meta_image_clear():
+    """OrderSubscriptionCache shares update_meta: a segmented RESUB_DELTA patches, never clears."""
+    cache = OrderSubscriptionCache()
+    cache.update(_ocm(ct="SUB_IMAGE"))
+    assert "1.102151675" in cache.orders
+    # patch a different market, so a wrongly cleared cache cannot silently refill itself
+    cache.update(_ocm(ct="RESUB_DELTA", segment_type="SEG_START", market_id="1.222222222"))
+    assert "1.102151675" in cache.orders
+    assert "1.222222222" in cache.orders
+    assert cache.orders["1.102151675"][6113662].unmatched_orders[10822867886]
 
 
 @pytest.mark.parametrize("dict_type", (MarketOrders, MarketOrderBook))

@@ -257,7 +257,7 @@ class ChangeCache:
             self.conflate_ms = msg.conflate_ms
         self.publish_time = msg.pt
         self.stream_unreliable = msg.stream_unreliable
-        if msg.ct == ChangeType.SUB_IMAGE and not msg.segment_type or msg.segment_type == SegmentType.SEG_START:
+        if msg.ct == ChangeType.SUB_IMAGE and (not msg.segment_type or msg.segment_type == SegmentType.SEG_START):
             self.clear()
 
     def clear(self) -> None:
