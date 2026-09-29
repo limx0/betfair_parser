@@ -1,12 +1,14 @@
 import datetime
 import io
 from datetime import UTC
+from typing import cast
 
 import pytest
 from requests import Session  # alternatively use httpx.Client
 
 from betfair_parser import client
 from betfair_parser.cache import MarketDefinition, RunnerOrderBook
+from betfair_parser.client import HTTPSession
 from betfair_parser.endpoints import STREAM_INTEGRATION
 from betfair_parser.exceptions import BetfairError
 from betfair_parser.spec.betting.enums import BetDelayModel
@@ -29,8 +31,9 @@ from tests.resources import RESOURCES_DIR
 
 
 @pytest.fixture(scope="module")
-def session(appconfig) -> Session:  # noqa
-    s = Session()
+def session(appconfig) -> HTTPSession:  # noqa
+    # requests' stubs declare header values as `str | bytes`, while the client protocol is strict
+    s = cast(HTTPSession, Session())
     try:
         client.login(s, appconfig["username"], appconfig["password"], appconfig["app_key"])
     except BetfairError:

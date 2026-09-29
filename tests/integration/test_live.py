@@ -1,10 +1,12 @@
 import functools
 import os
+from typing import cast
 
 import pytest
 from requests import Session  # alternatively use httpx.Client
 
 from betfair_parser import client
+from betfair_parser.client import HTTPSession
 from betfair_parser.exceptions import AccountAPINGException
 from betfair_parser.spec import accounts, betting, heartbeat, navigation, race_status
 
@@ -25,15 +27,16 @@ def appconfig():
 
 
 @pytest.fixture(scope="module")
-def session() -> Session:
-    return Session()
+def session() -> HTTPSession:
+    # requests' stubs declare header values as `str | bytes`, while the client protocol is strict
+    return cast(HTTPSession, Session())
 
 
 def skip_not_logged_in(test_func):
     __tracebackhide__ = True
 
     @functools.wraps(test_func)
-    def test_func_wrapped(session: Session, *args, **kwargs):
+    def test_func_wrapped(session: HTTPSession, *args, **kwargs):
         if not session.headers.get("X-Authentication"):
             pytest.skip("session must be logged in")
         return test_func(session, *args, **kwargs)
@@ -41,19 +44,19 @@ def skip_not_logged_in(test_func):
     return test_func_wrapped
 
 
-def test_login(session: Session, appconfig):
+def test_login(session: HTTPSession, appconfig):
     client.login(session, appconfig["username"], appconfig["password"], appconfig["app_key"])
     assert session.headers.get("X-Authentication")
     assert session.headers.get("X-Application")
 
 
 @skip_not_logged_in
-def test_keep_alive(session: Session):
+def test_keep_alive(session: HTTPSession):
     client.keep_alive(session)
 
 
 @skip_not_logged_in
-def test_account_details(session: Session):
+def test_account_details(session: HTTPSession):
     resp = client.request(session, accounts.GetAccountDetails.with_params())
     assert isinstance(resp, accounts.AccountDetailsResponse)
     assert 0 <= resp.discount_rate < 0.3
@@ -65,7 +68,7 @@ def test_account_details(session: Session):
 
 
 @skip_not_logged_in
-def test_account_funds(session: Session):
+def test_account_funds(session: HTTPSession):
     resp = client.request(session, accounts.GetAccountFunds.with_params())
     assert isinstance(resp, accounts.AccountFundsResponse)
     assert resp.wallet.value == "UK"  # Only UK wallets left
@@ -78,7 +81,7 @@ def test_account_funds(session: Session):
 
 
 @skip_not_logged_in
-def test_account_funds_fail(session: Session):
+def test_account_funds_fail(session: HTTPSession):
     with pytest.raises(AccountAPINGException) as exc_info:
         client.request(session, accounts.GetAccountFunds.with_params(wallet="AUS"))
 
@@ -88,7 +91,7 @@ def test_account_funds_fail(session: Session):
 
 
 @skip_not_logged_in
-def test_event_types(session: Session):
+def test_event_types(session: HTTPSession):
     resp: list[betting.EventTypeResult] = client.request(
         session, betting.ListEventTypes.with_params(filter=betting.MarketFilter(text_query="Horse Racing"))
     )
@@ -101,7 +104,7 @@ def test_event_types(session: Session):
 
 
 @skip_not_logged_in
-def test_market_types(session: Session):
+def test_market_types(session: HTTPSession):
     resp: list[betting.MarketTypeResult] = client.request(
         session,
         betting.ListMarketTypes.with_params(
@@ -116,7 +119,7 @@ def test_market_types(session: Session):
 
 
 @skip_not_logged_in
-def test_countries(session: Session):
+def test_countries(session: HTTPSession):
     resp: list[betting.CountryCodeResult] = client.request(
         session,
         betting.ListCountries.with_params(filter=betting.MarketFilter(event_type_ids={betting.EventTypeIdCode.SOCCER})),
@@ -132,7 +135,7 @@ def test_countries(session: Session):
 
 
 @skip_not_logged_in
-def test_competitions(session: Session):
+def test_competitions(session: HTTPSession):
     resp: list[betting.CompetitionResult] = client.request(
         session,
         betting.ListCompetitions.with_params(
@@ -152,7 +155,7 @@ def test_competitions(session: Session):
 
 
 @skip_not_logged_in
-def test_events(session: Session):
+def test_events(session: HTTPSession):
     resp: list[betting.EventResult] = client.request(
         session,
         betting.ListEvents.with_params(
@@ -168,7 +171,7 @@ def test_events(session: Session):
 
 
 @skip_not_logged_in
-def test_market_catalogue_horseracing(session: Session):
+def test_market_catalogue_horseracing(session: HTTPSession):
     resp: list[betting.MarketCatalogue] = client.request(
         session,
         betting.ListMarketCatalogue.with_params(
@@ -200,7 +203,7 @@ def test_market_catalogue_horseracing(session: Session):
 
 
 @skip_not_logged_in
-def test_market_catalogue_football(session: Session):
+def test_market_catalogue_football(session: HTTPSession):
     resp: list[betting.MarketCatalogue] = client.request(
         session,
         betting.ListMarketCatalogue.with_params(
@@ -234,7 +237,7 @@ def test_market_catalogue_football(session: Session):
 
 
 @skip_not_logged_in
-def test_current_orders(session: Session):
+def test_current_orders(session: HTTPSession):
     resp: betting.CurrentOrderSummaryReport = client.request(session, betting.ListCurrentOrders.with_params())
     assert not resp.more_available
     if len(resp.current_orders):
@@ -249,7 +252,7 @@ def test_current_orders(session: Session):
 
 
 @skip_not_logged_in
-def test_navigation(session: Session):
+def test_navigation(session: HTTPSession):
     menu = client.request(session, navigation.Menu())
     assert isinstance(menu, navigation.Navigation)
     flattened = navigation.flatten_nav_tree(menu)
@@ -257,7 +260,7 @@ def test_navigation(session: Session):
 
 
 @skip_not_logged_in
-def test_heartbeat(session: Session):
+def test_heartbeat(session: HTTPSession):
     resp = client.request(session, heartbeat.Heartbeat.with_params(preferred_timeout_seconds=300))
     assert isinstance(resp, heartbeat.HeartbeatReport)
     assert resp.actual_timeout_seconds >= 0
@@ -265,7 +268,7 @@ def test_heartbeat(session: Session):
 
 
 @skip_not_logged_in
-def test_race_status(session: Session):
+def test_race_status(session: HTTPSession):
     resp = client.request(
         session,
         betting.ListEvents.with_params(
@@ -287,7 +290,7 @@ def test_race_status(session: Session):
 
 
 @skip_not_logged_in
-def test_account_no_appkey(session: Session):
+def test_account_no_appkey(session: HTTPSession):
     app_key = session.headers.pop("X-Application")
     with pytest.raises(AccountAPINGException) as exc_info:
         client.request(session, accounts.GetAccountFunds.with_params())
@@ -302,20 +305,20 @@ def test_account_no_appkey(session: Session):
 
 
 @skip_not_logged_in
-def test_logout(session: Session):
+def test_logout(session: HTTPSession):
     client.logout(session)
     assert not session.headers.get("X-Authentication")
 
 
 @pytest.fixture(scope="module")
-def cert_session(appconfig):
+def cert_session(appconfig) -> HTTPSession:
     cert_config = appconfig.get("cert_path"), appconfig.get("key_path")
     if not all(cert_config):
         pytest.skip("No certificate was provided")
     session = Session()
     session.cert = cert_config
     # alternatively: session = httpx.Client(transport=httpx.HTTPTransport(cert=cert_config))
-    return session
+    return cast(HTTPSession, session)
 
 
 def test_cert_login(cert_session, appconfig):
