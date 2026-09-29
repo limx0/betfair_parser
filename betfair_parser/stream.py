@@ -6,7 +6,7 @@ import socket
 import ssl
 import urllib.parse
 from collections.abc import AsyncGenerator, Callable, Iterable, Iterator
-from typing import Any
+from typing import Any, Protocol, Self
 
 from betfair_parser.cache import MarketSubscriptionCache, OrderSubscriptionCache
 from betfair_parser.exceptions import StreamAuthenticationError, StreamError
@@ -25,6 +25,15 @@ from betfair_parser.spec.streaming import (
     SubscriptionType,
     stream_decode,
 )
+
+
+class Stream(Protocol):
+    """Anything the Betfair stream code accepts where it does I/O."""
+
+    def readline(self) -> bytes: ...
+    def write(self, data: bytes) -> int: ...
+    def flush(self) -> None: ...
+    def close(self) -> None: ...
 
 
 LINE_SEPARATOR = b"\r\n"
@@ -119,7 +128,7 @@ class ExchangeStream:
             return None
         return self.handle_msg(stream_decode(data))  # type: ignore[arg-type]
 
-    def receive(self, stream: io.IOBase) -> Any:
+    def receive(self, stream: Stream) -> Any:
         return self.receive_bytes(stream.readline())
 
 
@@ -135,21 +144,54 @@ def create_ssl_socket(hostname, timeout: float | None = None) -> ssl.SSLSocket:
     return secure_sock
 
 
-def create_stream_io(endpoint: str, timeout: float = 15) -> io.BufferedRWPair:
-    """Open an IO stream through a TLS connection to the given endpoint.
+class StreamIO:
+    """Buffered IO over the Betfair stream. Auto-flushes writes and closes the socket on close."""
 
-    Returns a buffered IO so line-based reads issue one recv syscall per message instead
-    of one per byte. The returned object is a context manager; if you write to it, you
-    must flush() before reading the response, just like any buffered IO over a socket.
-    """
-    url = urllib.parse.urlparse(endpoint)
-    sock = create_ssl_socket(url.hostname, timeout=timeout)
-    try:
-        sock.connect((url.hostname, url.port or 443))
-    except OSError:
-        sock.close()  # a held traceback (e.g. from logger.exception in a retry loop) would keep the fd open
-        raise
-    return sock.makefile("rwb")
+    __slots__ = ("_raw", "_stream")
+
+    def __init__(self, raw: socket.socket, stream: io.BufferedRWPair) -> None:
+        self._raw = raw
+        self._stream = stream
+
+    def readline(self) -> bytes:
+        return self._stream.readline()
+
+    def write(self, data: bytes) -> int:
+        n = self._stream.write(data)
+        self._stream.flush()
+        return n
+
+    def flush(self) -> None:
+        self._stream.flush()
+
+    def close(self) -> None:
+        try:
+            self._stream.close()
+        finally:
+            self._raw.close()
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.close()
+
+    @classmethod
+    def open(cls, endpoint: str, timeout: float = 15) -> Self:
+        """Connect to a Betfair stream endpoint and return a buffered IO."""
+        url = urllib.parse.urlparse(endpoint)
+        sock = create_ssl_socket(url.hostname, timeout=timeout)
+        try:
+            sock.connect((url.hostname, url.port or 443))
+        except OSError:
+            sock.close()  # a held traceback (e.g. from logger.exception in a retry loop) would keep the fd open
+            raise
+        return cls(sock, sock.makefile("rwb"))
+
+
+def create_stream_io(endpoint: str, timeout: float = 15) -> StreamIO:
+    """Module-level alias of ``StreamIO.open``."""
+    return StreamIO.open(endpoint, timeout=timeout)
 
 
 def changed_markets(msg: StreamResponseType) -> list[str]:
@@ -181,17 +223,16 @@ class StreamReader:
             raise TypeError("Invalid subscription type")
         return self.esm.subscribe(subscription, self.handle_change_message)
 
-    def receive(self, stream: io.IOBase) -> Any:
+    def receive(self, stream: Stream) -> Any:
         return self.esm.receive(stream)
 
-    def connect(self, stream: io.IOBase) -> None:
+    def connect(self, stream: Stream) -> None:
         self.esm.receive(stream)  # read connection
-        stream.write(self.esm.connect())  # send auth
-        stream.flush()  # auth bytes sit in the 8KB buffer until flush
+        stream.write(self.esm.connect())  # send auth (StreamIO auto-flushes)
         self.esm.receive(stream)  # read auth response
         self.esm.authenticated = True
 
-    def iter_changes(self, stream: io.IOBase) -> Iterable[ChangeMessageType]:
+    def iter_changes(self, stream: Stream) -> Iterable[ChangeMessageType]:
         """Iterate over the stream, yielding market and order change messages."""
         if not self.esm.is_connected:
             self.connect(stream)
@@ -205,7 +246,7 @@ class StreamReader:
 
     def iter_changes_and_write(
         self,
-        stream: io.IOBase,
+        stream: Stream,
         path: pathlib.Path | str,
     ) -> Iterable[ChangeMessageType]:
         if not self.esm.is_connected:

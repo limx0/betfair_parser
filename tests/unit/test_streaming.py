@@ -17,7 +17,7 @@ from betfair_parser.spec.streaming import (
     Status,
     stream_decode,
 )
-from betfair_parser.stream import ExchangeStream, create_stream_io
+from betfair_parser.stream import ExchangeStream, StreamIO
 from tests.resources import RESOURCES_DIR
 
 
@@ -207,17 +207,17 @@ def test_unique_id_from_custom_generator():
     assert es.unique_id() == 43
 
 
-def test_create_stream_io_connect_failure_closes_socket():
+def test_stream_io_connect_failure_closes_socket():
     """Connect failures close the underlying socket right away.
 
     A retry loop that logs the exception (logger.exception) keeps the traceback alive,
-    which keeps the create_stream_io frame alive - without the explicit close, every
+    which keeps the StreamIO.open frame alive - without the explicit close, every
     failed connect attempt would leak one file descriptor.
     """
     failed = []
     for _ in range(3):
         try:
-            create_stream_io("ndjson://127.0.0.1:1", timeout=1)
+            StreamIO.open("ndjson://127.0.0.1:1", timeout=1)
         except OSError as exc:  # simulate a retry loop holding the exception for logging
             failed.append(exc)
     assert len(failed) == 3
@@ -225,7 +225,7 @@ def test_create_stream_io_connect_failure_closes_socket():
         tb = held.__traceback__
         while tb is not None and "sock" not in tb.tb_frame.f_locals:
             tb = tb.tb_next
-        assert tb is not None, "create_stream_io frame not found in traceback"
+        assert tb is not None, "StreamIO.open frame not found in traceback"
         assert tb.tb_frame.f_locals["sock"].fileno() == -1  # closed instead of leaking the fd
 
 
@@ -278,25 +278,39 @@ def test_readline_across_buffer_fills():
         peer.close()
 
 
-def test_create_stream_io_propagates_connect_failure():
-    """create_stream_io raises on a refused endpoint instead of handing back a broken stream."""
-    with pytest.raises(OSError), create_stream_io("ndjson://127.0.0.1:1", timeout=1):
+def test_stream_io_propagates_connect_failure():
+    """StreamIO.open raises on a refused endpoint instead of handing back a broken stream."""
+    with pytest.raises(OSError), StreamIO.open("ndjson://127.0.0.1:1", timeout=1):
         pass
 
 
-def test_create_stream_io_requires_explicit_flush_after_write():
-    """Buffered IO writes don't reach the peer until flushed - callers must flush()."""
-    peer, sock = socket.socketpair()
+def test_stream_io_write_flushes_immediately():
+    """StreamIO.write flushes after every write - callers don't manage the buffer."""
+
+    peer, raw_sock = socket.socketpair()
     try:
-        peer.settimeout(0.2)  # short timeout so a buffered write doesn't hang the test
-        stream = sock.makefile("rwb")
-        stream.write(b"hello\r\n")  # not flushed yet - peer recv would time out
-        # confirm the write is buffered (peer cannot read it without flush)
-        with pytest.raises(TimeoutError):
-            peer.recv(8)
-        stream.flush()
+        peer.settimeout(0.2)
+        stream = StreamIO(raw_sock, raw_sock.makefile("rwb"))
+        stream.write(b"hello\r\n")  # no explicit flush - StreamIO handles it
         assert peer.recv(8) == b"hello\r\n"
     finally:
         stream.close()
-        sock.close()
+        raw_sock.close()
         peer.close()
+
+
+def test_stream_io_closes_raw_socket_on_context_exit():
+    """The with-statement closes the underlying SSL socket too, not just the buffered wrapper.
+
+    Without the StreamIO wrapper the underlying socket is left open until GC, which
+    triggers ResourceWarning (and an error under pytest's filterwarnings=['error']).
+    """
+
+    peer, raw_sock = socket.socketpair()
+    raw_sock.settimeout(1)
+    assert raw_sock.fileno() != -1
+    stream = StreamIO(raw_sock, raw_sock.makefile("rwb"))
+    with stream:
+        pass
+    assert raw_sock.fileno() == -1, "underlying socket should be closed after with-exit"
+    peer.close()

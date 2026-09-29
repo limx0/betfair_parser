@@ -22,7 +22,7 @@ from betfair_parser.spec.streaming import (
     OrderSubscription,
     Status,
 )
-from betfair_parser.stream import AsyncStream, ExchangeStream, StreamReader, changed_markets, create_stream_io
+from betfair_parser.stream import AsyncStream, ExchangeStream, StreamIO, StreamReader, changed_markets
 from tests.integration.test_live import appconfig  # noqa: F401
 from tests.resources import RESOURCES_DIR
 
@@ -93,16 +93,14 @@ def test_stream(session, subscription: MarketSubscription | OrderSubscription, i
     token = session.headers.get("X-Authentication")
     esm = ExchangeStream(app_key, token)
 
-    with create_stream_io(STREAM_INTEGRATION) as stream:
+    with StreamIO.open(STREAM_INTEGRATION) as stream:
         print(esm.receive(stream))  # read connection
-        stream.write(esm.connect())  # send auth
-        stream.flush()  # buffered stream IO must be flushed to emit
+        stream.write(esm.connect())  # send auth (StreamIO auto-flushes)
         print(esm.receive(stream))
         assert esm.is_connected
         assert esm.connections_available > 0
 
         stream.write(esm.subscribe(subscription))
-        stream.flush()
         msg: Status = esm.receive(stream)
         assert isinstance(msg, Status)
         assert not msg.is_error, f"{msg.error_code.name}: {msg.error_message}"
@@ -156,7 +154,7 @@ def test_stream_reader(session, iterations=15):
     for subscription in (SUBSCRIPTION_HORSERACING, SUBSCRIPTION_ORDERS):
         sr.subscribe(subscription)
 
-    with create_stream_io(STREAM_INTEGRATION) as stream:
+    with StreamIO.open(STREAM_INTEGRATION) as stream:
         for i, change_msg in enumerate(sr.iter_changes(stream)):
             changed_ids = changed_markets(change_msg)
             if not changed_ids:
