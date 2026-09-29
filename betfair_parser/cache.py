@@ -278,7 +278,7 @@ class ChangeCache:
 class MarketOrderBook(SelectionDict[RunnerOrderBook]):
     """Order book for a single market, collecting a bunch of RunnerOrderBooks."""
 
-    default_factory: type = RunnerOrderBook
+    default_factory: type[RunnerOrderBook] = RunnerOrderBook
 
 
 class MarketSubscriptionCache(ChangeCache):
@@ -359,7 +359,7 @@ class RunnerOrders:
 class MarketOrders(SelectionDict[RunnerOrders]):
     """All orders for a single market, collecting a bunch of RunnerOrders."""
 
-    default_factory: type = RunnerOrders
+    default_factory: type[RunnerOrders] = RunnerOrders
 
 
 class OrderSubscriptionCache(ChangeCache):

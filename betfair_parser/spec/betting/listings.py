@@ -186,7 +186,9 @@ class ListMarketCatalogue(_ListingRequest, kw_only=True, frozen=True):
     return_type = Response[list[MarketCatalogue]]
 
 
-ListMarketCatalog = ListMarketCatalogue  # allow both spellings
+# Comfort alias: betfair's official operation name is "listMarketCatalogue", but "catalog"
+# is a common enough spelling that both are supported permanently - neither is deprecated.
+ListMarketCatalog = ListMarketCatalogue
 
 
 class _ListMarketProfitAndLossParams(Params, frozen=True):
