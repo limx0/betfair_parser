@@ -19,7 +19,7 @@ def test_doc_metadata():
 
 
 def test_field_description_available():
-    params_cls = UpdateOrders._params_cls()
+    params_cls = UpdateOrders.params_cls
     info = msgspec.inspect.type_info(params_cls)
     assert isinstance(info, msgspec.inspect.StructType)
     fields = {f.name: f.type for f in info.fields}
@@ -133,7 +133,7 @@ def test_stream_decode_error_with_description():
 
 
 def test_json_schema_contains_description():
-    params_cls = UpdateOrders._params_cls()
+    params_cls = UpdateOrders.params_cls
     schema = msgspec.json.schema(params_cls)
     assert schema["$defs"]["_UpdateOrdersParams"]["properties"]["marketId"]["description"] == (
         "The market id these orders are to be placed on"

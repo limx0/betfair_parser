@@ -309,37 +309,44 @@ def _failsafe_issubclass(x: Any, A: type) -> bool:
         return False
 
 
+def _resolve_params_cls(cls: type) -> type:
+    """Get the according parameter class from the type hints of a Request subclass."""
+    hinted_type = get_type_hints(cls)["params"]
+    if _failsafe_issubclass(hinted_type, Params):
+        # params: Params
+        return hinted_type
+    if hinted_type is type(None):
+        # params: None
+        return dict
+    if hinted_type.__args__:
+        # params: Optional[Params]
+        hinted_type = hinted_type.__args__[0]
+        if _failsafe_issubclass(hinted_type, Params):
+            return hinted_type
+    return dict
+
+
 class Request(RPC, kw_only=True, frozen=True, tag_field="method", tag=first_lower):
     # class variables for subclassing, which msgspec won't serialize in messages
     endpoint_type: ClassVar[EndpointType] = EndpointType.NONE
     return_type: ClassVar[type] = Response
     throws: ClassVar[type] = APINGException  # JSON error definition
+    params_cls: ClassVar[type] = Params  # resolved eagerly per subclass, see __init_subclass__
 
     # Having no default for `params` makes sure, that initializing a message object that
     # requires parameters without explicitly calling the `with_params` constructor fails.
     params: Params
 
-    @classmethod
-    def _params_cls(cls) -> type:
-        """Get the according parameter class from the type hints."""
-        hinted_type = get_type_hints(cls)["params"]
-        if _failsafe_issubclass(hinted_type, Params):
-            # params: Params
-            return hinted_type
-        if hinted_type is type(None):
-            # params: None
-            return dict
-        if hinted_type.__args__:
-            # params: Optional[Params]
-            hinted_type = hinted_type.__args__[0]
-            if _failsafe_issubclass(hinted_type, Params):
-                return hinted_type
-        return dict
+    def __init_subclass__(cls, **kwargs):
+        # resolve the parameter class once at class definition, so that `with_params` never
+        # pays for the get_type_hints reflection - not even on the first call
+        super().__init_subclass__(**kwargs)  # msgspec consumes the class keywords here
+        cls.params_cls = _resolve_params_cls(cls)
 
     @classmethod
     def with_params(cls, request_id=None, **kwargs):
         """General constructor for RPC requests."""
-        params = cls._params_cls()(**kwargs)
+        params = cls.params_cls(**kwargs)
         if request_id is None:
             request_id = next(_default_id_generator)
         return cls(
