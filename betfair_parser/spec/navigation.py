@@ -147,12 +147,12 @@ def flattened_nav_iter(node, **context):
             yield from flattened_nav_iter(child, **context)
 
 
-def _flattened_from_context(ctx):
-    ctx.pop("navigation")
+def _flattened_from_context(ctx: dict[str, BaseMessage]) -> FlattenedMarket:
     return FlattenedMarket(
         **{
             f"{node_type}_{k}": v
             for node_type, nav_item in ctx.items()
+            if node_type != "navigation"  # the root container contributes no market fields
             for k, v in nav_item.to_dict().items()
             if k not in ("type", "children")
         }

@@ -5,7 +5,14 @@ import pytest
 
 from betfair_parser.endpoints import endpoint
 from betfair_parser.spec.common import decode
-from betfair_parser.spec.navigation import Menu, Navigation, flatten_nav_tree
+from betfair_parser.spec.navigation import (
+    Market,
+    Menu,
+    Navigation,
+    _flattened_from_context,
+    flatten_nav_tree,
+    flattened_nav_iter,
+)
 from tests.resources import RESOURCES_DIR
 
 
@@ -66,3 +73,35 @@ def test_navigation_flatten(navigation_root):
         if mkt.event_id:
             assert isinstance(mkt.event_id, int)
         assert isinstance(mkt.market_market_start_time, datetime.datetime)
+
+
+def test_navigation_flatten_market_root():
+    """A bare market as root lacks the required event type context and fails with a clear error."""
+    market = Market(
+        name="Test Market",
+        id="1.23",
+        exchange_id="1",
+        market_type="MATCH_ODDS",
+        market_start_time=datetime.datetime(2026, 1, 1, 12, 0, tzinfo=UTC),
+        number_of_winners=1,
+    )
+    with pytest.raises(TypeError, match="event_type_name"):
+        list(flattened_nav_iter(market))
+
+
+def test_flattened_from_context_does_not_mutate(navigation_root):
+    """The context dict passed to the flattening helper is left untouched."""
+    market = Market(
+        name="Test Market",
+        id="1.23",
+        exchange_id="1",
+        market_type="MATCH_ODDS",
+        market_start_time=datetime.datetime(2026, 1, 1, 12, 0, tzinfo=UTC),
+        number_of_winners=1,
+    )
+    event_type = navigation_root.children[0]
+    ctx = {"navigation": navigation_root, "event_type": event_type, "market": market}
+    flattened = _flattened_from_context(ctx)
+    assert set(ctx) == {"navigation", "event_type", "market"}
+    assert flattened.event_type_id == event_type.id
+    assert flattened.market_id == "1.23"
