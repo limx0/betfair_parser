@@ -232,27 +232,20 @@ class StreamReader:
         self.esm.receive(stream)  # read auth response
         self.esm.authenticated = True
 
-    def iter_changes(self, stream: Stream) -> Iterable[ChangeMessageType]:
-        """Iterate over the stream, yielding market and order change messages."""
-        if not self.esm.is_connected:
-            self.connect(stream)
-
-        while True:
-            msg = self.esm.receive(stream)
-            if not msg:
-                return
-            if isinstance(msg, ChangeMessageType):
-                yield msg
-
-    def iter_changes_and_write(
+    def iter_changes(
         self,
         stream: Stream,
-        path: pathlib.Path | str,
+        path: pathlib.Path | str | None = None,
     ) -> Iterable[ChangeMessageType]:
+        """Iterate over the stream, yielding market and order change messages.
+
+        Raw messages are appended to ``path`` if given.
+        """
         if not self.esm.is_connected:
             self.connect(stream)
 
-        with open(path, "ab") as f:
+        f = open(path, "ab") if path is not None else None  # noqa: SIM115 - file is closed in finally below
+        try:
             while True:
                 raw_msg = stream.readline()
                 if not raw_msg:
@@ -260,7 +253,19 @@ class StreamReader:
                 msg = self.esm.receive_bytes(raw_msg)
                 if isinstance(msg, ChangeMessageType):
                     yield msg
-                f.write(raw_msg)
+                if f is not None:
+                    f.write(raw_msg)
+        finally:
+            if f is not None:
+                f.close()
+
+    def iter_changes_and_write(
+        self,
+        stream: Stream,
+        path: pathlib.Path | str,
+    ) -> Iterable[ChangeMessageType]:
+        """Iterate over the stream, yielding market and order change messages and recording raw messages to path."""
+        return self.iter_changes(stream, path)
 
 
 class AsyncStream:
@@ -327,27 +332,20 @@ class AsyncStreamReader(StreamReader):
         self.esm.receive_bytes(await stream.readline())  # read auth response
         self.esm.authenticated = True
 
-    async def iter_changes_async(self, stream: AsyncStream) -> AsyncGenerator[ChangeMessageType, None]:
-        if not self.esm.is_connected:
-            await self.connect_async(stream)
-
-        while True:
-            msg = self.esm.receive_bytes(await stream.readline())
-            if not msg:
-                return
-            if isinstance(msg, ChangeMessageType):
-                yield msg
-
-    async def iter_changes_and_write_async(
+    async def iter_changes_async(
         self,
         stream: AsyncStream,
-        path: pathlib.Path | str,
+        path: pathlib.Path | str | None = None,
     ) -> AsyncGenerator[ChangeMessageType, None]:
+        """Iterate over the stream asynchronously, yielding market and order change messages.
+
+        Raw messages are appended to ``path`` if given.
+        """
         if not self.esm.is_connected:
             await self.connect_async(stream)
 
         loop = asyncio.get_running_loop()
-        f = await loop.run_in_executor(None, lambda: open(path, "ab"))  # noqa: SIM115 - file is sync, closed via executor below
+        f = await loop.run_in_executor(None, lambda: open(path, "ab")) if path is not None else None  # noqa: SIM115 - file is sync, closed via executor below
         try:
             while True:
                 raw_msg = await stream.readline()
@@ -356,6 +354,16 @@ class AsyncStreamReader(StreamReader):
                 msg = self.esm.receive_bytes(raw_msg)
                 if isinstance(msg, ChangeMessageType):
                     yield msg
-                await loop.run_in_executor(None, f.write, raw_msg)
+                if f is not None:
+                    await loop.run_in_executor(None, f.write, raw_msg)
         finally:
-            await loop.run_in_executor(None, f.close)
+            if f is not None:
+                await loop.run_in_executor(None, f.close)
+
+    def iter_changes_and_write_async(
+        self,
+        stream: AsyncStream,
+        path: pathlib.Path | str,
+    ) -> AsyncGenerator[ChangeMessageType, None]:
+        """Iterate over the stream asynchronously, yielding market and order change messages and recording raw messages to path."""
+        return self.iter_changes_async(stream, path)

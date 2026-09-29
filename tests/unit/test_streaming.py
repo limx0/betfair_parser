@@ -17,7 +17,7 @@ from betfair_parser.spec.streaming import (
     Status,
     stream_decode,
 )
-from betfair_parser.stream import ExchangeStream, StreamIO
+from betfair_parser.stream import AsyncStream, AsyncStreamReader, ChangeMessageType, ExchangeStream, StreamIO
 from tests.resources import RESOURCES_DIR
 
 
@@ -314,3 +314,56 @@ def test_stream_io_closes_raw_socket_on_context_exit():
         pass
     assert raw_sock.fileno() == -1, "underlying socket should be closed after with-exit"
     peer.close()
+
+
+class _AsyncFakeStream(AsyncStream):
+    """Async stream double serving a handshake preamble, pre-recorded lines, then end of stream."""
+
+    def __init__(self, lines: list[bytes]) -> None:
+        self._lines = [
+            b'{"op":"connection","connectionId":"002-051134157842-432409"}',
+            b'{"op": "status", "id": 1000, "statusCode": "SUCCESS", "connectionClosed": false}',
+            *lines,
+        ]
+
+    async def readline(self) -> bytes:
+        if not self._lines:
+            return b""
+        return self._lines.pop(0) + b"\r\n"
+
+    async def write(self, data: bytes) -> None:
+        pass
+
+
+def _async_recorder(lines: list[bytes]) -> tuple[AsyncStreamReader, _AsyncFakeStream]:
+    """Reader with a registered subscription plus a stream double serving those lines."""
+    sr = AsyncStreamReader("", "")
+    sr.subscribe(
+        MarketSubscription(id=1, market_filter=MarketFilter(), market_data_filter=MarketDataFilter(fields=set()))
+    )
+    return sr, _AsyncFakeStream(lines)
+
+
+@pytest.mark.asyncio
+async def test_iter_changes_async_records_to_file(tmp_path):
+    """iter_changes_async yields MCMs and appends raw lines to path; both APIs stay exposed."""
+    samples = (RESOURCES_DIR / "responses" / "streaming" / "mcm_samples.ndjson").read_bytes().splitlines()
+    sr, stream = _async_recorder(samples)
+
+    out_path = tmp_path / "record.ndjson"
+    msgs = [msg async for msg in sr.iter_changes_and_write_async(stream, out_path)]
+
+    assert all(isinstance(msg, ChangeMessageType) for msg in msgs)
+    assert out_path.read_bytes().splitlines() == samples
+
+
+@pytest.mark.asyncio
+async def test_iter_changes_async_without_path():
+    """iter_changes_async works without a recording path and writes nothing."""
+    samples = (RESOURCES_DIR / "responses" / "streaming" / "mcm_samples.ndjson").read_bytes().splitlines()
+    sr, stream = _async_recorder(samples)
+
+    msgs = [msg async for msg in sr.iter_changes_async(stream)]
+
+    assert len(msgs) == len(samples)
+    assert all(isinstance(msg, ChangeMessageType) for msg in msgs)
