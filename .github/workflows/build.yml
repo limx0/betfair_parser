@@ -53,4 +53,4 @@ jobs:
       - name: Lint GitHub Actions
         uses: reviewdog/action-actionlint@v1.27.0  # pin to a stable release
         with:
-          fail_level: error
+          fail_on_error: true
