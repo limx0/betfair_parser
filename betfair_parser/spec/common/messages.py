@@ -185,7 +185,7 @@ def decode(raw: bytes, type: Any = Any) -> Any:
         raise JSONError(str(e)) from e
 
 
-def encode(data: Any) -> bytes:
+def encode(data: object) -> bytes:
     try:
         return msgspec.json.encode(data)
     except msgspec.EncodeError as e:

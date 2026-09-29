@@ -41,9 +41,9 @@ NAVIGATION = defaultdict(
     DNK=_NAVIGATION.format(tld=".com", locale="da"),
 )
 HEARTBEAT = defaultdict(
-    lambda: _HEARTBEAT.format(tld=".com", locale="en"),
-    ESP=_HEARTBEAT.format(tld=".es", locale="es"),
-    ITA=_HEARTBEAT.format(tld=".it", locale="it"),
+    lambda: _HEARTBEAT.format(tld=".com"),
+    ESP=_HEARTBEAT.format(tld=".es"),
+    ITA=_HEARTBEAT.format(tld=".it"),
 )
 
 

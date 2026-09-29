@@ -9,6 +9,7 @@ from betfair_parser.cache import (
     MarketOrders,
     MarketSubscriptionCache,
     OrderSubscriptionCache,
+    RunnerOrders,
     SelectionKey,
     get_selection_key,
     get_selection_key_streaming,
@@ -272,3 +273,18 @@ def test_get_selection_key():
                 assert selection_key == get_selection_key_streaming(orc)
                 assert selection_key.selection_id == 6113662
                 assert selection_key.handicap == 0.0
+
+
+def test_selection_dict_key_normalization():
+    """pop/setdefault/update normalize keys as well, not just the item access methods."""
+    cache = MarketOrders()
+    runner = RunnerOrders()
+    cache.update({5: runner})
+    assert list(cache.keys()) == [SelectionKey(5, 0.0)]
+    assert cache.setdefault(5, RunnerOrders()) is runner
+    assert cache.setdefault((6, 1.5), RunnerOrders())
+    assert len(cache) == 2
+    assert cache.pop((6, 1.5))
+    assert cache.pop(5) is runner
+    assert cache.pop(5, None) is None
+    assert not cache

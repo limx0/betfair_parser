@@ -1,6 +1,5 @@
 from enum import Enum, auto
 from functools import total_ordering
-from typing import Any
 
 
 # the sentinel value the enum machinery uses internally for "not yet generated" values,
@@ -123,7 +122,7 @@ class DocumentedEnum(Enum):
     def __hash__(self) -> int:
         return hash(self.value)
 
-    def __lt__(self, other: Any) -> bool:
+    def __lt__(self, other: object) -> bool:
         if isinstance(other, DocumentedEnum):
             return self.value < other.value
         if isinstance(other, type(self.value)):

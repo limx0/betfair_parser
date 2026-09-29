@@ -8,6 +8,7 @@ import pytest
 from betfair_parser.exceptions import (
     CODE_TO_CATEGORY,
     AccountAPINGException,
+    BetfairError,
     ErrorCategory,
     LoginError,
     LoginImpossible,
@@ -231,3 +232,9 @@ def test_identity_error_classification():
         Login.with_params(username="user", password="pass").parse_response(raw)
     assert exc_info.value.code.name == "INVALID_USERNAME_OR_PASSWORD"
     assert classify_error(exc_info.value) == ErrorCategory.ACTION_REQUIRED
+
+
+def test_betfair_error_code_default():
+    """Errors without a code keyword default to None instead of raising AttributeError."""
+    assert BetfairError("failed").code is None
+    assert BetfairError("failed", code="TIMEOUT").code == "TIMEOUT"

@@ -1,7 +1,19 @@
 import msgspec
 
-from betfair_parser.spec.streaming import MCM, OCM, MatchedOrder, RunnerStatus, StartingPriceLay, Status, stream_decode
-from betfair_parser.stream import create_stream_io
+from betfair_parser.spec.streaming import (
+    MCM,
+    OCM,
+    Connection,
+    MarketDataFilter,
+    MarketFilter,
+    MarketSubscription,
+    MatchedOrder,
+    RunnerStatus,
+    StartingPriceLay,
+    Status,
+    stream_decode,
+)
+from betfair_parser.stream import ExchangeStream, create_stream_io
 from tests.resources import RESOURCES_DIR
 
 
@@ -172,6 +184,23 @@ def test_status_error_alt():
     raw = (RESOURCES_DIR / "responses" / "streaming" / "status_error_alt.json").read_bytes()
     status: Status = stream_decode(raw)  # type: ignore[assignment]
     assert status
+
+
+def test_exchange_stream_subscription_before_connect():
+    """Subscribing before connecting defers the write, after connecting it returns the payload."""
+    es = ExchangeStream("app_key", "token")
+    subscription = MarketSubscription(market_filter=MarketFilter(), market_data_filter=MarketDataFilter())
+    assert es.subscribe(subscription) is None
+    es.handle_connection(Connection(connection_id="test-connection"))
+    payload = es.subscribe(subscription)
+    assert payload is not None
+    assert b'"op":"marketSubscription"' in payload
+
+
+def test_unique_id_from_custom_generator():
+    es = ExchangeStream("app_key", "token", id_generator=iter([42, 43]))
+    assert es.unique_id() == 42
+    assert es.unique_id() == 43
 
 
 def test_create_stream_io_connect_failure_closes_socket():

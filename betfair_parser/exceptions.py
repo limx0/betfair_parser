@@ -29,7 +29,7 @@ class ErrorCategory(StrEnum):
 class BetfairError(Exception):
     """Base class for all Exceptions in this package. Allow to hand in custom data with keyword arguments."""
 
-    code: Any  # optional error code, attached via keyword argument
+    code: Any = None  # optional error code (str, enum member or int), attached via keyword argument
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args)

@@ -11,7 +11,7 @@ Though, there is probably quite some room for further optimizations.
 
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from betfair_parser.spec import betting
 from betfair_parser.spec.streaming import (
@@ -101,6 +101,18 @@ class SelectionDict[V](defaultdict[SelectionKey, V]):
 
     def get(self, key: SelectionKeyTypes, default: V | None = None) -> V | None:  # type: ignore[override]
         return super().get(self._normalize(key), default)
+
+    def pop(self, key: SelectionKeyTypes, *args: Any) -> Any:
+        """Pop the value for the normalized key, like dict.pop."""
+        return super().pop(self._normalize(key), *args)
+
+    def setdefault(self, key: SelectionKeyTypes, default: Any = None) -> Any:
+        """Return or insert the value for the normalized key, like dict.setdefault."""
+        return super().setdefault(self._normalize(key), default)
+
+    def update(self, *args: Any, **kwargs: Any) -> None:
+        """Update the mapping with normalized keys, like dict.update."""
+        super().update({self._normalize(k): v for k, v in dict(*args, **kwargs).items()})
 
 
 type PriceVolumeMap = dict[float, float]
@@ -244,7 +256,7 @@ class ChangeCache:
     clk: str | None = None
     initial_clk: str | None = None
     publish_time: int | None = None
-    stream_unreliable: bool | None = False
+    stream_unreliable: bool = False
     conflate_ms: int | None = None
 
     def update_meta(self, msg: MCM | OCM) -> None:

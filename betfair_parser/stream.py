@@ -5,7 +5,7 @@ import pathlib
 import socket
 import ssl
 import urllib.parse
-from collections.abc import AsyncGenerator, Callable, Iterable
+from collections.abc import AsyncGenerator, Callable, Iterable, Iterator
 from typing import Any
 
 from betfair_parser.cache import MarketSubscriptionCache, OrderSubscriptionCache
@@ -37,7 +37,7 @@ def _default_handler(msg: StreamResponseType) -> StreamResponseType:
 class ExchangeStream:
     """Handle the byte stream with betfair."""
 
-    def __init__(self, app_key: str, token: str, id_generator: Callable | None = None) -> None:
+    def __init__(self, app_key: str, token: str, id_generator: Iterator[int] | None = None) -> None:
         self.app_key = app_key
         self.token = token
         self.subscriptions: dict[StreamRef, SubscriptionType] = {}
@@ -60,7 +60,7 @@ class ExchangeStream:
         return self._connections_available
 
     def unique_id(self) -> int:
-        return next(self._id_generator)  # type: ignore[arg-type]
+        return next(self._id_generator)
 
     def handle_connection(self, msg: Connection) -> Connection:
         self._connection_id = msg.connection_id
@@ -68,7 +68,10 @@ class ExchangeStream:
 
     def handle_status(self, msg: Status) -> Status:
         if msg.is_error or msg.connection_closed:
-            # errors before the authentication handshake completed are auth errors
+            # a SUCCESS status with connection_closed=True (graceful shutdown) also raises: the
+            # stream ends either way, callers are expected to treat this as a stream error and
+            # re-establish the connection. errors before the authentication handshake completed
+            # are auth errors
             error_cls = StreamError if self.authenticated else StreamAuthenticationError
             raise error_cls(
                 f"Connection {self.connection_id} to stream {msg.id} failed: {msg.error_code}: {msg.error_message}",
@@ -164,7 +167,7 @@ class StreamReader:
         self.caches[msg.id].update(msg)  # type: ignore[arg-type]
         return msg
 
-    def subscribe(self, subscription: SubscriptionType) -> bytes:
+    def subscribe(self, subscription: SubscriptionType) -> bytes | None:
         if isinstance(subscription, MarketSubscription):
             self.caches[subscription.id] = MarketSubscriptionCache()
         elif isinstance(subscription, OrderSubscription):
