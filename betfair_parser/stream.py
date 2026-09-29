@@ -119,7 +119,7 @@ class ExchangeStream:
             return None
         return self.handle_msg(stream_decode(data))  # type: ignore[arg-type]
 
-    def receive(self, stream: io.RawIOBase) -> Any:
+    def receive(self, stream: io.IOBase) -> Any:
         return self.receive_bytes(stream.readline())
 
 
@@ -135,8 +135,13 @@ def create_ssl_socket(hostname, timeout: float | None = None) -> ssl.SSLSocket:
     return secure_sock
 
 
-def create_stream_io(endpoint: str, timeout: float = 15) -> socket.SocketIO:
-    """Open an IO stream through a TLS connection to the given endpoint."""
+def create_stream_io(endpoint: str, timeout: float = 15) -> io.BufferedRWPair:
+    """Open an IO stream through a TLS connection to the given endpoint.
+
+    Returns a buffered IO so line-based reads issue one recv syscall per message instead
+    of one per byte. The returned object is a context manager; if you write to it, you
+    must flush() before reading the response, just like any buffered IO over a socket.
+    """
     url = urllib.parse.urlparse(endpoint)
     sock = create_ssl_socket(url.hostname, timeout=timeout)
     try:
@@ -144,7 +149,7 @@ def create_stream_io(endpoint: str, timeout: float = 15) -> socket.SocketIO:
     except OSError:
         sock.close()  # a held traceback (e.g. from logger.exception in a retry loop) would keep the fd open
         raise
-    return socket.SocketIO(sock, "rwb")
+    return sock.makefile("rwb")
 
 
 def changed_markets(msg: StreamResponseType) -> list[str]:
@@ -176,16 +181,17 @@ class StreamReader:
             raise TypeError("Invalid subscription type")
         return self.esm.subscribe(subscription, self.handle_change_message)
 
-    def receive(self, stream: io.RawIOBase) -> Any:
+    def receive(self, stream: io.IOBase) -> Any:
         return self.esm.receive(stream)
 
-    def connect(self, stream: io.RawIOBase) -> None:
+    def connect(self, stream: io.IOBase) -> None:
         self.esm.receive(stream)  # read connection
         stream.write(self.esm.connect())  # send auth
+        stream.flush()  # auth bytes sit in the 8KB buffer until flush
         self.esm.receive(stream)  # read auth response
         self.esm.authenticated = True
 
-    def iter_changes(self, stream: io.RawIOBase) -> Iterable[ChangeMessageType]:
+    def iter_changes(self, stream: io.IOBase) -> Iterable[ChangeMessageType]:
         """Iterate over the stream, yielding market and order change messages."""
         if not self.esm.is_connected:
             self.connect(stream)
@@ -199,7 +205,7 @@ class StreamReader:
 
     def iter_changes_and_write(
         self,
-        stream: io.RawIOBase,
+        stream: io.IOBase,
         path: pathlib.Path | str,
     ) -> Iterable[ChangeMessageType]:
         if not self.esm.is_connected:

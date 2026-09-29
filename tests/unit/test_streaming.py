@@ -1,4 +1,8 @@
+import socket
+import threading
+
 import msgspec
+import pytest
 
 from betfair_parser.spec.streaming import (
     MCM,
@@ -223,3 +227,76 @@ def test_create_stream_io_connect_failure_closes_socket():
             tb = tb.tb_next
         assert tb is not None, "create_stream_io frame not found in traceback"
         assert tb.tb_frame.f_locals["sock"].fileno() == -1  # closed instead of leaking the fd
+
+
+def test_buffered_stream_supports_exchange_receive():
+    """ExchangeStream.receive reads from a buffered stream via a socketpair."""
+    peer, sock = socket.socketpair()
+    try:
+        es = ExchangeStream("app_key", "token")
+        buffered = sock.makefile("rwb")
+        peer.sendall(b'{"op":"connection","connectionId":"test"}\r\n')
+        msg = es.receive(buffered)
+        assert msg.connection_id == "test"
+    finally:
+        buffered.close()
+        sock.close()
+        peer.close()
+
+
+def test_buffered_write_flush_reaches_peer():
+    """Buffered writes must be flushed to actually be sent to the peer."""
+    peer, sock = socket.socketpair()
+    try:
+        peer.settimeout(2)
+        buffered = sock.makefile("rwb")
+        buffered.write(b"hello\r\n")
+        buffered.flush()
+        assert peer.recv(8) == b"hello\r\n"
+    finally:
+        buffered.close()
+        sock.close()
+        peer.close()
+
+
+def test_readline_across_buffer_fills():
+    """BufferedReader.readline handles lines larger than the 8KB internal buffer."""
+    peer, sock = socket.socketpair()
+    try:
+        peer.settimeout(10)
+        buffered = sock.makefile("rwb")
+        big = b"x" * 250_000
+
+        def sender():
+            peer.sendall(big + b"\r\n")
+
+        threading.Thread(target=sender, daemon=True).start()
+        assert buffered.readline() == big + b"\r\n"
+    finally:
+        buffered.close()
+        sock.close()
+        peer.close()
+
+
+def test_create_stream_io_propagates_connect_failure():
+    """create_stream_io raises on a refused endpoint instead of handing back a broken stream."""
+    with pytest.raises(OSError), create_stream_io("ndjson://127.0.0.1:1", timeout=1):
+        pass
+
+
+def test_create_stream_io_requires_explicit_flush_after_write():
+    """Buffered IO writes don't reach the peer until flushed - callers must flush()."""
+    peer, sock = socket.socketpair()
+    try:
+        peer.settimeout(0.2)  # short timeout so a buffered write doesn't hang the test
+        stream = sock.makefile("rwb")
+        stream.write(b"hello\r\n")  # not flushed yet - peer recv would time out
+        # confirm the write is buffered (peer cannot read it without flush)
+        with pytest.raises(TimeoutError):
+            peer.recv(8)
+        stream.flush()
+        assert peer.recv(8) == b"hello\r\n"
+    finally:
+        stream.close()
+        sock.close()
+        peer.close()

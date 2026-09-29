@@ -1,4 +1,5 @@
 import datetime
+import io
 
 import pytest
 from requests import Session  # alternatively use httpx.Client
@@ -95,11 +96,13 @@ def test_stream(session, subscription: MarketSubscription | OrderSubscription, i
     with create_stream_io(STREAM_INTEGRATION) as stream:
         print(esm.receive(stream))  # read connection
         stream.write(esm.connect())  # send auth
+        stream.flush()  # buffered stream IO must be flushed to emit
         print(esm.receive(stream))
         assert esm.is_connected
         assert esm.connections_available > 0
 
         stream.write(esm.subscribe(subscription))
+        stream.flush()
         msg: Status = esm.receive(stream)
         assert isinstance(msg, Status)
         assert not msg.is_error, f"{msg.error_code.name}: {msg.error_message}"
@@ -194,7 +197,9 @@ def test_stream_reader(session, iterations=15):
                 assert volume
 
 
-class TerminatingStream:
+class TerminatingStream(io.RawIOBase):
+    """Duck-typed stream double; a RawIOBase subclass so flush() and close() are inherited no-ops."""
+
     def __init__(self, path, nlines):
         self._iter = self.iterator(path, nlines)
 
@@ -211,10 +216,7 @@ class TerminatingStream:
     def write(self, x):
         """Ignore any write attempts from the connection handling."""
 
-    def read(self):
-        raise NotImplementedError()
-
-    def readline(self):
+    def readline(self, size: int = -1) -> bytes:  # size matches the io signature and is unused
         return next(self._iter)
 
 
@@ -224,7 +226,7 @@ def test_iter_changes_stream_termination(nlines=10):
     sr = StreamReader(None, None)
     sr.subscribe(SUBSCRIPTION_HORSERACING)
 
-    msgs = list(sr.iter_changes(stream))  # type: ignore[arg-type]
+    msgs = list(sr.iter_changes(stream))
     for msg in msgs:
         assert isinstance(msg, MCM)
     assert len(msgs) == nlines
@@ -237,7 +239,7 @@ def test_iter_changes_stream_and_write_termination(tmp_path, nlines=10):
     sr = StreamReader(None, None)
     sr.subscribe(SUBSCRIPTION_HORSERACING)
 
-    msgs = list(sr.iter_changes_and_write(stream, out_path))  # type: ignore[arg-type]
+    msgs = list(sr.iter_changes_and_write(stream, out_path))
     for msg in msgs:
         assert isinstance(msg, MCM)
     assert len(msgs) == nlines
