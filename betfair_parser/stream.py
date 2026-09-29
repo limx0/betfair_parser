@@ -123,16 +123,24 @@ class ExchangeStream:
 def create_ssl_socket(hostname, timeout: float | None = None) -> ssl.SSLSocket:
     """Create ssl socket and set timeout."""
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    secure_sock = ssl.create_default_context().wrap_socket(s, server_hostname=hostname)
+    try:
+        secure_sock = ssl.create_default_context().wrap_socket(s, server_hostname=hostname)
+    except BaseException:  # re-raised, this only makes sure the raw socket resource gets closed
+        s.close()
+        raise
     secure_sock.settimeout(timeout)
     return secure_sock
 
 
-def create_stream_io(endpoint, timeout: float = 15):
+def create_stream_io(endpoint: str, timeout: float = 15) -> socket.SocketIO:
     """Open an IO stream through a TLS connection to the given endpoint."""
     url = urllib.parse.urlparse(endpoint)
     sock = create_ssl_socket(url.hostname, timeout=timeout)
-    sock.connect((url.hostname, url.port))
+    try:
+        sock.connect((url.hostname, url.port or 443))
+    except OSError:
+        sock.close()  # a held traceback (e.g. from logger.exception in a retry loop) would keep the fd open
+        raise
     return socket.SocketIO(sock, "rwb")
 
 

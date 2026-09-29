@@ -1,6 +1,7 @@
 import msgspec
 
 from betfair_parser.spec.streaming import MCM, OCM, MatchedOrder, RunnerStatus, StartingPriceLay, Status, stream_decode
+from betfair_parser.stream import create_stream_io
 from tests.resources import RESOURCES_DIR
 
 
@@ -171,3 +172,25 @@ def test_status_error_alt():
     raw = (RESOURCES_DIR / "responses" / "streaming" / "status_error_alt.json").read_bytes()
     status: Status = stream_decode(raw)  # type: ignore[assignment]
     assert status
+
+
+def test_create_stream_io_connect_failure_closes_socket():
+    """Connect failures close the underlying socket right away.
+
+    A retry loop that logs the exception (logger.exception) keeps the traceback alive,
+    which keeps the create_stream_io frame alive - without the explicit close, every
+    failed connect attempt would leak one file descriptor.
+    """
+    failed = []
+    for _ in range(3):
+        try:
+            create_stream_io("ndjson://127.0.0.1:1", timeout=1)
+        except OSError as exc:  # simulate a retry loop holding the exception for logging
+            failed.append(exc)
+    assert len(failed) == 3
+    for held in failed:
+        tb = held.__traceback__
+        while tb is not None and "sock" not in tb.tb_frame.f_locals:
+            tb = tb.tb_next
+        assert tb is not None, "create_stream_io frame not found in traceback"
+        assert tb.tb_frame.f_locals["sock"].fileno() == -1  # closed instead of leaking the fd
