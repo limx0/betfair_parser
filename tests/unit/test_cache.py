@@ -35,8 +35,8 @@ def test_batb_cache():
     """MarketCache example from the documentation."""
     ladder: dict[int, LPV] = {}
 
-    # Seeing [position,0,0] means that there’s nothing at that position anymore
-    # (and hence [0,0,0] means there’s nothing in the entire ladder anymore)
+    # Seeing [position,0,0] means that there's nothing at that position anymore
+    # (and hence [0,0,0] means there's nothing in the entire ladder anymore)
     # Placed the first bet on a selection
     upd0 = [
         [0, 1.4, 2],

@@ -55,8 +55,7 @@ check_untyped_defs = true
 [tool.ruff]
 fix = false
 line-length = 120
-lint.extend-select = ["UP", "I"]
-lint.ignore = ["DTZ005", "ASYNC230"]
+lint.extend-select = ["B", "DTZ", "ASYNC", "UP", "I", "RUF", "SIM"]
 lint.isort.lines-after-imports = 2
 
 [tool.ruff.lint.per-file-ignores]

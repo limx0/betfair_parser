@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from functools import partial
 from typing import Annotated
 
@@ -315,7 +315,7 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     ] = None
     dam_bred: Annotated[_MetaCountryCode | None, doc("The country where the horse's mother was born")] = None
     dam_name: Annotated[str | None, doc("The name of the horse's mother")] = None
-    dam_year_born: Annotated[int | None, doc("The year the horse’s mother's birth")] = None
+    dam_year_born: Annotated[int | None, doc("The year the horse's mother's birth")] = None
     damsire_bred: Annotated[_MetaCountryCode | None, doc("The country where the horse's grandfather was born")] = None
     damsire_name: Annotated[str | None, doc("The name of the horse's grandfather")] = None
     damsire_year_born: Annotated[
@@ -348,7 +348,7 @@ class RunnerMetaData(BaseMessage, frozen=True, rename="upper"):
     weight_value: Annotated[float | None, doc("The weight of the horse")] = None
 
     def __post_init__(self):
-        cur_year = datetime.now().year
+        cur_year = datetime.now(tz=UTC).year
         if self.weight_value is not None and self.weight_value <= 0:
             force_setattr(self, "weight_value", None)
         if self.stall_draw is not None and not 0 < self.stall_draw < 50:

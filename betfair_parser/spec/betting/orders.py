@@ -55,7 +55,7 @@ class PlaceOrders(_OrderRequest, kw_only=True, frozen=True):
     Please note that additional bet sizing rules apply to bets placed into the Italian Exchange.
 
     In normal circumstances the placeOrders is an atomic operation. PLEASE NOTE: if the
-    'Best Execution' features is switched off, placeOrders can return ‘PROCESSED_WITH_ERRORS’
+    'Best Execution' features is switched off, placeOrders can return 'PROCESSED_WITH_ERRORS'
     meaning that some bets can be rejected and other placed when submitted in the same
     PlaceInstruction.
     """

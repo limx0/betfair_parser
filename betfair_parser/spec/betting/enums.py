@@ -153,7 +153,7 @@ class ExecutionReportStatus(DocumentedEnum):
         "This error only occurs for replaceOrders, cancelOrders and updateOrders operations. In normal "
         "circumstances the placeOrders operation will not return PROCESSED_WITH_ERRORS status as it is an "
         "atomic operation.  PLEASE NOTE: if the 'Best Execution' features is switched off, placeOrders can "
-        "return ‘PROCESSED_WITH_ERRORS’ meaning that some bets can be rejected and other placed when "
+        "return 'PROCESSED_WITH_ERRORS' meaning that some bets can be rejected and other placed when "
         "submitted in the same PlaceInstruction"
     )
     TIMEOUT = doc(

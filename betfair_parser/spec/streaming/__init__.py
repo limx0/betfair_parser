@@ -73,7 +73,7 @@ def stream_decode(raw: str | bytes) -> StreamMessageType:
     except msgspec.ValidationError as e:
         raise StreamError(enriched_validation_error(e, StreamMessageType)) from e
     except msgspec.DecodeError as e:
-        raise StreamError(str(e))
+        raise StreamError(str(e)) from e
 
 
 def stream_decode_lines(raw: str | bytes) -> list[StreamMessageType]:
@@ -82,4 +82,4 @@ def stream_decode_lines(raw: str | bytes) -> list[StreamMessageType]:
     except msgspec.ValidationError as e:
         raise StreamError(enriched_validation_error(e, StreamMessageType)) from e
     except msgspec.DecodeError as e:
-        raise StreamError(str(e))
+        raise StreamError(str(e)) from e

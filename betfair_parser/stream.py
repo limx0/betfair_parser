@@ -99,7 +99,7 @@ class ExchangeStream:
         try:
             return self.handlers[msg.id](msg)
         except KeyError:
-            raise StreamError(f"Unexpected stream message: {msg}")
+            raise StreamError(f"Unexpected stream message: {msg}") from None
         except Exception as e:
             raise StreamError(f"Handling stream message failed: {msg}") from e
 
@@ -347,7 +347,8 @@ class AsyncStreamReader(StreamReader):
             await self.connect_async(stream)
 
         loop = asyncio.get_running_loop()
-        with open(path, "ab") as f:
+        f = await loop.run_in_executor(None, lambda: open(path, "ab"))  # noqa: SIM115 - file is sync, closed via executor below
+        try:
             while True:
                 raw_msg = await stream.readline()
                 if not raw_msg:
@@ -356,3 +357,5 @@ class AsyncStreamReader(StreamReader):
                 if isinstance(msg, ChangeMessageType):
                     yield msg
                 await loop.run_in_executor(None, f.write, raw_msg)
+        finally:
+            await loop.run_in_executor(None, f.close)

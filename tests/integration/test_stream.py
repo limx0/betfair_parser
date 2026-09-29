@@ -1,5 +1,6 @@
 import datetime
 import io
+from datetime import UTC
 
 import pytest
 from requests import Session  # alternatively use httpx.Client
@@ -171,7 +172,7 @@ def test_stream_reader(session, iterations=15):
     assert all(isinstance(key, str) for key in market_definitions)
     assert all(isinstance(md, MarketDefinition) for md in market_definitions.values())
 
-    now = datetime.datetime.now(datetime.UTC)
+    now = datetime.datetime.now(UTC)
     order_book = sr.caches[MARKET_STREAM_ID].order_book  # type: ignore[union-attr]
     assert len(order_book) == len(market_definitions)
     assert all(isinstance(key, str) for key in order_book)

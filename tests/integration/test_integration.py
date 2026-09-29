@@ -96,7 +96,8 @@ def test_archive(path):
     mc = MarketSubscriptionCache()
     i = 0
     with bz2.open(path) as f:
-        for i, line in enumerate(f, start=1):
+        for line in f:
+            i += 1
             msg = stream_decode(line)
             assert isinstance(msg, MCM)
             mc.update(msg)

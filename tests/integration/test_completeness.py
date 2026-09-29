@@ -36,7 +36,7 @@ def id_check_item(item):
     ["spec", "node"],
     [
         (spec, node)
-        for xml_file, spec in zip(XML_FILES, (accounts.enums, betting.enums, heartbeat))
+        for xml_file, spec in zip(XML_FILES, (accounts.enums, betting.enums, heartbeat), strict=True)
         for node in xml_nodes(xml_file, "simpleType")
         if not list(node.iter("validValues"))  # exclude enums
     ],
@@ -60,7 +60,7 @@ def test_basetype(spec, node):
     ["spec", "node"],
     [
         (spec, node)
-        for xml_file, spec in zip(XML_FILES, (accounts.enums, betting.enums, heartbeat))
+        for xml_file, spec in zip(XML_FILES, (accounts.enums, betting.enums, heartbeat), strict=True)
         for node in xml_nodes(xml_file, "simpleType")
         if list(node.iter("validValues"))  # enums only
     ],
@@ -86,7 +86,9 @@ def test_enum(spec, node):
     ["spec", "node"],
     [
         (spec, node)
-        for xml_file, spec in zip(XML_FILES, (accounts.type_definitions, betting.type_definitions, heartbeat))
+        for xml_file, spec in zip(
+            XML_FILES, (accounts.type_definitions, betting.type_definitions, heartbeat), strict=True
+        )
         for node in xml_nodes(xml_file, "dataType")
     ],
     ids=id_check_item,
@@ -157,7 +159,7 @@ def normalize_description(text: str) -> str:
 
 def common_prefix_len(a, b) -> int:
     """Length of the common prefix of two sequences (strings or word lists)."""
-    for i, (first, second) in enumerate(zip(a, b)):
+    for i, (first, second) in enumerate(zip(a, b, strict=False)):
         if first != second:
             return i
     return min(len(a), len(b))
@@ -277,7 +279,7 @@ UNCOVERED_API_KEYWORDS = [
     ["spec", "node"],
     [
         (spec, node)
-        for xml_file, spec in zip(XML_FILES, (accounts.operations, betting.operations, heartbeat))
+        for xml_file, spec in zip(XML_FILES, (accounts.operations, betting.operations, heartbeat), strict=True)
         for node in xml_nodes(xml_file, "operation")
         if not any(unhandled in node.get("name") for unhandled in UNCOVERED_API_KEYWORDS)
     ],

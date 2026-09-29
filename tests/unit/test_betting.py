@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 import msgspec
 import msgspec.json
@@ -106,7 +106,7 @@ def test_replace_order_response(filename):
 
 
 def test_runner_metadata_validation_pass():
-    cur_year = datetime.now().year
+    cur_year = datetime.now(tz=UTC).year
     metadata = {
         "weight_value": 100,
         "stall_draw": 10,
@@ -130,7 +130,7 @@ def test_runner_metadata_validation_pass():
 
 
 def test_runner_metadata_validation_fail():
-    cur_year = datetime.now().year
+    cur_year = datetime.now(tz=UTC).year
     metadata = {
         "weight_value": -1,
         "stall_draw": 100,

@@ -63,7 +63,7 @@ def test_documented_enum_comparison():
     assert hash(ErrorA.CODE) == hash(ErrorB.CODE)
     assert hash(ErrorA.CODE) == hash("CODE")
     assert sorted([ErrorA.CODE, "AAA"]) == ["AAA", ErrorA.CODE]  # type: ignore[type-var]
-    assert "CODE" == ErrorA.CODE
+    assert ErrorA.CODE == "CODE"
     assert ErrorA.CODE != "OTHER"
 
 
