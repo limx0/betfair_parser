@@ -62,7 +62,8 @@ for more API call examples.
 
 ## Releasing
 
-Releases are published automatically when a tag is pushed to GitHub.
+Releases are published automatically when a tag matching the version schema `MAJOR.MINOR[.PATCH]`
+(e.g. `1.2.3` or `1.2`) is pushed to GitHub. Tags that do not match this schema are ignored.
 
 ```bash
 # Set next version number
