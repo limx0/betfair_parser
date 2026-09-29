@@ -1,5 +1,6 @@
+import re
 from itertools import count
-from typing import Any, ClassVar, Generic, Literal, TypeVar, get_type_hints
+from typing import Annotated, Any, ClassVar, Generic, Literal, TypeVar, get_type_hints
 
 import msgspec
 
@@ -12,9 +13,174 @@ from betfair_parser.spec.common.enums import (
 )
 
 
+def doc(docstring: str | None = None) -> msgspec.Meta:
+    """Create msgspec type metadata with a documentation string, for use in ``Annotated`` type hints.
+
+    >>> doc("The market id these orders are to be placed on")
+    msgspec.Meta(description='The market id these orders are to be placed on')
+    """
+    return msgspec.Meta(description=docstring)
+
+
+def _unwrap_meta(info: Any) -> tuple[str | None, Any]:
+    """Strip msgspec.inspect.Metadata wrappers, returning their description and the inner type info."""
+    description = None
+    while isinstance(info, msgspec.inspect.Metadata):
+        description = info.extra_json_schema.get("description") or description
+        info = info.type
+    return description, info
+
+
+def _descend_index(info: Any, bracket: str) -> tuple[str | None, Any] | None:
+    """Descend into a sequence item or mapping value of a path bracket part like ``[0]`` or ``[...]``.
+
+    msgspec masks dict keys in error paths as ``[...]``, so the value type is the best we can resolve.
+    """
+    _, info = _unwrap_meta(info)
+    item_type = None
+    if bracket.isdigit():
+        index = int(bracket)
+        item_type = getattr(info, "item_type", None)  # list, set, variadic tuple
+        if item_type is None:
+            item_types = getattr(info, "item_types", None)  # fixed-length tuple
+            if item_types is not None and index < len(item_types):
+                item_type = item_types[index]
+    else:  # masked dict key
+        item_type = getattr(info, "value_type", None)
+    if item_type is None:
+        return None
+    return _unwrap_meta(item_type)
+
+
+def _descend_brackets(info: Any, brackets: list[str]) -> tuple[str | None, Any] | None:
+    """Descend into the sequence items / masked dict values of all bracket parts of a path segment."""
+    description = None
+    for bracket in brackets:
+        matched = _descend_index(info, bracket)
+        if matched is None:
+            return None
+        description, info = matched
+    return description, info
+
+
+def _match_field(info: Any, name: str) -> tuple[str | None, Any] | None:
+    """Match a JSON path segment name against the fields of a type info.
+
+    Returns the description and the type info of the matched field, or None if it can't be matched.
+    Sequences, mappings and unions are descended into on a best-effort basis. Ambiguous unions
+    (multiple members with a structurally differing field of the same name) are not descended into,
+    since a wrong description would be worse than no description at all.
+    """
+    description, info = _unwrap_meta(info)
+    while True:
+        if isinstance(info, msgspec.inspect.StructType):
+            for field in info.fields:
+                if field.encode_name == name:
+                    return _unwrap_meta(field.type)
+            return None
+        item_type = getattr(info, "item_type", None)
+        if item_type is None:
+            item_types = getattr(info, "item_types", None)
+            if item_types is not None:  # fixed-length tuple without an index in the path
+                item_type = item_types[0]
+        if item_type is not None:  # list, set, tuple
+            _, info = _unwrap_meta(item_type)
+            continue
+        value_type = getattr(info, "value_type", None)
+        if value_type is not None:  # dict
+            _, info = _unwrap_meta(value_type)
+            continue
+        if isinstance(info, msgspec.inspect.UnionType):
+            candidates = []
+            for member in info.types:
+                _, inner = _unwrap_meta(member)
+                if isinstance(inner, msgspec.inspect.StructType | msgspec.inspect.ListType | msgspec.inspect.TupleType):
+                    matched = _match_field(inner, name)
+                    if matched:
+                        candidates.append(matched)
+            if not candidates:
+                return None
+            first_desc, first_info = candidates[0]
+            if all(desc == first_desc and inner == first_info for desc, inner in candidates[1:]):
+                return first_desc or description, first_info
+            return None
+        return None
+
+
+def _split_error_path(path: str) -> list[str]:
+    """Split an error path on dots, ignoring dots within brackets (e.g. the dict key mask ``[...]``)."""
+    segments = []
+    depth = 0
+    current = ""
+    for char in path:
+        if char == "[":
+            depth += 1
+        elif char == "]":
+            depth -= 1
+        if char == "." and depth <= 0:
+            segments.append(current)
+            current = ""
+        else:
+            current += char
+    segments.append(current)
+    return segments
+
+
+def _split_segment(segment: str) -> tuple[str, list[str]]:
+    """Split a path segment into the field name and its bracket parts (indices or the dict key mask)."""
+    parts = re.split(r"\[([^\[\]]*)\]", segment)
+    return parts[0], parts[1::2]
+
+
+def enriched_validation_error(error: msgspec.ValidationError, type: Any) -> str:
+    """Return a validation error message, enriched with the documented description of the failing field.
+
+    The description is appended in parentheses, e.g.::
+
+        Expected `str`, got `int` - at `$.params.marketId` (The market id these orders are to be placed on)
+    """
+    message = str(error)
+    try:
+        if " - at `" not in message:
+            return message
+        path = message.rsplit(" - at `", 1)[1].rstrip("`")
+        info: Any = msgspec.inspect.type_info(type)
+        description = None
+        for segment in _split_error_path(path):
+            name, brackets = _split_segment(segment)
+            if name == "$":
+                # root marker: bare non-struct roots carry their index within the brackets
+                if not brackets:
+                    continue
+                indexed = _descend_brackets(info, brackets)
+                if indexed is None:
+                    break
+                description = indexed[0] or description
+                info = indexed[1]
+                continue
+            matched = _match_field(info, name)
+            if matched is None:
+                break
+            description = matched[0] or description
+            info = matched[1]
+            if brackets:  # descend into the indexed items, their descriptions may be the most specific ones
+                indexed = _descend_brackets(info, brackets)
+                if indexed is None:
+                    break
+                description = indexed[0] or description
+                info = indexed[1]
+        if description:
+            message = f"{message} ({description})"
+    except Exception:  # noqa: BLE001, S110 - error message enrichment must never mask the original error
+        pass
+    return message
+
+
 def decode(raw: bytes, type: Any = Any) -> Any:
     try:
         return msgspec.json.decode(raw, strict=False, type=type)
+    except msgspec.ValidationError as e:
+        raise JSONError(enriched_validation_error(e, type)) from e
     except msgspec.DecodeError as e:
         raise JSONError(str(e)) from e
 
@@ -86,7 +252,7 @@ ErrorCode = TypeVar("ErrorCode")
 
 class ExceptionDetails(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=True):
     error_code: ErrorCode
-    error_details: str | None = None  # The stack trace of the error
+    error_details: Annotated[str | None, doc("The stack trace of the error")] = None
     request_uuid: str | None = msgspec.field(name="requestUUID", default=None)
 
     @property
@@ -109,9 +275,9 @@ class ExceptionData(BaseMessage, frozen=True, rename=None):
 
 
 class RPCError(BaseMessage, frozen=True):
-    code: int  # JSONExceptionCode or any other undocumented integer code, if it's an APINGException
-    message: str  # Something like "DSC-0018", "AANGX-0011", ...
-    data: ExceptionData | None = None  # The interesting part
+    code: Annotated[int, doc("JSONExceptionCode or any other undocumented integer code, if it's an APINGException")]
+    message: Annotated[str, doc('Something like "DSC-0018", "AANGX-0011", ...')]
+    data: Annotated[ExceptionData | None, doc("The interesting part")] = None
 
     @property
     def exception_code(self):

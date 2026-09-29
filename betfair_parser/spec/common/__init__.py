@@ -19,7 +19,9 @@ from betfair_parser.spec.common.messages import (
     Request,
     Response,
     decode,
+    doc,
     encode,
+    enriched_validation_error,
     first_lower,
     method_tag,
 )

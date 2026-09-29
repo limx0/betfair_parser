@@ -1,6 +1,8 @@
 from functools import partial
+from typing import Annotated
 
 from betfair_parser.spec.common import BaseMessage, EndpointType, Params, Request, Response, method_tag
+from betfair_parser.spec.common import doc as field_doc
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
@@ -19,15 +21,19 @@ class ActionPerformed(DocumentedEnum):
 class HeartbeatReport(BaseMessage, frozen=True):
     """Response from heartbeat operation."""
 
-    action_performed: ActionPerformed  # The action performed since your last heartbeat request.
-    actual_timeout_seconds: int  # The actual timeout applied to your heartbeat request
+    action_performed: Annotated[ActionPerformed, field_doc("The action performed since your last heartbeat request.")]
+    actual_timeout_seconds: Annotated[int, field_doc("The actual timeout applied to your heartbeat request")]
 
 
 class _HeartbeatParams(Params, frozen=True):
-    # Maximum period in seconds that may elapse (without a subsequent heartbeat request),
-    # before a cancellation request is automatically submitted on your behalf. The minimum
-    # value is 10, the maximum value permitted is 300.
-    preferred_timeout_seconds: int
+    preferred_timeout_seconds: Annotated[
+        int,
+        field_doc(
+            "Maximum period in seconds that may elapse (without a subsequent heartbeat request), before a cancellation "
+            "request is automatically submitted on your behalf. The minimum value is 10, the maximum value permitted "
+            "is 300."
+        ),
+    ]
 
 
 class Heartbeat(Request, kw_only=True, frozen=True, tag=heartbeat_tag):

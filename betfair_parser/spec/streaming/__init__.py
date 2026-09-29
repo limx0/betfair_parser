@@ -9,7 +9,7 @@ from betfair_parser.spec.betting.enums import (
     MarketTypeCode,
     RunnerStatus,
 )
-from betfair_parser.spec.common import EventTypeIdCode
+from betfair_parser.spec.common import EventTypeIdCode, enriched_validation_error
 from betfair_parser.spec.streaming import enums, type_definitions
 from betfair_parser.spec.streaming.enums import (
     ChangeType,
@@ -70,6 +70,8 @@ _STREAM_DECODER = Decoder(StreamMessageType, strict=False)
 def stream_decode(raw: str | bytes) -> StreamMessageType:
     try:
         return _STREAM_DECODER.decode(raw)
+    except msgspec.ValidationError as e:
+        raise StreamError(enriched_validation_error(e, StreamMessageType)) from e
     except msgspec.DecodeError as e:
         raise StreamError(str(e))
 
@@ -77,5 +79,7 @@ def stream_decode(raw: str | bytes) -> StreamMessageType:
 def stream_decode_lines(raw: str | bytes) -> list[StreamMessageType]:
     try:
         return _STREAM_DECODER.decode_lines(raw)
+    except msgspec.ValidationError as e:
+        raise StreamError(enriched_validation_error(e, StreamMessageType)) from e
     except msgspec.DecodeError as e:
         raise StreamError(str(e))

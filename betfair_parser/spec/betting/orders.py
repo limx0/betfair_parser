@@ -1,3 +1,5 @@
+from typing import Annotated
+
 import msgspec
 
 from betfair_parser.spec.betting.enums import BetStatus, GroupBy, OrderBy, OrderProjection, Side, SortDir
@@ -30,6 +32,7 @@ from betfair_parser.spec.common import (
     Response,
     Set,
     TimeRange,
+    doc,
 )
 
 
@@ -98,30 +101,51 @@ class ReplaceOrders(_OrderRequest, kw_only=True, frozen=True):
 
 
 class _ListClearedOrdersParams(Params, frozen=True):
-    bet_status: BetStatus  # Restricts the results to the specified status.
-    event_type_ids: Set[EventTypeId] | None = None  # Restricts the results to the specified Event Type IDs.
-    event_ids: Set[EventId] | None = None  # Restricts the results to the specified Event IDs.
-    market_ids: Set[MarketId] | None = None  # Restricts the results to the specified market IDs.
-    runner_ids: Set[RunnerId] | None = None  # Restricts the results to the specified Runners.
-    bet_ids: Set[BetId] | None = None  # Restricts the results to the specified bet IDs, maximum 1000 betIds
+    bet_status: Annotated[BetStatus, doc("Restricts the results to the specified status.")]
+    event_type_ids: Annotated[
+        Set[EventTypeId] | None,
+        doc("Restricts the results to the specified Event Type IDs."),
+    ] = None
+    event_ids: Annotated[Set[EventId] | None, doc("Restricts the results to the specified Event IDs.")] = None
+    market_ids: Annotated[Set[MarketId] | None, doc("Restricts the results to the specified market IDs.")] = None
+    runner_ids: Annotated[Set[RunnerId] | None, doc("Restricts the results to the specified Runners.")] = None
+    bet_ids: Annotated[
+        Set[BetId] | None,
+        doc("Restricts the results to the specified bet IDs, maximum 1000 betIds"),
+    ] = None
     customer_order_refs: Set[CustomerOrderRef] | None = None
     customer_strategy_refs: Set[CustomerStrategyRef] | None = None
-    side: Side | None = None  # Restricts the results to the specified side.
+    side: Annotated[Side | None, doc("Restricts the results to the specified side.")] = None
 
-    # Optionally restricts the results to be from/to the specified settled date. This date is inclusive,
-    # i.e. if an order was cleared on exactly this date (to the millisecond) then it will be included
-    # in the results. If 'from' is later than 'to', no results will be returned.
-    # Please Note: if you have a longer running market that is settled at multiple different times
-    # then there is no way to get the returned market rollup to only include bets settled in a certain
-    # date range, it will always return the overall position from the market including all settlements.
-    settled_date_range: TimeRange | None = None
+    settled_date_range: Annotated[
+        TimeRange | None,
+        doc(
+            "Optionally restricts the results to be from/to the specified settled date. This date is inclusive, i.e. "
+            "if an order was cleared on exactly this date (to the millisecond) then it will be included in the "
+            "results. If 'from' is later than 'to', no results will be returned. Please Note: if you have a longer "
+            "running market that is settled at multiple different times then there is no way to get the returned "
+            "market rollup to only include bets settled in a certain date range, it will always return the overall "
+            "position from the market including all settlements."
+        ),
+    ] = None
 
-    # If not supplied then the lowest level is returned, i.e. bet by bet This is only applicable to SETTLED BetStatus.
-    group_by: GroupBy | None = None
+    group_by: Annotated[
+        GroupBy | None,
+        doc(
+            "If not supplied then the lowest level is returned, i.e. bet by bet This is only applicable to SETTLED "
+            "BetStatus."
+        ),
+    ] = None
     include_item_description: bool | None = None
-    locale: str | None = None  # The language used for the itemDescription, defaults to account settings
-    from_record: int | None = None  # Specifies the first record that will be returned. Records start at index zero.
-    record_count: int | None = None  # Number of records from the index position 'fromRecord', maximum 1000
+    locale: Annotated[str | None, doc("The language used for the itemDescription, defaults to account settings")] = None
+    from_record: Annotated[
+        int | None,
+        doc("Specifies the first record that will be returned. Records start at index zero."),
+    ] = None
+    record_count: Annotated[
+        int | None,
+        doc("Number of records from the index position 'fromRecord', maximum 1000"),
+    ] = None
 
 
 class ListClearedOrders(_OrderRequest, kw_only=True, frozen=True):
@@ -147,16 +171,19 @@ class _ListCurrentOrdersParams(Params, frozen=True):
     Parameters for retrieving a list of current orders.
     """
 
-    bet_ids: Set[BetId] | None = None  # Restricts the results to the specified bet IDs
-    market_ids: Set[MarketId] | None = None  # Restricts the results to the specified market IDs
-    order_projection: OrderProjection | None = None  # Restricts the results to the specified order status
+    bet_ids: Annotated[Set[BetId] | None, doc("Restricts the results to the specified bet IDs")] = None
+    market_ids: Annotated[Set[MarketId] | None, doc("Restricts the results to the specified market IDs")] = None
+    order_projection: Annotated[
+        OrderProjection | None,
+        doc("Restricts the results to the specified order status"),
+    ] = None
     customer_order_refs: Set[CustomerOrderRef] | None = None
     customer_strategy_refs: Set[CustomerStrategyRef] | None = None
-    date_range: TimeRange | None = None  # Restricts the results to be from/to the specified date
-    order_by: OrderBy | None = None  # Specifies how the results will be ordered
-    sort_dir: SortDir | None = None  # Specifies the direction the results will be sorted in
-    from_record: int | None = None  # Specifies the first record that will be returned
-    record_count: int | None = None  # Specifies how many records will be returned
+    date_range: Annotated[TimeRange | None, doc("Restricts the results to be from/to the specified date")] = None
+    order_by: Annotated[OrderBy | None, doc("Specifies how the results will be ordered")] = None
+    sort_dir: Annotated[SortDir | None, doc("Specifies the direction the results will be sorted in")] = None
+    from_record: Annotated[int | None, doc("Specifies the first record that will be returned")] = None
+    record_count: Annotated[int | None, doc("Specifies how many records will be returned")] = None
     include_item_description: bool | None = None
 
 
@@ -180,8 +207,8 @@ class ListCurrentOrders(_OrderRequest, kw_only=True, frozen=True):
 
 
 class _UpdateOrdersParams(Params, frozen=True):
-    market_id: str  # The market id these orders are to be placed on
-    instructions: list[UpdateInstruction]  # The limit of update instructions per request is 60
+    market_id: Annotated[str, doc("The market id these orders are to be placed on")]
+    instructions: Annotated[list[UpdateInstruction], doc("The limit of update instructions per request is 60")]
     customer_ref: CustomerRef | None = None
 
 

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from betfair_parser.spec.betting.enums import (
     MarketProjection,
     MarketSort,
@@ -31,6 +33,7 @@ from betfair_parser.spec.common import (
     Response,
     SelectionId,
     Set,
+    doc,
 )
 
 
@@ -106,17 +109,32 @@ class ListVenues(_ListingRequest, kw_only=True, frozen=True):
 
 
 class _ListMarketBookParams(Params, frozen=True):
-    market_ids: Set[MarketId]  # NOTE: This is documented as list, but defined as set here for consistency
-    price_projection: PriceProjection | None = None  # The desired projection of price data
-    order_projection: OrderProjection | None = None  # The orders you want to receive in the response
-    match_projection: MatchProjection | None = None  # If you ask for orders, specifies the representation of matches
-    include_overall_position: bool | None = None  # If you ask for orders, returns matches for each selection
-    partition_matched_by_strategy_ref: bool | None = None  # Breakdown of matches by strategy for each selection
+    market_ids: Annotated[
+        Set[MarketId],
+        doc("NOTE: This is documented as list, but defined as set here for consistency"),
+    ]
+    price_projection: Annotated[PriceProjection | None, doc("The desired projection of price data")] = None
+    order_projection: Annotated[OrderProjection | None, doc("The orders you want to receive in the response")] = None
+    match_projection: Annotated[
+        MatchProjection | None,
+        doc("If you ask for orders, specifies the representation of matches"),
+    ] = None
+    include_overall_position: Annotated[
+        bool | None,
+        doc("If you ask for orders, returns matches for each selection"),
+    ] = None
+    partition_matched_by_strategy_ref: Annotated[
+        bool | None,
+        doc("Breakdown of matches by strategy for each selection"),
+    ] = None
     customer_strategy_refs: Set[str] | None = None
-    currency_code: str | None = None  # A Betfair standard currency code
-    locale: str | None = None  # The language used for the response
-    matched_since: Date | None = None  # Only orders with at least one fragment matched since the specified date
-    bet_ids: Set[BetId] | None = None  # Only orders with the specified bet IDs
+    currency_code: Annotated[str | None, doc("A Betfair standard currency code")] = None
+    locale: Annotated[str | None, doc("The language used for the response")] = None
+    matched_since: Annotated[
+        Date | None,
+        doc("Only orders with at least one fragment matched since the specified date"),
+    ] = None
+    bet_ids: Annotated[Set[BetId] | None, doc("Only orders with the specified bet IDs")] = None
 
 
 class ListMarketBook(_ListingRequest, kw_only=True, frozen=True):
@@ -144,11 +162,14 @@ class ListMarketBook(_ListingRequest, kw_only=True, frozen=True):
 
 
 class _ListMarketCatalogueParams(Params, kw_only=True, frozen=True):
-    filter: MarketFilter  # The filter to select desired markets
-    market_projection: Set[MarketProjection] | None = None  # The type and amount of data returned about the market
-    sort: MarketSort | None = None  # The order of the results, defaults to RANK
-    max_results: int = 1000  # Limit on the total number of results returned
-    locale: str | None = None  # The language used for the response
+    filter: Annotated[MarketFilter, doc("The filter to select desired markets")]
+    market_projection: Annotated[
+        Set[MarketProjection] | None,
+        doc("The type and amount of data returned about the market"),
+    ] = None
+    sort: Annotated[MarketSort | None, doc("The order of the results, defaults to RANK")] = None
+    max_results: Annotated[int, doc("Limit on the total number of results returned")] = 1000
+    locale: Annotated[str | None, doc("The language used for the response")] = None
 
 
 class ListMarketCatalogue(_ListingRequest, kw_only=True, frozen=True):
@@ -169,10 +190,16 @@ ListMarketCatalog = ListMarketCatalogue  # allow both spellings
 
 
 class _ListMarketProfitAndLossParams(Params, frozen=True):
-    market_ids: Set[MarketId]  # List of markets to calculate profit and loss
-    include_settled_bets: bool | None = False  # Option to include settled bets (partially settled markets only)
-    include_bsp_bets: bool | None = False  # Option to include BSP bets
-    net_of_commission: bool | None = False  # Option to return profit and loss net of users current commission rate
+    market_ids: Annotated[Set[MarketId], doc("List of markets to calculate profit and loss")]
+    include_settled_bets: Annotated[
+        bool | None,
+        doc("Option to include settled bets (partially settled markets only)"),
+    ] = False
+    include_bsp_bets: Annotated[bool | None, doc("Option to include BSP bets")] = False
+    net_of_commission: Annotated[
+        bool | None,
+        doc("Option to return profit and loss net of users current commission rate"),
+    ] = False
 
 
 class ListMarketProfitAndLoss(_ListingRequest, kw_only=True, frozen=True):
@@ -183,19 +210,34 @@ class ListMarketProfitAndLoss(_ListingRequest, kw_only=True, frozen=True):
 
 
 class _ListRunnerBookParams(Params, frozen=True):
-    market_id: MarketId  # The unique id for the market
-    selection_id: SelectionId  # The unique id for the selection in the market
-    handicap: Handicap | None = None  # The handicap associated with the runner in case of Asian handicap market
+    market_id: Annotated[MarketId, doc("The unique id for the market")]
+    selection_id: Annotated[SelectionId, doc("The unique id for the selection in the market")]
+    handicap: Annotated[
+        Handicap | None,
+        doc(
+            "If specified, the handicap is used in conjunction with the selectionId to pick which "
+            "runner to return prices for"
+        ),
+    ] = None
     price_projection: PriceProjection | None = None
     order_projection: OrderProjection | None = None
-    match_projection: MatchProjection | None = None  # If you ask for orders, specifies the representation of matches
-    include_overall_position: bool | None = None  # If you ask for orders, returns matches for each selection
-    partition_matched_by_strategy_ref: bool | None = None  # Return a breakdown of matches by strategy
+    match_projection: Annotated[
+        MatchProjection | None,
+        doc("If you ask for orders, specifies the representation of matches"),
+    ] = None
+    include_overall_position: Annotated[
+        bool | None,
+        doc("If you ask for orders, returns matches for each selection"),
+    ] = None
+    partition_matched_by_strategy_ref: Annotated[bool | None, doc("Return a breakdown of matches by strategy")] = None
     customer_strategy_refs: Set[str] | None = None
-    currency_code: str | None = None  # A Betfair standard currency code
-    locale: str | None = None  # The language used for the response
-    matched_since: Date | None = None  # Restricts to orders with at least one fragment matched since specified date
-    bet_ids: Set[BetId] | None = None  # Restricts to orders with the specified bet IDs
+    currency_code: Annotated[str | None, doc("A Betfair standard currency code")] = None
+    locale: Annotated[str | None, doc("The language used for the response")] = None
+    matched_since: Annotated[
+        Date | None,
+        doc("Restricts to orders with at least one fragment matched since specified date"),
+    ] = None
+    bet_ids: Annotated[Set[BetId] | None, doc("Restricts to orders with the specified bet IDs")] = None
 
 
 class ListRunnerBook(_ListingRequest, kw_only=True, frozen=True):
@@ -210,10 +252,14 @@ class ListRunnerBook(_ListingRequest, kw_only=True, frozen=True):
 
 
 class _ListTimeRangesParams(Params, frozen=True):
-    # The filter to select desired markets. All markets that match the criteria in the filter are selected.
-    filter: MarketFilter
-    # The granularity of time periods that correspond to markets selected by the market filter.
-    granularity: TimeGranularity
+    filter: Annotated[
+        MarketFilter,
+        doc("The filter to select desired markets. All markets that match the criteria in the filter are selected."),
+    ]
+    granularity: Annotated[
+        TimeGranularity,
+        doc("The granularity of time periods that correspond to markets selected by the market filter."),
+    ]
 
 
 class ListTimeRanges(_ListingRequest, kw_only=True, frozen=True):

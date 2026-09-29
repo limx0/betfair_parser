@@ -5,6 +5,7 @@ import msgspec
 
 from betfair_parser.exceptions import IdentityError, LoginError
 from betfair_parser.spec.common import BaseResponse, EndpointType, Params, Request, decode
+from betfair_parser.spec.common import doc as field_doc
 from betfair_parser.strenums import DocumentedEnum, StrEnum, auto, doc
 
 
@@ -131,11 +132,11 @@ LoginStatusCode = Annotated[LoginExceptionCode, msgspec.Meta(title="LoginStatusC
 
 
 class LoginResponse(BaseResponse, frozen=True):
-    token: str  # session token
-    product: str  # application key
+    token: Annotated[str, field_doc("session token")]
+    product: Annotated[str, field_doc("application key")]
     status: LoginStatus
     error: LoginExceptionCode
-    last_login_date: str | None = None  # format: "dd/MM/yyyy HH:mm:ss"
+    last_login_date: Annotated[str | None, field_doc('format: "dd/MM/yyyy HH:mm:ss"')] = None
 
     @property
     def is_error(self):
@@ -143,11 +144,15 @@ class LoginResponse(BaseResponse, frozen=True):
 
 
 class _LoginParams(Params, frozen=True):
-    username: str  # The username to be used for the login
+    username: Annotated[str, field_doc("The username to be used for the login")]
 
-    # The password to be used for the login. For strong auth customers, this should
-    # be their password with a two-factor auth code appended to the password string.
-    password: str
+    password: Annotated[
+        str,
+        field_doc(
+            "The password to be used for the login. For strong auth customers, this should be their password with a "
+            "two-factor auth code appended to the password string."
+        ),
+    ]
 
 
 class Login(_IdentityRequest, kw_only=True, frozen=True):
@@ -168,8 +173,8 @@ class Login(_IdentityRequest, kw_only=True, frozen=True):
 
 
 class KeepAliveLogoutResponse(BaseResponse, frozen=True):
-    token: str  # session token
-    product: str  # application key
+    token: Annotated[str, field_doc("session token")]
+    product: Annotated[str, field_doc("application key")]
     status: Literal["SUCCESS", "FAIL"]
     error: Literal["INPUT_VALIDATION_ERROR", "INTERNAL_ERROR", "NO_SESSION", ""]
 

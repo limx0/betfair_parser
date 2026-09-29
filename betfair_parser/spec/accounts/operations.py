@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Annotated
 
 from betfair_parser.exceptions import AccountAPINGException
 from betfair_parser.spec.accounts.enums import IncludeItem, Wallet
@@ -8,7 +9,7 @@ from betfair_parser.spec.accounts.type_definitions import (
     AccountStatementReport,
     CurrencyRate,
 )
-from betfair_parser.spec.common import EndpointType, Params, Request, Response, TimeRange, method_tag
+from betfair_parser.spec.common import EndpointType, Params, Request, Response, TimeRange, doc, method_tag
 
 
 accounts_tag = partial(method_tag, "AccountAPING/v1.0/")
@@ -20,7 +21,7 @@ class _AccountRequest(Request, frozen=True, tag_field="method", tag=accounts_tag
 
 
 class _GetAccountFundsParams(Params, frozen=True):
-    wallet: Wallet | None = None  # Name of the wallet in question. Global wallet is returned by default
+    wallet: Annotated[Wallet | None, doc("Name of the wallet in question. Global wallet is returned by default")] = None
 
 
 class GetAccountFunds(_AccountRequest, kw_only=True, frozen=True):
@@ -38,18 +39,28 @@ class GetAccountDetails(_AccountRequest, kw_only=True, frozen=True):
 
 
 class _GetAccountStatementParams(Params, frozen=True):
-    locale: str | None = None  # The language to be used where applicable. Defaults to account settings
-    from_record: int | None = None  # Specifies the first record that will be returned, defaults to 0
-    record_count: int | None = None  # Specifies the maximum number of records to be returned. Maximum 100
+    locale: Annotated[str | None, doc("The language to be used where applicable. Defaults to account settings")] = None
+    from_record: Annotated[int | None, doc("Specifies the first record that will be returned, defaults to 0")] = None
+    record_count: Annotated[
+        int | None,
+        doc("Specifies the maximum number of records to be returned. Maximum 100"),
+    ] = None
 
-    # Return items with an itemDate within this date range. Both from and to date times are inclusive.
-    # If from is not specified then the oldest available items will be in range. If to is not specified
-    # then the latest items will be in range. nb. This itemDataRange is currently only applied when
-    # includeItem is set to ALL or not specified, else items are NOT bound by itemDate.
-    # Please note:  You can only retrieve account statement items for the last 90 days.
-    item_date_range: TimeRange | None = None
-    include_item: IncludeItem | None = None  # Which items to include, if not specified then defaults to ALL.
-    wallet: Wallet | None = None  # Which wallet to return statementItems for. Defaults to UK
+    item_date_range: Annotated[
+        TimeRange | None,
+        doc(
+            "Return items with an itemDate within this date range. Both from and to date times are inclusive. If from "
+            "is not specified then the oldest available items will be in range. If to is not specified then the latest "
+            "items will be in range. nb. This itemDataRange is currently only applied when includeItem is set to ALL "
+            "or not specified, else items are NOT bound by itemDate. Please note: You can only retrieve account "
+            "statement items for the last 90 days."
+        ),
+    ] = None
+    include_item: Annotated[
+        IncludeItem | None,
+        doc("Which items to include, if not specified then defaults to ALL."),
+    ] = None
+    wallet: Annotated[Wallet | None, doc("Which wallet to return statementItems for. Defaults to UK")] = None
 
 
 class GetAccountStatement(_AccountRequest, kw_only=True, frozen=True):
@@ -60,7 +71,10 @@ class GetAccountStatement(_AccountRequest, kw_only=True, frozen=True):
 
 
 class _ListCurrencyRatesParams(Params, frozen=True):
-    from_currency: str | None = None  # The currency from which the rates are computed. Only GBP for now.
+    from_currency: Annotated[
+        str | None,
+        doc("The currency from which the rates are computed. Only GBP for now."),
+    ] = None
 
 
 class ListCurrencyRates(_AccountRequest, kw_only=True, frozen=True):

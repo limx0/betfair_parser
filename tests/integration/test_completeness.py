@@ -1,13 +1,15 @@
 """
 This module checks against the published betfair XML API definition files,
 if all operations, type definitions and enums are covered within this package.
-This includes checking of all parameters of operations and type definitions.
+This includes checking of all parameters of operations and type definitions,
+as well as their documented descriptions.
 """
 
+import difflib
 import keyword
 import re
 import xml.etree.ElementTree as etree
-from typing import get_args, get_origin, get_type_hints
+from typing import Annotated, get_args, get_origin, get_type_hints
 
 import pytest
 
@@ -127,6 +129,114 @@ DOCUMENTATION_ERRORS = {
     "listMarketBook": {"market_ids": "Should be set instead of list, just like all other market_ids"},
 }
 
+DESCRIPTION_OVERRIDES = {
+    # Intentional deviations of the code field descriptions from the API XML specification:
+    # Either the XML description is faulty (e.g. a copy-paste bug), or the code description
+    # intentionally rephrases or summarizes a verbose XML description. XML descriptions that
+    # just echo the field name are tolerated generically (see is_field_name_echo).
+    "AccountDetailsResponse": {"country_code": "Code description is more specific than the generic XML one"},
+    "ClearedOrderSummary": {"handicap": "XML description is a copy-paste bug (market id text on the handicap field)"},
+    "CountryCodeResult": {"country_code": "Code description is more specific than the generic XML one"},
+    "MarketFilter": {"with_orders": "Odd first-person XML phrasing rephrased in code"},
+    "MarketLineRangeInfo": {"interval": "Code intentionally summarizes the verbose XML text"},
+    "listClearedOrders": {"record_count": "Code intentionally summarizes the verbose XML text"},
+}
+
+# Stopwords ignored for the word-overlap rule of thumb
+_DESCRIPTION_STOPWORDS_TEXT = (
+    "a an the of in or and to is for by this be at only if from it on are not with as that which"
+)
+DESCRIPTION_STOPWORDS = frozenset(_DESCRIPTION_STOPWORDS_TEXT.split())
+
+
+def normalize_description(text: str) -> str:
+    """Lowercase description text, collapse whitespace and drop trailing periods for comparison."""
+    text = text.replace("\u2019", "'")
+    return re.sub(r"\s+", " ", text).strip().rstrip(".").strip().lower()
+
+
+def common_prefix_len(a, b) -> int:
+    """Length of the common prefix of two sequences (strings or word lists)."""
+    for i, (first, second) in enumerate(zip(a, b)):
+        if first != second:
+            return i
+    return min(len(a), len(b))
+
+
+def descriptions_match(code_desc: str, xml_desc: str) -> bool:
+    """Rule of thumb comparison of a code field description against the API doc text.
+
+    The texts agree, if they are equal after normalization, if one extends the other, if they
+    start with the same ~50 characters (or ~5 words, punctuation tolerated), or if they share
+    most of their significant words.
+    """
+    c, x = normalize_description(code_desc), normalize_description(xml_desc)
+    if c == x or c.startswith(x) or x.startswith(c):
+        return True
+    if common_prefix_len(c, x) >= 50:
+        return True
+    c_words, x_words = re.findall(r"[a-z0-9]+", c), re.findall(r"[a-z0-9]+", x)
+    if common_prefix_len(c_words, x_words) >= 5:
+        return True
+    c_sig, x_sig = (
+        frozenset(c_words) - DESCRIPTION_STOPWORDS,
+        frozenset(x_words) - DESCRIPTION_STOPWORDS,
+    )
+    if not c_sig or not x_sig:
+        return False
+    return len(c_sig & x_sig) / min(len(c_sig), len(x_sig)) >= 0.75
+
+
+def is_field_name_echo(xml_desc: str, xml_param_name: str) -> bool:
+    """True, if the XML description just echoes a (possibly outdated or wrong) camel case field name.
+
+    Some API doc entries never got a real description and just contain a parameter name.
+    """
+    if re.search(r"\s", xml_desc.strip()):
+        return False  # a real text, not an identifier
+    desc = re.sub(r"[^a-z0-9]", "", xml_desc.lower())
+    name = re.sub(r"[^a-z0-9]", "", xml_param_name)
+    return bool(desc) and difflib.SequenceMatcher(None, desc, name).ratio() >= 0.5
+
+
+def xml_description(xml_param) -> str:
+    """The description of a parameter as given within the API XML specification."""
+    return (xml_param.findall("description")[0].text or "").strip()
+
+
+def field_description(py_cls, p_name: str) -> str | None:
+    """The doc() description attached to a message field, if any (the field-closest one wins).
+
+    Uses the type hints of the full class hierarchy, so that inherited fields are covered as well.
+    """
+    annotation = get_type_hints(py_cls, include_extras=True).get(p_name)
+    for meta in reversed(getattr(annotation, "__metadata__", ())):
+        if desc := getattr(meta, "description", None):
+            return desc
+    return None
+
+
+def check_description(xml_param, py_cls, typedef_name) -> None:
+    """Check the documented field description against the API XML specification."""
+    xml_param_name = param_name(xml_param)
+    if DESCRIPTION_OVERRIDES.get(typedef_name, {}).get(xml_param_name):
+        # Documented exception for this description found, skip check
+        return
+    xml_desc = xml_description(xml_param)
+    if not xml_desc:
+        return  # nothing documented on the XML side to compare
+    if is_field_name_echo(xml_desc, xml_param_name):
+        # The API doc just repeats the field name: any code deviation is fine, be it that the
+        # description was left out completely or that it carries much more detailed information.
+        return
+    code_desc = field_description(py_cls, xml_param_name)
+    if not code_desc:
+        return  # nothing documented on the code side to compare
+    assert descriptions_match(code_desc, xml_desc), (
+        f"{typedef_name}.{xml_param_name}: field description deviates from the API documentation"
+        f"\n    code: {code_desc}\n    xml : {' '.join(xml_desc.split())}"
+    )
+
 
 def check_typedef_param(param, py_cls, typedef_name):
     xml_param_name = param_name(param)
@@ -138,7 +248,8 @@ def check_typedef_param(param, py_cls, typedef_name):
 
     assert py_cls is not None, f"{typedef_name} does not define parameters, but XML defines '{xml_param_name}'"
     assert is_param_defined(param, py_cls), f"{typedef_name}.{xml_param_name} not defined"
-    param_cls = py_cls.__annotations__[xml_param_name]
+    check_description(param, py_cls, typedef_name)
+    param_cls = py_type_strip_doc(py_cls.__annotations__[xml_param_name])
     if is_param_mandatory(param):
         assert not is_param_optional(param, py_cls), f"{typedef_name} fails to require {xml_param_name}"
     else:
@@ -254,8 +365,23 @@ def is_param_mandatory(xml_param) -> bool:
 
 def is_param_optional(xml_param, api_cls) -> bool:
     p_name = param_name(xml_param)
-    type_spec_str = str(api_cls.__annotations__[p_name]).replace("typing.", "")
+    type_spec_str = str(py_type_strip_doc(api_cls.__annotations__[p_name])).replace("typing.", "")
     return type_spec_str.startswith("Optional") or type_spec_str.endswith("| None")
+
+
+def py_type_strip_doc(type_def):
+    """Remove doc-only metadata (description without title) from Annotated type definitions."""
+    while hasattr(type_def, "__metadata__"):
+        titled = [m for m in type_def.__metadata__ if getattr(m, "title", None) is not None]
+        if len(titled) == len(type_def.__metadata__):
+            break  # only titled metadata left, e.g. Date
+        if titled:
+            type_def = get_args(type_def)[0]
+            for meta in titled:  # keep titled metadata, e.g. Annotated[Date, doc(...)]
+                type_def = Annotated[type_def, meta]
+            break
+        type_def = get_args(type_def)[0]  # strip doc-only metadata
+    return type_def
 
 
 def py_type_unpack(type_def):

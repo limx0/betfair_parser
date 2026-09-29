@@ -26,6 +26,7 @@ from betfair_parser.spec.common import (
     Set,
     Size,
     Venue,
+    doc,
 )
 from betfair_parser.spec.streaming.enums import LapseStatusReasonCode, MarketDataFilterFields
 
@@ -36,17 +37,44 @@ StreamRef = int | str
 
 
 class MarketFilter(BaseMessage, frozen=True):
-    bet_delay_models: Set[BetDelayModel] | None = None  # Indicates which bet delay models are applied to a market
-    betting_types: Set[MarketBettingType] | None = None  # Match the betting type of the market
-    bsp_market: bool | None = None  # If set, restrict to BSP or non-BSP markets only. If unset, return both
-    country_codes: Set[str] | None = None  # Restrict to specified country or countries. Defaults to 'GB' on error
-    event_ids: Set[EventId] | None = None  # Restrict markets by the event id associated with the market
-    event_type_ids: Set[EventTypeId] | None = None  # Restrict markets by event type associated with the market
-    market_ids: Set[MarketId] | None = None  # If no marketIds passed user will be subscribed to all markets
-    market_types: Set[MarketTypeCode] | None = None  # Restrict to markets that match the type of the market
-    race_types: Set[str] | None = None  # Harness, Flat, Hurdle, Chase, Bumper, NH Flat, Steeple or NO_VALUE
-    turn_in_play_enabled: bool | None = None  # If set, restrict to turn-inplay or non-inplay markets. Both if unset
-    venues: Set[Venue] | None = None  # Restrict by the venue associated with the market. Only for horse racing
+    bet_delay_models: Annotated[
+        Set[BetDelayModel] | None,
+        doc("Indicates which bet delay models are applied to a market"),
+    ] = None
+    betting_types: Annotated[Set[MarketBettingType] | None, doc("Match the betting type of the market")] = None
+    bsp_market: Annotated[
+        bool | None,
+        doc("If set, restrict to BSP or non-BSP markets only. If unset, return both"),
+    ] = None
+    country_codes: Annotated[
+        Set[str] | None,
+        doc("Restrict to specified country or countries. Defaults to 'GB' on error"),
+    ] = None
+    event_ids: Annotated[Set[EventId] | None, doc("Restrict markets by the event id associated with the market")] = None
+    event_type_ids: Annotated[
+        Set[EventTypeId] | None,
+        doc("Restrict markets by event type associated with the market"),
+    ] = None
+    market_ids: Annotated[
+        Set[MarketId] | None,
+        doc("If no marketIds passed user will be subscribed to all markets"),
+    ] = None
+    market_types: Annotated[
+        Set[MarketTypeCode] | None,
+        doc("Restrict to markets that match the type of the market"),
+    ] = None
+    race_types: Annotated[
+        Set[str] | None,
+        doc("Harness, Flat, Hurdle, Chase, Bumper, NH Flat, Steeple or NO_VALUE"),
+    ] = None
+    turn_in_play_enabled: Annotated[
+        bool | None,
+        doc("If set, restrict to turn-inplay or non-inplay markets. Both if unset"),
+    ] = None
+    venues: Annotated[
+        Set[Venue] | None,
+        doc("Restrict by the venue associated with the market. Only for horse racing"),
+    ] = None
 
 
 class MarketDataFilter(BaseMessage, frozen=True):
@@ -55,16 +83,27 @@ class MarketDataFilter(BaseMessage, frozen=True):
 
 
 class OrderFilter(BaseMessage, frozen=True):
-    include_overall_position: bool = True  # Return overall position (See: OrderRunnerChange.mb / OrderRunnerChange.ml)
-    customer_strategy_refs: Set[str] | None = None  # Restricts to specified customerStrategyRefs
+    include_overall_position: Annotated[
+        bool,
+        doc("Return overall position (See: OrderRunnerChange.mb / OrderRunnerChange.ml)"),
+    ] = True
+    customer_strategy_refs: Annotated[Set[str] | None, doc("Restricts to specified customerStrategyRefs")] = None
 
-    # Returns strategy positions (See: OrderRunnerChange.smc=Map<customerStrategyRef, StrategyMatchChange>)
-    # these are sent in delta format as per overall position
-    partition_matched_by_strategy_ref: bool = False
+    partition_matched_by_strategy_ref: Annotated[
+        bool,
+        doc(
+            "Returns strategy positions (See: OrderRunnerChange.smc=Map<customerStrategyRef, StrategyMatchChange>) "
+            "these are sent in delta format as per overall position"
+        ),
+    ] = False
 
-    # Internal use only & should not be set on your filter (your subscription is already locked to your account).
-    # If set subscription will fail.
-    account_ids: Set[int] | None = None
+    account_ids: Annotated[
+        Set[int] | None,
+        doc(
+            "Internal use only & should not be set on your filter (your subscription is already locked to your "
+            "account). If set subscription will fail."
+        ),
+    ] = None
 
 
 # Response objects
@@ -114,7 +153,10 @@ class PriceLadderDefinition(BaseMessage, frozen=True):
 
 class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     bet_delay: int
-    bet_delay_models: list[BetDelayModel] | None = None  # Indicates which bet delay models are applied to a market
+    bet_delay_models: Annotated[
+        list[BetDelayModel] | None,
+        doc("Indicates which bet delay models are applied to a market"),
+    ] = None
     betting_type: MarketBettingType
     bsp_market: bool
     bsp_reconciled: bool
@@ -131,17 +173,32 @@ class MarketDefinition(BaseMessage, kw_only=True, frozen=True):
     in_play: bool
     key_line_definition: KeyLineDefinition | None = None
 
-    # For Handicap and Line markets, the lines available on this market will be between the range of
-    # lineMinUnit and lineMaxUnit, in increments of the lineInterval value. e.g. If unit is runs,
-    # lineMinUnit=10, lineMaxUnit=20 and lineInterval=0.5, then valid lines include 10, 10.5, 11, 11.5 up to 20 runs.
-    line_interval: float | None = None
-    # For Handicap and Line markets, the maximum value for the outcome, in market units for this market (eg 100 runs).
-    line_max_unit: float | None = None
-    # For Handicap and Line markets, the minimum value for the outcome, in market units for this market (eg 0 runs).
-    line_min_unit: float | None = None
+    line_interval: Annotated[
+        float | None,
+        doc(
+            "For Handicap and Line markets, the lines available on this market will be between the range of "
+            "lineMinUnit and lineMaxUnit, in increments of the lineInterval value. e.g. If unit is runs, "
+            "lineMinUnit=10, lineMaxUnit=20 and lineInterval=0.5, then valid lines include 10, 10.5, 11, 11.5 up to 20 "
+            "runs."
+        ),
+    ] = None
+    line_max_unit: Annotated[
+        float | None,
+        doc(
+            "For Handicap and Line markets, the maximum value for the outcome, in market units for this market (eg 100 "
+            "runs)."
+        ),
+    ] = None
+    line_min_unit: Annotated[
+        float | None,
+        doc(
+            "For Handicap and Line markets, the minimum value for the outcome, in market units for this market (eg 0 "
+            "runs)."
+        ),
+    ] = None
 
     market_base_rate: float | None = None
-    market_id: MarketId | None = None  # Undocumented, but occasionally present
+    market_id: Annotated[MarketId | None, doc("Undocumented, but occasionally present")] = None
     market_name: str | None = None
     market_time: Date
     market_type: str
@@ -204,13 +261,13 @@ class RunnerChange(BaseMessage, frozen=True):
     batl: list[BestAvailableToLay] | None = None
     bdatb: list[BestDisplayAvailableToBack] | None = None
     bdatl: list[BestDisplayAvailableToLay] | None = None
-    spb: list[StartingPriceBack] | None = None  # Starting Price (Available To) Back
-    spl: list[StartingPriceLay] | None = None  # Starting Price (Available To) Lay
-    spn: float | None = None  # Starting Price Near
-    spf: float | None = None  # Starting Price Far
-    trd: list[Trade] | None = None  # Traded
-    ltp: float | None = None  # Last Traded Price
-    tv: float | None = None  # Total Volume
+    spb: Annotated[list[StartingPriceBack] | None, doc("Starting Price (Available To) Back")] = None
+    spl: Annotated[list[StartingPriceLay] | None, doc("Starting Price (Available To) Lay")] = None
+    spn: Annotated[float | None, doc("Starting Price Near")] = None
+    spf: Annotated[float | None, doc("Starting Price Far")] = None
+    trd: Annotated[list[Trade] | None, doc("Traded")] = None
+    ltp: Annotated[float | None, doc("Last Traded Price")] = None
+    tv: Annotated[float | None, doc("Total Volume")] = None
 
     @property
     def selection_id(self):
@@ -289,11 +346,11 @@ class RunnerChange(BaseMessage, frozen=True):
 
 class MarketChange(BaseMessage, kw_only=True, frozen=True):
     id: MarketId
-    rc: list[RunnerChange] | None = None  # Runner Changes
-    con: bool | None = None  # Conflated
-    img: bool = False  # Image
+    rc: Annotated[list[RunnerChange] | None, doc("Runner Changes")] = None
+    con: Annotated[bool | None, doc("Conflated")] = None
+    img: Annotated[bool, doc("Image")] = False
     market_definition: MarketDefinition | None = None
-    tv: float | None = None  # Traded Volume
+    tv: Annotated[float | None, doc("Traded Volume")] = None
 
     @property
     def runner_changes(self):
@@ -320,27 +377,29 @@ class Order(BaseMessage, frozen=True):
     id: BetId
     p: Price
     s: Size
-    # Side of the order. For Line markets a 'B' bet refers to a SELL line and an 'L' bet refers to a BUY line.
-    side: Literal["B", "L"]
-    status: Literal["E", "EC"]  # Status of the order (E = EXECUTABLE, EC = EXECUTION_COMPLETE)
-    pt: Literal["L", "P", "MOC"]  # Persistence Type
-    ot: Literal["L", "MOC", "LOC"]  # Order Type - codespell-ignore
-    pd: int  # Placed Date
-    bsp: float | None = None  # BSP Liability
-    rfo: str | None = None  # Order Reference
-    rfs: str | None = None  # Strategy Reference
-    rc: str | None = None  # Regulator Code
-    rac: str | None = None  # Regulator Auth Code
+    side: Annotated[
+        Literal["B", "L"],
+        doc("Side of the order. For Line markets a 'B' bet refers to a SELL line and an 'L' bet refers to a BUY line."),
+    ]
+    status: Annotated[Literal["E", "EC"], doc("Status of the order (E = EXECUTABLE, EC = EXECUTION_COMPLETE)")]
+    pt: Annotated[Literal["L", "P", "MOC"], doc("Persistence Type")]
+    ot: Annotated[Literal["L", "MOC", "LOC"], doc("Order Type")]  # codespell-ignore
+    pd: Annotated[int, doc("Placed Date")]
+    bsp: Annotated[float | None, doc("BSP Liability")] = None
+    rfo: Annotated[str | None, doc("Order Reference")] = None
+    rfs: Annotated[str | None, doc("Strategy Reference")] = None
+    rc: Annotated[str | None, doc("Regulator Code")] = None
+    rac: Annotated[str | None, doc("Regulator Auth Code")] = None
     # TODO: convert int(ms) into datetime for dates??
-    md: int | None = None  # Matched Date
-    cd: int | None = None  # Cancelled Date
-    ld: int | None = None  # Lapsed Date
-    avp: Price | None = None  # Average Price Matched
-    sm: Size | None = None  # Size Matched
-    sr: Size | None = None  # Size Remaining
-    sl: Size | None = None  # Size Lapsed
-    sc: Size | None = None  # Size Cancelled
-    sv: Size | None = None  # Size Voided
+    md: Annotated[int | None, doc("Matched Date")] = None
+    cd: Annotated[int | None, doc("Cancelled Date")] = None
+    ld: Annotated[int | None, doc("Lapsed Date")] = None
+    avp: Annotated[Price | None, doc("Average Price Matched")] = None
+    sm: Annotated[Size | None, doc("Size Matched")] = None
+    sr: Annotated[Size | None, doc("Size Remaining")] = None
+    sl: Annotated[Size | None, doc("Size Lapsed")] = None
+    sc: Annotated[Size | None, doc("Size Cancelled")] = None
+    sv: Annotated[Size | None, doc("Size Voided")] = None
     lsrc: LapseStatusReasonCode | None = None
 
     @property
@@ -469,8 +528,8 @@ class MatchedOrder(BaseMessage, array_like=True, frozen=True):
 
 
 class StrategyMatchChange(BaseMessage, frozen=True):
-    mb: list[MatchedOrder] | None = None  # Matched Backs
-    ml: list[MatchedOrder] | None = None  # Matched Lays
+    mb: Annotated[list[MatchedOrder] | None, doc("Matched Backs")] = None
+    ml: Annotated[list[MatchedOrder] | None, doc("Matched Lays")] = None
 
     @property
     def matched_backs(self):
@@ -487,10 +546,10 @@ class OrderRunnerChange(BaseMessage, frozen=True):
     id: SelectionId
     full_image: bool | None = False
     hc: Handicap | None = None
-    mb: list[MatchedOrder] | None = None  # Matched Backs
-    ml: list[MatchedOrder] | None = None  # Matched Lays
-    smc: dict[str, StrategyMatchChange] | None = None  # Strategy Matches
-    uo: list[Order] | None = None  # Unmatched Orders
+    mb: Annotated[list[MatchedOrder] | None, doc("Matched Backs")] = None
+    ml: Annotated[list[MatchedOrder] | None, doc("Matched Lays")] = None
+    smc: Annotated[dict[str, StrategyMatchChange] | None, doc("Strategy Matches")] = None
+    uo: Annotated[list[Order] | None, doc("Unmatched Orders")] = None
 
     @property
     def selection_id(self):

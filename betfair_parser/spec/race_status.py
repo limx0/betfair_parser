@@ -1,6 +1,8 @@
 from functools import partial
+from typing import Annotated
 
 from betfair_parser.spec.common import BaseMessage, Date, EndpointType, Params, Request, Response, Set, method_tag
+from betfair_parser.spec.common import doc as field_doc
 from betfair_parser.strenums import DocumentedEnum, doc
 
 
@@ -44,17 +46,23 @@ class ResponseCode(DocumentedEnum):
 
 class RaceDetails(BaseMessage, kw_only=True, frozen=True):
     # Even as these items are marked as mandatory, they seem to be missing a lot
-    meeting_id: str | None = None  # The unique Id for the meeting as returned by listEvents
-    race_id: str | None = None  # The unique Id for the race in the format meetingId.raceTime (hhmm)
-    race_status: RaceStatus | None = None  # The current status of the race.
-    last_updated: Date | None = None  # This is the time the data was last updated
-    sequence: int | None = None  # This is the unique identifier associated to each update of the data
+    meeting_id: Annotated[str | None, field_doc("The unique Id for the meeting as returned by listEvents")] = None
+    race_id: Annotated[
+        str | None,
+        field_doc("The unique Id for the race in the format meetingId.raceTime (hhmm)"),
+    ] = None
+    race_status: Annotated[RaceStatus | None, field_doc("The current status of the race.")] = None
+    last_updated: Annotated[Date | None, field_doc("This is the time the data was last updated")] = None
+    sequence: Annotated[
+        int | None,
+        field_doc("This is the unique identifier associated to each update of the data"),
+    ] = None
     response_code: ResponseCode
 
 
 class _ListRaceDetailsParams(Params, frozen=True):
-    meeting_ids: Set[str] | None = None  # Restricts the results to the specified meeting IDs.
-    race_ids: Set[str] | None = None  # Restricts the results to the specified race IDs.
+    meeting_ids: Annotated[Set[str] | None, field_doc("Restricts the results to the specified meeting IDs.")] = None
+    race_ids: Annotated[Set[str] | None, field_doc("Restricts the results to the specified race IDs.")] = None
 
 
 class ListRaceDetails(Request, kw_only=True, frozen=True, tag=scores_tag):
