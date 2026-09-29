@@ -300,10 +300,14 @@ class AsyncStream:
         return await self._reader.readline()
 
     async def close(self) -> None:
+        """Close the stream by aborting the underlying transport.
+
+        A graceful TLS shutdown (close_notify) is deliberately not used: live streams keep sending
+        application data during teardown, which would surface as `APPLICATION_DATA_AFTER_CLOSE_NOTIFY`.
+        """
         self._reader = None  # does not need to be closed explicitly
         if self._writer:
-            self._writer.close()
-            await self._writer.wait_closed()
+            self._writer.transport.abort()  # hard close - trailing stream data must not raise SSL errors
         self._writer = None
 
     async def __aenter__(self):

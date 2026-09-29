@@ -371,8 +371,12 @@ async def test_iter_changes_async_without_path():
 
 
 @pytest.mark.asyncio
-async def test_async_stream_close_is_graceful():
-    """AsyncStream.close shuts the writer down gracefully and clears reader and writer."""
+async def test_async_stream_close_aborts_transport():
+    """AsyncStream.close hard-aborts the transport and clears reader and writer.
+
+    Deliberately no graceful TLS shutdown: live streams keep sending application data during
+    teardown, which would surface as APPLICATION_DATA_AFTER_CLOSE_NOTIFY with close_notify.
+    """
     peer, sock = socket.socketpair()
     reader, writer = await asyncio.open_connection(sock=sock)
     stream = AsyncStream("fake")
