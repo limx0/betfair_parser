@@ -45,7 +45,7 @@ jobs:
         run: uvx pre-commit run --all-files
 
       - name: Run tests
-        run: uv run pytest
+        run: uv run pytest --cov=betfair_parser
 
       - name: Run doctests
         run: uv run pytest --doctest-modules betfair_parser
