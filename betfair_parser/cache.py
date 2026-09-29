@@ -11,7 +11,7 @@ Though, there is probably quite some room for further optimizations.
 
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Generic, NamedTuple, TypeAlias, TypeVar
+from typing import NamedTuple
 
 from betfair_parser.spec import betting
 from betfair_parser.spec.streaming import (
@@ -63,11 +63,10 @@ def get_selection_key_streaming(
     return SelectionKey(selection.id, selection.hc or 0.0)
 
 
-V = TypeVar("V")
-SelectionKeyTypes: TypeAlias = int | tuple[int, float] | SelectionKey
+type SelectionKeyTypes = int | tuple[int, float] | SelectionKey
 
 
-class SelectionDict(defaultdict[SelectionKey, V], Generic[V]):
+class SelectionDict[V](defaultdict[SelectionKey, V]):
     """
     A defaultdict whose real key type is SelectionKey,
     but which also lets you do d[5] or d[(5,1.0)].
@@ -104,8 +103,8 @@ class SelectionDict(defaultdict[SelectionKey, V], Generic[V]):
         return super().get(self._normalize(key), default)
 
 
-PriceVolumeMap: TypeAlias = dict[float, float]
-LadderPriceVolumeMap: TypeAlias = dict[int, LPV]
+type PriceVolumeMap = dict[float, float]
+type LadderPriceVolumeMap = dict[int, LPV]
 
 
 def ladder_update_lpv(ladder: LadderPriceVolumeMap, lpvs: list[LPV]) -> None:

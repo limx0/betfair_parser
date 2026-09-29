@@ -1,9 +1,14 @@
-from enum import Enum, _auto_null, auto
+from enum import Enum, auto
 from functools import total_ordering
 from typing import Any
 
 
-class StrEnum(str, Enum):
+# the sentinel value the enum machinery uses internally for "not yet generated" values,
+# obtained from the machinery itself to avoid depending on the private enum._auto_null
+_AUTO_NULL = auto().value
+
+
+class StrEnum(str, Enum):  # noqa: UP042 - stdlib StrEnum lowercases auto() values, but these are wire values
     """Allow the `auto()` syntax to use the defined enum key as value.
 
     Unlike in python 3.11 StrEnum, the fieldnames are not lowered.
@@ -49,7 +54,7 @@ class doc(auto):
         # needs to return auto.value, in order to trigger the auto-generation
         # mechanism.
         if self._value is None:
-            return _auto_null
+            return _AUTO_NULL
         return self
 
     @value.setter

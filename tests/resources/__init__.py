@@ -25,7 +25,7 @@ def assert_json_equal(x, y):
             assert_json_equal(x[key_x], y.get(key_x))
     elif isinstance(x, list):
         assert len(x) == len(y)
-        for item_x, item_y in zip(x, y):
+        for item_x, item_y in zip(x, y, strict=True):
             assert_json_equal(item_x, item_y)
     elif isinstance(x, str) and "T" in x and x.endswith("Z"):
         # We have a time object, that might differ in the microsecond encoding

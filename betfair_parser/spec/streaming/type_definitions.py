@@ -31,7 +31,7 @@ from betfair_parser.spec.common import (
 from betfair_parser.spec.streaming.enums import LapseStatusReasonCode, MarketDataFilterFields
 
 
-StreamRef = int | str
+type StreamRef = int | str
 
 # Request objects
 

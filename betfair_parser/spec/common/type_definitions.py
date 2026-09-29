@@ -1,5 +1,5 @@
 import datetime
-from typing import Annotated, TypeAlias
+from typing import Annotated
 
 import msgspec
 
@@ -16,7 +16,7 @@ IDType = Annotated[
 # solution, to satisfy as well the type checkers as the restrictions of msgspec. Sticking with set
 # seems to be the most correct option for now.
 
-Set: TypeAlias = set
+Set = set  # implicit alias, needs to stay subscriptable at runtime (Set[MarketId])
 
 # Type aliases as defined within the XML specification with minimalistic validation added.
 

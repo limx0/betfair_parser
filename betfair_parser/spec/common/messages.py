@@ -1,6 +1,6 @@
 import re
 from itertools import count
-from typing import Annotated, Any, ClassVar, Generic, Literal, TypeVar, get_type_hints
+from typing import Annotated, Any, ClassVar, Literal, get_type_hints
 
 import msgspec
 
@@ -245,12 +245,7 @@ class RPC(BaseMessage, omit_defaults=False, repr_omit_defaults=False, frozen=Tru
     id: int = 1
 
 
-ResultType = TypeVar("ResultType")
-ParamsType = TypeVar("ParamsType")
-ErrorCode = TypeVar("ErrorCode")
-
-
-class ExceptionDetails(BaseMessage, Generic[ErrorCode], kw_only=True, frozen=True):
+class ExceptionDetails[ErrorCode](BaseMessage, kw_only=True, frozen=True):
     error_code: ErrorCode
     error_details: Annotated[str | None, doc("The stack trace of the error")] = None
     request_uuid: str | None = msgspec.field(name="requestUUID", default=None)
@@ -288,7 +283,7 @@ class RPCError(BaseMessage, frozen=True):
         return str(self.exception_code)
 
 
-class Response(RPC, BaseResponse, Generic[ResultType], kw_only=True, frozen=True):
+class Response[ResultType](RPC, BaseResponse, kw_only=True, frozen=True):
     """RPC response. Either an error or a result."""
 
     result: ResultType | None = None

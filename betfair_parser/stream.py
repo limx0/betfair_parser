@@ -122,10 +122,8 @@ class ExchangeStream:
 
 def create_ssl_socket(hostname, timeout: float | None = None) -> ssl.SSLSocket:
     """Create ssl socket and set timeout."""
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    context.load_default_certs()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    secure_sock = context.wrap_socket(s, server_hostname=hostname)
+    secure_sock = ssl.create_default_context().wrap_socket(s, server_hostname=hostname)
     secure_sock.settimeout(timeout)
     return secure_sock
 
@@ -219,12 +217,10 @@ class AsyncStream:
 
     async def connect(self) -> None:
         url = urllib.parse.urlparse(self._endpoint)
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        context.load_default_certs()
         self._reader, self._writer = await asyncio.open_connection(
             host=url.hostname,
             port=url.port,
-            ssl=context,
+            ssl=ssl.create_default_context(),
             server_hostname=url.hostname,
             limit=1_000_000,
         )

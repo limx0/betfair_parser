@@ -1,6 +1,8 @@
 from collections import defaultdict
 from dataclasses import dataclass
 
+from betfair_parser.spec.common.enums import EndpointType
+
 
 ACCOUNTS = "https://api.betfair.com/exchange/account/json-rpc/v1/"
 BETTING = "https://api.betfair.com/exchange/betting/json-rpc/v1/"
@@ -56,8 +58,25 @@ class EndpointConfig:
     betting = BETTING
     scores = SCORES
 
-    def for_request(self, req):
-        return getattr(self, req.endpoint_type.value)
+    def for_request(self, req) -> str:
+        """Return the endpoint URL belonging to the request's endpoint type (req.endpoint_type)."""
+        match req.endpoint_type:
+            case EndpointType.IDENTITY:
+                return self.identity
+            case EndpointType.IDENTITY_CERT:
+                return self.identity_cert
+            case EndpointType.NAVIGATION:
+                return self.navigation
+            case EndpointType.HEARTBEAT:
+                return self.heartbeat
+            case EndpointType.ACCOUNTS:
+                return self.accounts
+            case EndpointType.BETTING:
+                return self.betting
+            case EndpointType.SCORES:
+                return self.scores
+            case _:
+                raise ValueError(f"Unknown endpoint type: {req.endpoint_type}")
 
     def url_for_request(self, req):
         return f"{self.for_request(req)}{req.method}"

@@ -1,5 +1,5 @@
 import re
-from typing import Literal, Union
+from typing import Literal
 
 from betfair_parser.spec.common import (
     BaseMessage,
@@ -37,7 +37,7 @@ class Event(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
     id: EventId
     country_code: str
-    children: list[Union["Group", "Event", Market]]
+    children: list["Group | Event | Market"]
 
 
 class Race(BaseMessage, tag=navigation_tag, frozen=True):
@@ -53,7 +53,7 @@ class Race(BaseMessage, tag=navigation_tag, frozen=True):
 class Group(BaseMessage, tag=navigation_tag, frozen=True):
     name: str
     id: str
-    children: list[Union["Group", Event]]
+    children: list["Group | Event"]
 
 
 class EventType(BaseMessage, tag=navigation_tag, frozen=True):
