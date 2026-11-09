@@ -306,15 +306,17 @@ class MarketSubscriptionCache(ChangeCache):
         if not mcm.mc:
             return
 
+        order_book = self.order_book
         for mc in mcm.mc:
             if mc.img:
-                self.order_book.pop(mc.id, None)
+                order_book.pop(mc.id, None)
             if mc.market_definition:
                 self.definitions[mc.id] = mc.market_definition
             if not mc.rc:
                 continue
+            book = order_book[mc.id]  # bind once per market change instead of per runner
             for rc in mc.rc:
-                self.order_book[mc.id][get_selection_key_streaming(rc)].update(rc)
+                book[get_selection_key_streaming(rc)].update(rc)
 
 
 class RunnerOrders:
@@ -380,16 +382,18 @@ class OrderSubscriptionCache(ChangeCache):
         if not ocm.oc:
             return
 
+        orders = self.orders
         for oc in ocm.oc:
             if oc.full_image:
-                self.orders.pop(oc.id, None)
+                orders.pop(oc.id, None)
             if oc.closed:
-                self.orders.pop(oc.id, None)
+                orders.pop(oc.id, None)
             if not oc.orc:
                 # on closed markets
                 continue
+            book = orders[oc.id]  # bind once per market change (re-creates the book after a pop above)
             for orc in oc.orc:
                 orc_key = get_selection_key_streaming(orc)
                 if orc.full_image:
-                    self.orders[oc.id].pop(orc_key, None)
-                self.orders[oc.id][orc_key].update(orc)
+                    book.pop(orc_key, None)
+                book[orc_key].update(orc)
