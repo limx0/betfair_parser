@@ -25,7 +25,7 @@ classifiers = [
 ]
 keywords = ["parser", "betfair", "api", "json", "streaming"]
 dependencies = [
-    "msgspec>=0.21.0",
+    "msgspec>=0.22.0",
 ]
 
 [dependency-groups]
@@ -66,6 +66,7 @@ lint.isort.lines-after-imports = 2
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers"
 filterwarnings = ["error"]
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 
 [tool.coverage.report]
