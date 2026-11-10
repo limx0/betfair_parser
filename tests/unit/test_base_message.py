@@ -35,7 +35,8 @@ REQUEST_OBJECTS = [
     ListCurrencyRates.with_params(),
     CancelOrders.with_params(market_id="10"),
     PlaceOrders.with_params(
-        market_id="123", instructions=[PlaceInstruction(order_type=OrderType.LIMIT, selection_id=123123, side=Side.BACK)]
+        market_id="123",
+        instructions=[PlaceInstruction(order_type=OrderType.LIMIT, selection_id=123123, side=Side.BACK)],
     ),
     ReplaceOrders.with_params(market_id="456", instructions=[]),
     RunnerMetaData(),
