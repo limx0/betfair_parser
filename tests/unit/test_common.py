@@ -1,5 +1,6 @@
 """Tests for field documentation metadata and its usage in validation error messages."""
 
+import json
 from typing import Annotated
 
 import msgspec
@@ -7,8 +8,15 @@ import msgspec.inspect
 import pytest
 
 from betfair_parser.exceptions import JSONError, StreamError
+from betfair_parser.spec.accounts.operations import GetAccountFunds
 from betfair_parser.spec.betting.orders import UpdateOrders
-from betfair_parser.spec.common import decode, doc, enriched_validation_error
+from betfair_parser.spec.common import (
+    Request,
+    Response,
+    decode,
+    doc,
+    enriched_validation_error,
+)
 from betfair_parser.spec.streaming import stream_decode
 
 
@@ -138,3 +146,93 @@ def test_json_schema_contains_description():
     assert schema["$defs"]["_UpdateOrdersParams"]["properties"]["marketId"]["description"] == (
         "The market id these orders are to be placed on"
     )
+
+
+def test_rpc_error_str_without_data():
+    raw = b'{"jsonrpc": "2.0", "id": 1, "error": {"code": -32700, "message": "oops"}}'
+    response = decode(raw, type=Response[int])
+    assert response.is_error
+    assert str(response.error).startswith("INVALID_JSON")
+
+
+def test_request_params_cls_fallbacks():
+    class OptionalOtherParams(Request, frozen=True):
+        params: int | None = None  # type: ignore[assignment]
+
+    class NoParams(Request, frozen=True):
+        params: None = None
+
+    assert OptionalOtherParams.params_cls is dict
+    assert NoParams.params_cls is dict
+
+
+def test_parse_response_error_without_raise():
+    request = GetAccountFunds.with_params()
+    error = {"jsonrpc": "2.0", "id": request.id, "error": {"code": -32602, "message": "DSC-0018"}}
+    error_response = request.parse_response(json.dumps(error).encode(), raise_errors=False)
+    assert error_response.exception_code.name == "INVALID_PARAMETERS"
+
+
+def test_decode_error_invalid_json():
+    with pytest.raises(JSONError, match="malformed"):
+        decode(b"nope", type=int)
+
+
+class _TagA(msgspec.Struct, frozen=True, tag_field="op", tag="a"):
+    value: int = 0
+
+
+class _TagB(msgspec.Struct, frozen=True, tag_field="op", tag="b"):
+    other: int = 0
+
+
+class _TaggedUnion(msgspec.Struct, frozen=True, tag_field="op", tag="t"):
+    u: _TagA | _TagB = _TagA()
+
+
+@pytest.mark.parametrize(
+    ["error_message", "type"],
+    [
+        ("Expected `str`, got `int`", int),  # no path in the message
+        ("Expected `str`, got `int` - at `$[0]`", int),  # index into a non-sequence root
+        ("Expected `str`, got `int` - at `$.u.nope`", _TaggedUnion),  # union without a matching field
+        ("Expected `str`, got `int` - at `$.a`", "not a type"),  # unusable type, must never mask the error
+    ],
+)
+def test_enriched_validation_error_unresolvable_path(error_message, type):
+    """Errors, whose paths can't be resolved into a documented field, keep the message unchanged."""
+    error = msgspec.ValidationError(error_message)
+    assert enriched_validation_error(error, type) == error_message
+
+
+def test_enriched_validation_error_bracket_descent_fails_keeps_field_description():
+    """A failing bracket descent keeps the field description, but drops bracket descriptions."""
+
+    class T(msgspec.Struct, frozen=True, tag_field="op", tag="t"):
+        values: Annotated[list[Annotated[int, doc("the list value")]], doc("the values")] = []
+
+    error = msgspec.ValidationError("Expected `str`, got `int` - at `$.values[0][1]`")
+    assert "(the values)" in enriched_validation_error(error, T)
+
+
+def test_enriched_validation_error_tuple_field_without_index():
+    """A tuple field reached without an index falls back to its first element type."""
+
+    class Item(msgspec.Struct, frozen=True):
+        x: Annotated[int, doc("the x value")] = 0
+
+    class T(msgspec.Struct, frozen=True, tag_field="op", tag="t"):
+        pair: Annotated[tuple[Item, Item], doc("a pair")] = (Item(), Item())
+
+    error = msgspec.ValidationError("Expected `str`, got `int` - at `$.pair.x`")
+    assert "(the x value)" in enriched_validation_error(error, T)
+
+
+def test_enriched_validation_error_dict_field_without_key():
+    """A dict field reached without a key falls back to its value type description."""
+
+    class T(msgspec.Struct, frozen=True, tag_field="op", tag="t"):
+        m: Annotated[dict[str, Annotated[int, doc("the map value")]], doc("the map")] = {}
+
+    error = msgspec.ValidationError("Expected `str`, got `int` - at `$.m.x`")
+    assert "(the map)" in enriched_validation_error(error, T)
