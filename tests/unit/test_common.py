@@ -1,6 +1,7 @@
 """Tests for field documentation metadata and its usage in validation error messages."""
 
 import json
+import re
 from typing import Annotated
 
 import msgspec
@@ -43,13 +44,37 @@ def test_field_description_available():
 
 def test_decode_error_with_description():
     raw = b'{"jsonrpc": "2.0", "id": 1, "params": {"marketId": 123, "instructions": []}}'
-    with pytest.raises(JSONError, match=r"\(The market id these orders are to be placed on\)"):
+    with pytest.raises(JSONError, match=r"got `123` \(marketId: The market id these orders are to be placed on\)"):
         decode(raw, type=UpdateOrders)
+
+
+def test_decode_error_value_truncated_to_limit():
+    raw = b'{"jsonrpc": "2.0", "id": 1, "params": {"marketId": ["' + b"x" * 120 + b'"], "instructions": []}}'
+    with pytest.raises(JSONError) as exc_info:
+        decode(raw, type=UpdateOrders)
+    match = re.search(r": got `([^`]*)`", str(exc_info.value))
+    assert match
+    assert len(match.group(1)) == 100
+    assert match.group(1).endswith("...")
+
+
+def test_decode_error_masked_key_without_value():
+    """Masked dict keys `...]` have no specific value, only the labeled description is added."""
+
+    class T(msgspec.Struct, frozen=True, rename="camel"):
+        m: Annotated[dict[str, Annotated[int, doc("the map value")]], doc("the map")] = {}
+
+    raw = b'{"m": {"a.b": "x"}}'
+    with pytest.raises(JSONError) as exc_info:
+        decode(raw, type=T)
+    message = str(exc_info.value)
+    assert ": got `" not in message
+    assert "(m: the map value)" in message
 
 
 def test_decode_error_nested_description():
     raw = b'{"jsonrpc": "2.0", "id": 1, "params": {"marketId": "1.23", "instructions": [{"unknown": 1}]}}'
-    with pytest.raises(JSONError, match=r"\(The limit of update instructions per request is 60\)"):
+    with pytest.raises(JSONError, match=r"\(instructions: The limit of update instructions per request is 60\)"):
         decode(raw, type=UpdateOrders)
 
 
@@ -88,7 +113,10 @@ def test_enriched_validation_error_consistent_union():
         value: Annotated[int, doc("agreed description")] = 0
 
     error = msgspec.ValidationError("Expected `int`, got `str` - at `$.value`")
-    assert enriched_validation_error(error, A | B) == "Expected `int`, got `str` - at `$.value` (agreed description)"
+    assert (
+        enriched_validation_error(error, A | B)
+        == "Expected `int`, got `str` - at `$.value` (value: agreed description)"
+    )
 
 
 def test_enriched_validation_error_tuple_index():
@@ -101,7 +129,7 @@ def test_enriched_validation_error_tuple_index():
         ] = None
 
     error = msgspec.ValidationError("Expected `str`, got `int` - at `$.pair[1]`")
-    assert "(second element)" in enriched_validation_error(error, T)
+    assert "(pair: second element)" in enriched_validation_error(error, T)
 
 
 def test_enriched_validation_error_masked_dict_key():
@@ -111,7 +139,7 @@ def test_enriched_validation_error_masked_dict_key():
         m: Annotated[dict[str, Annotated[int, doc("the map value")]], doc("the map")] = {}
 
     error = msgspec.ValidationError("Expected `int`, got `object` - at `$.m[...]`")
-    assert "(the map value)" in enriched_validation_error(error, T)
+    assert "(m: the map value)" in enriched_validation_error(error, T)
 
 
 def test_enriched_validation_error_nested_masked_dict_key():
@@ -121,7 +149,7 @@ def test_enriched_validation_error_nested_masked_dict_key():
         items: Annotated[list[dict[str, Annotated[int, doc("the inner value")]]], doc("the items")] = []
 
     error = msgspec.ValidationError("Expected `int`, got `object` - at `$.items[0][...]`")
-    assert "(the inner value)" in enriched_validation_error(error, T)
+    assert "(items: the inner value)" in enriched_validation_error(error, T)
 
 
 def test_enriched_validation_error_non_struct_root():
@@ -131,12 +159,15 @@ def test_enriched_validation_error_non_struct_root():
         value: Annotated[int, doc("the value")] = 0
 
     error = msgspec.ValidationError("Expected `int`, got `object` - at `$[1].value`")
-    assert "(the value)" in enriched_validation_error(error, list[T])
+    assert "(value: the value)" in enriched_validation_error(error, list[T])
 
 
 def test_stream_decode_error_with_description():
     raw = b'{"op": "status", "id": 1, "connectionsAvailable": "many"}'
-    with pytest.raises(StreamError, match=r"\(The number of connections available for this account at this moment\)"):
+    with pytest.raises(
+        StreamError,
+        match=r"got `'many'` \(connectionsAvailable: The number of connections available for this account at this moment\)",
+    ):
         stream_decode(raw)
 
 
@@ -212,7 +243,7 @@ def test_enriched_validation_error_bracket_descent_fails_keeps_field_description
         values: Annotated[list[Annotated[int, doc("the list value")]], doc("the values")] = []
 
     error = msgspec.ValidationError("Expected `str`, got `int` - at `$.values[0][1]`")
-    assert "(the values)" in enriched_validation_error(error, T)
+    assert "(values: the values)" in enriched_validation_error(error, T)
 
 
 def test_enriched_validation_error_tuple_field_without_index():
@@ -225,7 +256,7 @@ def test_enriched_validation_error_tuple_field_without_index():
         pair: Annotated[tuple[Item, Item], doc("a pair")] = (Item(), Item())
 
     error = msgspec.ValidationError("Expected `str`, got `int` - at `$.pair.x`")
-    assert "(the x value)" in enriched_validation_error(error, T)
+    assert "(x: the x value)" in enriched_validation_error(error, T)
 
 
 def test_enriched_validation_error_dict_field_without_key():
@@ -235,4 +266,4 @@ def test_enriched_validation_error_dict_field_without_key():
         m: Annotated[dict[str, Annotated[int, doc("the map value")]], doc("the map")] = {}
 
     error = msgspec.ValidationError("Expected `str`, got `int` - at `$.m.x`")
-    assert "(the map)" in enriched_validation_error(error, T)
+    assert "(m: the map)" in enriched_validation_error(error, T)

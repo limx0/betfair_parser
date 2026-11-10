@@ -10,7 +10,7 @@ import pytest
 
 from betfair_parser import client
 from betfair_parser.endpoints import ENDPOINTS
-from betfair_parser.exceptions import APIError, AccountAPINGException, IdentityError, LoginError
+from betfair_parser.exceptions import AccountAPINGException, APIError, IdentityError, LoginError
 from betfair_parser.spec.accounts import GetAccountFunds
 from tests.resources import RESOURCES_DIR
 
@@ -163,9 +163,7 @@ def test_logout_pops_token():
 def test_logout_pops_token_even_on_error():
     session = FakeSession()
     session.headers["X-Authentication"] = "tok"
-    session.respond_to(
-        "logout", identity_response(token="", product="", status="FAIL", error="INTERNAL_ERROR")
-    )
+    session.respond_to("logout", identity_response(token="", product="", status="FAIL", error="INTERNAL_ERROR"))
 
     with pytest.raises(IdentityError):
         client.logout(session)

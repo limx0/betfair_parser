@@ -132,12 +132,46 @@ def _split_segment(segment: str) -> tuple[str, list[str]]:
     return parts[0], parts[1::2]
 
 
-def enriched_validation_error(error: msgspec.ValidationError, type: Any) -> str:
+def _resolve_value(root: Any, path: str) -> Any:
+    """Resolve the value from the raw (untyped) JSON at the error path, None if not resolvable."""
+    try:
+        value = root
+        for segment in _split_error_path(path):
+            name, brackets = _split_segment(segment)
+            if name == "$":
+                if not brackets:
+                    continue
+                for bracket in brackets:
+                    value = value[int(bracket)]
+                continue
+            value = value[name]
+            for bracket in brackets:
+                if not bracket.isdigit():
+                    return None  # masked dict key `[...]` -> no specific value
+                value = value[int(bracket)]
+        return value
+    except (KeyError, IndexError, TypeError, ValueError):
+        return None
+
+
+def _format_value(value: Any, limit: int = 100) -> str:
+    """Format a raw value for error messages, truncating overly long reprs."""
+    text = repr(value)
+    return text[: limit - 3] + "..." if len(text) > limit else text
+
+
+def enriched_validation_error(error: msgspec.ValidationError, type: Any, raw: bytes | str | None = None) -> str:
     """Return a validation error message, enriched with the documented description of the failing field.
 
-    The description is appended in parentheses, e.g.::
+    The message is extended by the offending value and the description, anchored to its field name,
+    e.g.::
 
-        Expected `str`, got `int` - at `$.params.marketId` (The market id these orders are to be placed on)
+        Expected `str`, got `int` - at `$.params.marketId`: got `123` (marketId: The market id these orders are to be placed on)
+
+    The offending value requires the raw document and can only be resolved for unambiguous paths,
+    otherwise it is omitted. The description is appended in parentheses when the field is documented::
+
+        Expected `str`, got `int` - at `$.params.marketId` (marketId: The market id these orders are to be placed on)
     """
     message = str(error)
     try:
@@ -146,6 +180,7 @@ def enriched_validation_error(error: msgspec.ValidationError, type: Any) -> str:
         path = message.rsplit(" - at `", 1)[1].rstrip("`")
         info: Any = msgspec.inspect.type_info(type)
         description = None
+        label = None
         for segment in _split_error_path(path):
             name, brackets = _split_segment(segment)
             if name == "$":
@@ -155,22 +190,29 @@ def enriched_validation_error(error: msgspec.ValidationError, type: Any) -> str:
                 indexed = _descend_brackets(info, brackets)
                 if indexed is None:
                     break
-                description = indexed[0] or description
+                if indexed[0]:
+                    description = indexed[0]
                 info = indexed[1]
                 continue
             matched = _match_field(info, name)
             if matched is None:
                 break
-            description = matched[0] or description
+            if matched[0]:
+                description = matched[0]
+                label = name
             info = matched[1]
             if brackets:  # descend into the indexed items, their descriptions may be the most specific ones
                 indexed = _descend_brackets(info, brackets)
                 if indexed is None:
                     break
-                description = indexed[0] or description
+                if indexed[0]:
+                    description = indexed[0]
                 info = indexed[1]
         if description:
-            message = f"{message} ({description})"
+            value = _resolve_value(msgspec.json.decode(raw), path) if raw is not None else None
+            suffix = f": got `{_format_value(value)}`" if value is not None else ""
+            label_prefix = f"{label}: " if label else ""
+            message = f"{message}{suffix} ({label_prefix}{description})"
     except Exception:  # noqa: BLE001, S110 - error message enrichment must never mask the original error
         pass
     return message
@@ -180,7 +222,7 @@ def decode(raw: bytes, type: Any = Any) -> Any:
     try:
         return msgspec.json.decode(raw, strict=False, type=type)
     except msgspec.ValidationError as e:
-        raise JSONError(enriched_validation_error(e, type)) from e
+        raise JSONError(enriched_validation_error(e, type, raw=raw)) from e
     except msgspec.DecodeError as e:
         raise JSONError(str(e)) from e
 

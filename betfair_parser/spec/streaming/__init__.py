@@ -71,7 +71,7 @@ def stream_decode(raw: str | bytes) -> StreamMessageType:
     try:
         return _STREAM_DECODER.decode(raw)
     except msgspec.ValidationError as e:
-        raise StreamError(enriched_validation_error(e, StreamMessageType)) from e
+        raise StreamError(enriched_validation_error(e, StreamMessageType, raw=raw)) from e
     except msgspec.DecodeError as e:
         raise StreamError(str(e)) from e
 
