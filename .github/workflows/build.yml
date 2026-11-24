@@ -51,6 +51,6 @@ jobs:
         run: uv run pytest --doctest-modules betfair_parser
 
       - name: Lint GitHub Actions
-        uses: reviewdog/action-actionlint@v1.83.0  # pin to a stable release
+        uses: reviewdog/action-actionlint@v1.84.1  # pin to a stable release
         with:
           fail_level: error
